@@ -76,7 +76,6 @@ new() {
         print_info "rewrite file: ./${service}/${relative_path}"
         sed -e "s/{{SERVICE}}/$service/g" \
         -e "s/{{SERVICE_UPPER}}/$service_upper/g" \
-        -e "s/{{SERVICE_VERSION}}/$service_version/g" \
         -e "s/{{SERVICE_PORT}}/$service_port/g" \
         -e "s/{{IMAGE_BASIC_VERSION}}/$image_basic_version/g" \
         -e "s/{{IMAGE_APP_VERSION}}/$image_app_version/g" \

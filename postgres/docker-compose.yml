@@ -1,0 +1,22 @@
+services:
+  ### POSTGRES ###################################################
+  postgres:
+    hostname: postgres
+    image: sparrow-app-postgres:${IMAGE_APP_POSTGRES_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_postgres
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./postgres/:/home/sparrow/postgres/
+      - ./postgres/data/:/var/lib/postgresql/data/ # data persistence
+    ports:
+      - "${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}"
+    networks:
+      - backend

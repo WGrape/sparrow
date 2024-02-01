@@ -1,0 +1,19 @@
+services:
+  ### ZOOKEEPER ##################################################
+  zookeeper:
+    hostname: zookeeper
+    image: sparrow-app-zookeeper:${IMAGE_APP_ZOOKEEPER_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_zookeeper
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./zookeeper/:/home/sparrow/zookeeper/
+      - ./zookeeper/data/:/opt/zookeeper-${IMAGE_BASIC_ZOOKEEPER_VERSION}/data/ # data persistence
+    ports:
+      - "${ZOOKEEPER_HOST_PORT}:${ZOOKEEPER_CONTAINER_PORT}"
+    networks:
+      - backend

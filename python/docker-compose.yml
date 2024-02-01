@@ -1,0 +1,21 @@
+services:
+  ### PYTHON #####################################################
+  python:
+    hostname: python
+    image: sparrow-app-python:${IMAGE_APP_PYTHON_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_python
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./python/:/home/sparrow/python/
+      - ./python/data/:/var/data/python/ # data persistence
+    ports:
+      - "${PYTHON_HOST_PORT}:${PYTHON_CONTAINER_PORT}"
+    tty: true # python环境必须加上这个才可以
+    # command: "tail -f /dev/null" # 加上这个也可以成功
+    networks:
+      - backend

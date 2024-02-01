@@ -1,0 +1,20 @@
+services:
+  ### ETCD #######################################################
+  etcd:
+    hostname: etcd
+    image: sparrow-app-etcd:${IMAGE_APP_ETCD_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_etcd
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etcd/:/home/sparrow/etcd/
+      - ./etcd/data/:/var/data/etcd/ # data persistence
+    ports:
+      - "${ETCD_HOST_CLIENT_PORT}:${ETCD_CONTAINER_CLIENT_PORT}"
+      - "${ETCD_HOST_SERVER_PORT}:${ETCD_CONTAINER_SERVER_PORT}"
+    networks:
+      - backend

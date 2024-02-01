@@ -1,0 +1,19 @@
+services:
+  ### ETCDKEEPER #################################################
+  etcdkeeper:
+    hostname: etcdkeeper
+    image: sparrow-app-etcdkeeper:${IMAGE_APP_ETCDKEEPER_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_etcdkeeper
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etcdkeeper/:/home/sparrow/etcdkeeper/
+      - ./etcdkeeper/data/:/var/data/etcdkeeper/ # data persistence
+    ports:
+      - "${ETCDKEEPER_HOST_PORT}:${ETCDKEEPER_CONTAINER_PORT}"
+    networks:
+      - backend

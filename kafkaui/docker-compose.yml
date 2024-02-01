@@ -1,0 +1,21 @@
+services:
+  ### KAFKAUI ####################################################
+  kafkaui:
+    hostname: kafkaui
+    image: sparrow-app-kafkaui:${IMAGE_APP_KAFKAUI_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_kafkaui
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      DYNAMIC_CONFIG_ENABLED: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kafkaui/:/home/sparrow/kafkaui/
+      - ./kafkaui/templates/config.yml:/etc/kafkaui/dynamic_config.yaml
+      - ./kafkaui/data/:/var/data/kafkaui/
+    ports:
+      - "${KAFKAUI_HOST_PORT}:${KAFKAUI_CONTAINER_PORT}"
+    networks:
+      - backend

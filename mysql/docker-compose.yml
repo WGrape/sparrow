@@ -1,0 +1,25 @@
+services:
+  ### MYSQL ######################################################
+  mysql:
+    hostname: mysql
+    image: sparrow-app-mysql:${IMAGE_APP_MYSQL_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_mysql
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mysql/:/home/sparrow/mysql/
+      - ./mysql/templates/my.cnf:/etc/my.cnf
+      - ./mysql/data/:/var/lib/mysql/ # data persistence
+    ports:
+      - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
+    networks:
+      - backend

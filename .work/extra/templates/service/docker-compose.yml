@@ -1,0 +1,19 @@
+services:
+  ### {{SERVICE}} #########################################################
+  {{SERVICE}}:
+    hostname: {{SERVICE}}
+    image: sparrow-app-{{SERVICE}}:${IMAGE_APP_{{SERVICE_UPPER}}_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_{{SERVICE}}
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./{{SERVICE}}/:/home/sparrow/{{SERVICE}}/
+      - ./{{SERVICE}}/data/:/var/data/{{SERVICE}}/ # data persistence
+    ports:
+      - "${{{SERVICE_UPPER}}_PORT}:0"
+    networks:
+      - backend

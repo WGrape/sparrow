@@ -1,0 +1,23 @@
+services:
+  ### NGINX ######################################################
+  nginx:
+    hostname: nginx
+    image: sparrow-app-nginx:${IMAGE_APP_NGINX_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_nginx
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./nginx/:/home/sparrow/nginx/
+      - ./nginx/templates/nginx.conf:/etc/nginx/nginx.conf
+      - ${NGINX_WWW_PATH}:/var/www/
+      - ${NGINX_LOG_PATH}:/var/log/nginx/
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available/
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:${NGINX_CONTAINER_HTTP_PORT}"
+      - "${NGINX_HOST_HTTPS_PORT}:${NGINX_CONTAINER_HTTPS_PORT}"
+    networks:
+      - backend

@@ -1,0 +1,27 @@
+{
+    "workbench.colorTheme": "Default Dark Modern",
+    "terminal.integrated.shell.linux": "/bin/zsh",
+    "terminal.integrated.shell.osx":"/bin/zsh",
+    "terminal.integrated.fontFamily": "",
+    "editor.fontFamily": "Menlo, Monaco, 'Courier New', monospace,Meslo LG L for Powerline",
+    "php.validate.executablePath": "/usr/local/bin/php7.4",
+    "debug.allowBreakpointsEverywhere": true,
+    "shellcheck.ignorePatterns": {
+        "**/*.env.*": true
+    },
+    "intelephense.phpdoc.propertyTemplate": {
+
+        "summary": "$1",
+        "tags": [
+            "@var ${1:$SYMBOL_TYPE}"
+        ]
+    },
+    "php-docblocker.author": {
+
+        "name": "",
+        "email": ""
+    },
+    "php-docblocker.extra": [
+        "@Description"
+    ]
+}

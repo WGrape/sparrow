@@ -1,0 +1,20 @@
+# ignore system.
+.DS_Store
+.idea/
+
+# ignore any directory in the 'www' directory except for 'demo'.
+nginx/templates/www/*
+!nginx/templates/www/demo
+!nginx/templates/www/go
+!nginx/templates/www/python
+
+# ignore all logs.
+*/logs/*
+!*/logs/README.md
+
+# ignore any directory in the 'data' directory (include the sub directories).
+data/
+
+# ignore /env and /docker-compose.yml file in the root directory.
+/.env
+/docker-compose.yml

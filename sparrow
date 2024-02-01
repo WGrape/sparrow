@@ -1,0 +1,202 @@
+#!/bin/sh
+
+# cd base dir of project.
+CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
+cd $CUR_PATH
+BATH_PATH=$(pwd)
+
+# include sdk of sparrow.
+source .work/include/sdk.sh
+
+# before run sparrow command.
+before_sparrow_command() {
+    print_info "do before_sparrow_command..."
+
+    print_stage "check startable..."
+    if ! check_startable; then
+        print_error "check startable failed"
+        exit 1
+    fi
+}
+
+# after run sparrow command.
+after_sparrow_command() {
+    print_info "do after_sparrow_command..."
+}
+
+# start all services.
+start() {
+    print_info "sparrow start..."
+    
+    print_stage "stop firstly..."
+    stop
+
+    print_stage "do before_start hook..."
+    hook $CONST_HOOK_BEFORE_START all
+
+    print_stage "try to pull/build sparrow-app-{service} images..."
+    for service in "${ENABLE_SERVICE_LIST[@]}"; do
+        pull_or_build_app_image $service
+    done
+
+    print_stage "start compose..."
+    if ! docker-compose -f $CONST_SPARROW_CONFIG_COMPOSE_FILE --env-file $CONST_SPARROW_CONFIG_ENV_FILE up -d; then
+        print_error "compose failed"
+        exit 1
+    fi
+    sleep_seconds 5
+
+    print_stage "do after_start hook..."
+    hook $CONST_HOOK_AFTER_START all
+
+    print_info "sparrow start successfully"
+}
+
+# stop all services.
+stop() {
+    print_info "sparrow stop..."
+
+    print_stage "do before_stop hook..."
+    hook $CONST_HOOK_BEFORE_STOP all
+
+    print_stage "stop compose..."
+    if ! docker-compose -f $CONST_SPARROW_CONFIG_COMPOSE_FILE --env-file $CONST_SPARROW_CONFIG_ENV_FILE down; then
+        print_error "compose failed"
+        exit 1
+    fi
+
+    print_stage "do after_stop hook..."
+    hook $CONST_HOOK_AFTER_STOP all
+
+    print_info "sparrow stop successfully"
+}
+
+# restart sparrow
+restart() {
+    start
+}
+
+# stop one service.
+stopone() {
+    print_info "sparrow stop one..."
+
+    print_stage "check service param..."
+    if [ "$1" = "" ]; then
+        print_error "please input service"
+        exit 1
+    fi
+
+    print_stage "do before_stop hook..."
+    hook $CONST_HOOK_BEFORE_STOP $1
+
+    print_stage "docker stop container: sparrow_container_${CONTAINER_NAMESPACE}_${1}..."
+    docker stop "sparrow_container_${CONTAINER_NAMESPACE}_${1}"
+
+    print_stage "do after_stop hook..."
+    hook $CONST_HOOK_AFTER_STOP $1
+}
+
+# start one service.
+startone() {
+    print_info "sparrow start one..."
+    
+    print_stage "check service param..."
+    if [ "$1" = "" ]; then
+        print_error "please input service"
+        exit 1
+    fi
+
+    print_stage "stopone firstly..."
+    stopone $1
+
+    print_stage "do before_start hook..."
+    hook $CONST_HOOK_BEFORE_START $1
+
+    print_stage "try to pull/build sparrow-app-$1 images..."
+    pull_or_build_app_image $1
+
+    print_stage "compose one: $1..."
+    if ! docker-compose --env-file $CONST_SPARROW_CONFIG_ENV_FILE up -d --no-deps "$1"; then
+        print_error "$1 compose failed"
+        exit 1
+    fi
+
+    print_stage "do after_start hook..."
+    hook $CONST_HOOK_AFTER_START $1
+
+    print_info "sparrow startone successfully"
+}
+
+# update one service.
+updateone() {
+    print_info "sparrow update one..."
+
+    print_stage "check service param..."
+    if [ "$1" = "" ]; then
+        print_error "please input service"
+        exit 1
+    fi
+
+    print_stage "stopone firstly..."
+    stopone $1
+
+    print_stage "clear_service..."
+    clear_service $1
+
+    print_stage "do before_start hook..."
+    hook $CONST_HOOK_BEFORE_START $1
+
+    # build app image
+    print_stage "build sparrow-app-${1} image..."
+    if ! source "./${1}/make_app_image/run.sh"; then
+        print_error "failed to build sparrow-app-${1} image"
+        exit 1
+    fi
+
+    print_stage "compose one: $1..."
+    if ! docker-compose --env-file $CONST_SPARROW_CONFIG_ENV_FILE up -d --no-deps "$1"; then
+        print_error "$1 compose failed"
+        exit 1
+    fi
+
+    print_stage "do after_start hook..."
+    hook $CONST_HOOK_AFTER_START $1
+
+    print_info "sparrow update one successfully"
+}
+
+##################### start script exec flow #####################
+
+# before run sparrow command.
+before_sparrow_command
+
+# when run sparrow command.
+COMMAND=$1
+# core commands.
+if [ "${COMMAND}" = "start" ]; then
+    start
+elif [ "${COMMAND}" = "restart" ]; then
+    restart
+elif [ "${COMMAND}" = "stop" ]; then
+    stop
+elif [ "${COMMAND}" = "startone" ]; then
+    startone "$2"
+elif [ "${COMMAND}" = "stopone" ]; then
+    stopone "$2"
+elif [ "${COMMAND}" = "updateone" ]; then
+    updateone "$2"
+# not core commands.
+elif [ "${COMMAND}" = "clear" ]; then
+    clear_service "all"
+elif [ "${COMMAND}" = "clearone" ]; then
+    clear_service "$2"
+elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
+    sparrow_help
+else
+    echo "not support command: ${COMMAND}"
+fi
+
+# after run sparrow command.
+after_sparrow_command
+
+##################### end script exec flow #######################

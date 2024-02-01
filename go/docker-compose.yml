@@ -1,0 +1,23 @@
+services:
+  ### Go #########################################################
+  go:
+    hostname: go
+    image: sparrow-app-go:${IMAGE_APP_GO_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_go
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./go/:/home/sparrow/go/
+      - ${GO_PATH}:/go
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+      - "host.docker.internal:${DOCKER_HOST_IP}"
+    ports:
+      - "${GO_HOST_PORT}:${GO_CONTAINER_PORT}"
+    tty: true
+    networks:
+      - backend

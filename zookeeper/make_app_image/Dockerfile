@@ -1,0 +1,5 @@
+ARG FROM_PLATFORM
+ARG IMAGE_BASIC_ZOOKEEPER_VERSION
+FROM --platform=${FROM_PLATFORM} sparrow-basic-zookeeper:${IMAGE_BASIC_ZOOKEEPER_VERSION}
+
+RUN mkdir -p /var/run/sshd

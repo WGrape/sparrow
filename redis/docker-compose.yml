@@ -1,0 +1,20 @@
+services:
+  ### REDIS ######################################################
+  redis:
+    hostname: redis
+    image: sparrow-app-redis:${IMAGE_APP_REDIS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_redis
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./redis/:/home/sparrow/redis/
+      - ./redis/templates/redis.conf:/etc/redis.conf
+      - ./redis/data/:/data/ # data persistence
+    ports:
+      - "${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}"
+    networks:
+      - backend

@@ -1,0 +1,19 @@
+services:
+  ### KAFKA ######################################################
+  kafka:
+    hostname: kafka
+    image: sparrow-app-kafka:${IMAGE_APP_KAFKA_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_kafka
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kafka/:/home/sparrow/kafka/
+      - ./kafka/data/:/var/data/kafka/
+    ports:
+      - "${KAFKA_HOST_PORT}:${KAFKA_CONTAINER_PORT}"
+    networks:
+      - backend

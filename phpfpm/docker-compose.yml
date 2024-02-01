@@ -1,0 +1,24 @@
+services:
+  ### PHPFPM #####################################################
+  phpfpm:
+    hostname: phpfpm
+    image: sparrow-app-phpfpm:${IMAGE_APP_PHPFPM_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_phpfpm
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./phpfpm/:/home/sparrow/phpfpm/
+      - ./phpfpm/templates/php${PHPFPM_VERSION_MIDLEN}.ini:/usr/local/etc/php/php.ini
+      - ${PHPFPM_LOCALHOST_LARAVEL_APP_LOG_PATH}:${PHPFPM_LARAVEL_APP_LOG_PATH}
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+      - "host.docker.internal:${DOCKER_HOST_IP}"
+    ports:
+      - "${PHPFPM_HOST_PORT}:${PHPFPM_CONTAINER_PORT}"
+      - "${PHPFPM_HOST_XDEBUG_PORT}:${PHPFPM_CONTAINER_XDEBUG_PORT}"
+    networks:
+      - backend

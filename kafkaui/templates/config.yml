@@ -1,0 +1,11 @@
+auth:
+  type: DISABLED
+kafka:
+  clusters:
+  - bootstrapServers: 192.168.0.168:9092,192.168.0.168:9093
+    name: sparrow-app-kafka
+    properties: {}
+    readOnly: false
+rbac:
+  roles: []
+webclient: {}

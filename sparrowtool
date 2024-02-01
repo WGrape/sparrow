@@ -1,0 +1,160 @@
+#!/bin/sh
+
+# cd base dir of project.
+CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
+cd $CUR_PATH
+BATH_PATH=$(pwd)
+
+# include sdk of sparrow.
+source .work/include/sdk.sh
+
+# before run sparrowtool command.
+before_sparrowtool_command() {
+    print_stage "do before_sparrowtool_command..."
+}
+
+# after run sparrowtool command.
+after_sparrowtool_command() {
+    print_stage "do after_sparrowtool_command..."
+}
+
+# new something.
+new() {
+    shift # remove the first argument: new
+    while getopts "t:s:p:v:" opt; do
+    case $opt in
+        t)
+        type="$OPTARG"
+        ;;
+        s)
+        service="$OPTARG"
+        service_upper=$(echo "$service" | awk '{print toupper($0)}')
+        ;;
+        p)
+        service_port="$OPTARG"
+        ;;
+        v)
+        service_version="$OPTARG"
+        image_basic_version=$service_version
+        image_app_version=latest
+        ;;
+        \?)
+        echo "无效的选项: -$OPTARG" >&2
+        exit 1
+        ;;
+    esac
+    done
+
+    print_info "must options: type=$type, service=$service"
+    if [ "$type" == "" ] || [ "$service" == "" ]; then
+        print_error "miss option: type/service"
+        exit 1
+    fi
+
+    # create nginx site config.
+    if [ "$type" == "nginx" ]; then
+        sed -e "s/{{APP_NAME}}/$service/g" "./nginx/templates/virtual_host.conf" > "${NGINX_SITES_PATH}/$service.conf"
+        docker exec -it sparrow_container_${CONTAINER_NAMESPACE}_nginx nginx -s reload
+        exit 0
+    fi
+
+    # create service
+    if [ -d "./$service" ]; then
+        print_error "service exists!"
+        exit 1
+    elif ! mkdir -p ./$service; then
+        print_error "mkdir ./$service failed"
+        exit 1
+    elif ! cp -r "${CONST_TEMPLATE_DIR}/service/" ./$service/; then
+        print_error "cp failed"
+        exit 1
+    fi
+    files=("$CONST_SPARROW_CONFIG_ENV_FILE" "$CONST_SPARROW_CONFIG_COMPOSE_FILE" "Dockerfile" "README.md")
+    find "${CONST_TEMPLATE_SERVICE_DIR}" -type f -print0 | while IFS= read -r -d '' file; do
+        relative_path="${file#$CONST_TEMPLATE_SERVICE_DIR}"
+
+        print_info "rewrite file: ./${service}/${relative_path}"
+        sed -e "s/{{SERVICE}}/$service/g" \
+        -e "s/{{SERVICE_UPPER}}/$service_upper/g" \
+        -e "s/{{SERVICE_VERSION}}/$service_version/g" \
+        -e "s/{{SERVICE_PORT}}/$service_port/g" \
+        -e "s/{{IMAGE_BASIC_VERSION}}/$image_basic_version/g" \
+        -e "s/{{IMAGE_APP_VERSION}}/$image_app_version/g" \
+        "${CONST_TEMPLATE_SERVICE_DIR}/${relative_path}" > "./${service}/${relative_path}"
+    done
+}
+
+# search the matched variables in /env file
+search_env() {
+  shift # remove the first argument: new
+  while getopts "l:" opt; do
+  case $opt in
+      l)
+      arg=$(echo "$OPTARG" | awk '{print toupper($0)}')
+      pattern=".*$arg.*"
+      ;;
+      \?)
+      echo "无效的选项: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+  done
+
+  array=()
+  while IFS='=' read -r key value; do
+      if [[ $key =~ $pattern ]]; then
+          array+=("$key=$value")
+      fi
+  done < $CONST_SPARROW_CONFIG_ENV_FILE
+
+  sorted_array=($(printf "%s\n" "${array[@]}" | sort))
+  for element in "${sorted_array[@]}"; do
+    echo "$element"
+  done
+}
+
+# enter command
+enter() {
+    if [ "$1" == "" ]; then
+        osascript "enter.applescript"
+        return
+    fi
+
+    dir="/"
+    if [ "$1" == "go" ] || [ "$1" == "phpfpm" ]; then
+        dir="/var/www/"
+    elif [ "$1" == "nginx" ]; then
+        dir="/etc/nginx/"
+    elif [ "$1" == "kafka" ]; then
+        dir="/opt/kafka_${IMAGE_OFFICIAL_KAFKA_VERSION}/bin"
+    fi
+
+    # -u root: fix error(https://stackoverflow.com/questions/37836124/i-have-no-name-as-user-logging-into-jenkins-in-a-docker-container-that-uses-t)
+    container_name="sparrow_container_${CONTAINER_NAMESPACE}_$1"
+    print_info "docker exec -w $dir -u root -it $container_name bash"
+    docker exec -w $dir -u root -it "$container_name" bash
+}
+
+# before run sparrowtool command.
+before_sparrowtool_command
+
+# when run sparrowtool command.
+COMMAND=$1
+# core commands.
+if [ "${COMMAND}" = "upload" ]; then
+    upload "$@"
+elif [ "${COMMAND}" = "new" ]; then
+    new "$@"
+elif [ "${COMMAND}" = "env" ]; then
+    search_env "$@"
+# not core commands.
+elif [ "${COMMAND}" = "enter" ]; then
+    enter "$2"
+elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
+    sparrowtool_help
+else
+    echo "not support command: ${COMMAND} (Unknown command: ${COMMAND})"
+fi
+
+# after run sparrowtool command.
+after_sparrowtool_command

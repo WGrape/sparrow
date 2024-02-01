@@ -227,6 +227,7 @@ upenv() {
 
         key=$(echo "$line" | cut -d '=' -f1)
         value=$(echo "$line" | cut -d '=' -f2-)
+        print_info "env variable: ${key}=${value}"
         if ! eval "$key"="$value"; then
             print_error "parse env error: $line | $key | $value"
             exit 1

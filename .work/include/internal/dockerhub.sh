@@ -20,7 +20,8 @@ login() {
 # search image
 search() {
     search_image=$1
-    if docker search "$search_image" | grep -q "^$search_image"; then
+    remove_prefix_search_image=$(echo "$search_image" | sed 's/^docker.io\///')
+    if docker search "$search_image" | grep -q "^$remove_prefix_search_image"; then
         return 0  # find
     else
         return 1  # not find

@@ -1,8 +1,10 @@
-## Q&A
+# Q&A
 
-### 1、Install docker and docker-compose
+## 1. Install and start docker/docker-compose
 
-#### Linux
+### (1) Install
+
+#### a. Linux
 
 ```bash
 # 1. install docker
@@ -16,3 +18,18 @@ chmod +x /usr/local/bin/docker-compose
 # 3. install docker-compose by using yum.
 yum install -y docker-compose
 ```
+
+#### b. Mac
+
+```Docker Desktop``` Installation of mac is here : https://docs.docker.com/desktop/release-notes/#4242 (you can choose any version).
+
+### (2) Start
+
+```bash
+# Check Docker Status.
+sudo systemctl status docker
+
+# Start Docker.
+sudo systemctl start docker
+```
+

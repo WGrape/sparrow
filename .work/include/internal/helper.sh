@@ -84,7 +84,7 @@ is_linux() {
 check_startable() {
     # check docker.
     if ! docker info > /dev/null 2>&1; then
-        print_error "error: please install or start docker first, installation of mac is here : https://docs.docker.com/desktop/release-notes/#4242 (you can choose any version)."
+        print_error "error: please install or start docker first."
         exit 1
     fi
 

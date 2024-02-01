@@ -20,7 +20,6 @@ after_sparrowtool_command() {
 
 # new something.
 new() {
-    shift # remove the first argument: new
     while getopts "t:s:p:v:" opt; do
     case $opt in
         t)
@@ -83,6 +82,51 @@ new() {
     done
 }
 
+# multi upload.
+multi_upload() {
+    service_list=("$@")
+    print_info "service_list: ${service_list[@]}, count: ${#service_list[@]}"
+    for service in "${service_list[@]}"; do
+        service_upper=$(echo "$service" | awk '{print toupper($0)}')
+        print_info "current service: ${service}"
+
+        # image_basic_version
+        version_name="IMAGE_BASIC_${service_upper}_VERSION"
+        image_basic_version=$(eval echo "$"$version_name)
+        # image_app_version
+        version_name="IMAGE_APP_${service_upper}_VERSION"
+        image_app_version=$(eval echo "$"$version_name)
+
+        cmd="upload -t basic -s $service -v $image_basic_version"
+        print_info "single upload command 1: $cmd"
+        if ! ($cmd) ; then
+            print_error "single upload error 1"
+            exit 1
+        fi
+
+        cmd="upload -t basic -s $service -v $image_basic_version -r true"
+        print_info "single upload command 2: $cmd"
+        if ! ($cmd) ; then
+            print_error "single upload error 2"
+            exit 1
+        fi
+
+        cmd="upload -t app -s $service -v $image_app_version"
+        print_info "single upload command 3: $cmd"
+        if ! ($cmd) ; then
+            print_error "single upload error 3"
+            exit 1
+        fi
+
+        cmd="upload -t app -s $service -v $image_app_version -r true"
+        print_info "single upload command 4: $cmd"
+        if ! ($cmd) ; then
+            print_error "single upload error 4"
+            exit 1
+        fi
+    done
+}
+
 # search the matched variables in /env file
 search_env() {
   shift # remove the first argument: new
@@ -141,8 +185,13 @@ before_sparrowtool_command
 COMMAND=$1
 # core commands.
 if [ "${COMMAND}" = "upload" ]; then
+    shift # remove the first argument: upload
     upload "$@"
+elif [ "${COMMAND}" = "mupload" ]; then
+    shift # remove the first argument: mupload
+    multi_upload "$@"
 elif [ "${COMMAND}" = "new" ]; then
+    shift # remove the first argument: new
     new "$@"
 elif [ "${COMMAND}" = "env" ]; then
     search_env "$@"

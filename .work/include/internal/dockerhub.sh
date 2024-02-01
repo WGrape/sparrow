@@ -64,7 +64,6 @@ pull() {
 
 # upload images.
 upload() {
-    shift # remove the first argument: upload
     while getopts "t:s:v:r:" opt; do
     case $opt in
         t)

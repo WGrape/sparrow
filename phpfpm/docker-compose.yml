@@ -18,6 +18,7 @@ services:
       - "dockerhost:${DOCKER_HOST_IP}"
       - "host.docker.internal:${DOCKER_HOST_IP}"
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${PHPFPM_HOST_PORT}:${PHPFPM_CONTAINER_PORT}"
       - "${PHPFPM_HOST_XDEBUG_PORT}:${PHPFPM_CONTAINER_XDEBUG_PORT}"
     networks:

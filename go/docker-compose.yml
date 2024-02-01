@@ -17,6 +17,7 @@ services:
       - "dockerhost:${DOCKER_HOST_IP}"
       - "host.docker.internal:${DOCKER_HOST_IP}"
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${GO_HOST_PORT}:${GO_CONTAINER_PORT}"
     tty: true
     networks:

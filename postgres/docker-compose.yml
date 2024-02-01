@@ -9,14 +9,12 @@ services:
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./postgres/:/home/sparrow/postgres/
       - ./postgres/data/:/var/lib/postgresql/data/ # data persistence
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}"
     networks:
       - backend

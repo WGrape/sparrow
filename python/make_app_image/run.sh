@@ -23,6 +23,8 @@ docker build \
   --build-arg FROM_PLATFORM=${FROM_PLATFORM} \
   --build-arg IMAGE_BASIC_PYTHON_VERSION=${IMAGE_BASIC_PYTHON_VERSION} \
   \
+  --build-arg PYTHON_CONTAINER_PORT=${PYTHON_CONTAINER_PORT} \
+  \
   -f ./make_app_image/Dockerfile \
   -t sparrow-app-$service_name:${IMAGE_APP_PYTHON_VERSION} .
 

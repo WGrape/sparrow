@@ -15,6 +15,7 @@ services:
       - ./redis/templates/redis.conf:/etc/redis.conf
       - ./redis/data/:/data/ # data persistence
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}"
     networks:
       - backend

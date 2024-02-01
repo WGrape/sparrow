@@ -17,6 +17,7 @@ services:
       - ${NGINX_LOG_PATH}:/var/log/nginx/
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available/
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${NGINX_HOST_HTTP_PORT}:${NGINX_CONTAINER_HTTP_PORT}"
       - "${NGINX_HOST_HTTPS_PORT}:${NGINX_CONTAINER_HTTPS_PORT}"
     networks:

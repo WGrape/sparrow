@@ -14,8 +14,9 @@ services:
       - ./python/:/home/sparrow/python/
       - ./python/data/:/var/data/python/ # data persistence
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${PYTHON_HOST_PORT}:${PYTHON_CONTAINER_PORT}"
-    tty: true # python环境必须加上这个才可以
-    # command: "tail -f /dev/null" # 加上这个也可以成功
+    tty: true # must set the field
+    # command: "tail -f /dev/null" # only for debug
     networks:
       - backend

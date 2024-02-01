@@ -23,6 +23,11 @@ docker build \
   --build-arg FROM_PLATFORM=${FROM_PLATFORM} \
   --build-arg IMAGE_BASIC_POSTGRES_VERSION=${IMAGE_BASIC_POSTGRES_VERSION} \
   \
+  --build-arg POSTGRES_DB=${POSTGRES_DB} \
+  --build-arg POSTGRES_USER=${POSTGRES_USER} \
+  --build-arg POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+  --build-arg POSTGRES_CONTAINER_PORT=${POSTGRES_CONTAINER_PORT} \
+  \
   -f ./make_app_image/Dockerfile \
   -t sparrow-app-$service_name:${IMAGE_APP_POSTGRES_VERSION} .
 

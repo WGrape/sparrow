@@ -14,6 +14,7 @@ services:
       - ./zookeeper/:/home/sparrow/zookeeper/
       - ./zookeeper/data/:/opt/zookeeper-${IMAGE_BASIC_ZOOKEEPER_VERSION}/data/ # data persistence
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${ZOOKEEPER_HOST_PORT}:${ZOOKEEPER_CONTAINER_PORT}"
     networks:
       - backend

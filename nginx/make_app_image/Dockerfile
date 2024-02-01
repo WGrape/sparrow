@@ -34,8 +34,10 @@ ARG NGINX_PHPFPM_UPSTREAM_PORT
 RUN echo "upstream php-upstream { server ${NGINX_PHPFPM_UPSTREAM_CONTAINER}:${NGINX_PHPFPM_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
     && rm /etc/nginx/conf.d/default.conf
 
+ARG NGINX_CONTAINER_HTTP_PORT
+ENV NGINX_PORT ${NGINX_CONTAINER_HTTP_PORT}
+
 COPY ./templates/startup.sh /opt/startup.sh
 RUN sed -i 's/\r//g' /opt/startup.sh
 
-EXPOSE 80 443
 CMD ["/bin/bash", "/opt/startup.sh"]

@@ -4,6 +4,4 @@ FROM --platform=${FROM_PLATFORM} sparrow-basic-redis:${IMAGE_BASIC_REDIS_VERSION
 
 VOLUME /data
 
-ARG REDIS_PORT
-EXPOSE ${REDIS_PORT}
 CMD ["redis-server", "/etc/redis.conf"]

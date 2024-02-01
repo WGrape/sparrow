@@ -7,5 +7,19 @@ FROM --platform=${FROM_PLATFORM} sparrow-basic-mysql:${IMAGE_BASIC_MYSQL_VERSION
 # RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && chown -R mysql:root /var/lib/mysql/
 RUN chown -R mysql:root /var/lib/mysql/
 
-EXPOSE 3306
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+ARG MYSQL_ROOT_USER
+ARG MYSQL_ROOT_PASSWORD
+ARG MYSQL_DATABASE
+ENV MYSQL_USER ${MYSQL_USER}
+ENV MYSQL_PASSWORD ${MYSQL_PASSWORD}
+ENV MYSQL_ROOT_USER ${MYSQL_ROOT_USER}
+ENV MYSQL_ROOT_PASSWORD ${MYSQL_ROOT_PASSWORD}
+ENV MYSQL_DATABASE ${MYSQL_DATABASE}
+
+ARG MYSQL_CONTAINER_PORT
+ENV MYSQL_TCP_PORT ${MYSQL_CONTAINER_PORT}
+# MYSQL_TCP_PORT: https://dev.mysql.com/doc/refman/8.0/en/setting-environment-variables.html
+
 CMD ["mysqld"]

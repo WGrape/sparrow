@@ -9,13 +9,13 @@ services:
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
-      DYNAMIC_CONFIG_ENABLED: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./kafkaui/:/home/sparrow/kafkaui/
       - ./kafkaui/templates/config.yml:/etc/kafkaui/dynamic_config.yaml
       - ./kafkaui/data/:/var/data/kafkaui/
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${KAFKAUI_HOST_PORT}:${KAFKAUI_CONTAINER_PORT}"
     networks:
       - backend

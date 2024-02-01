@@ -9,17 +9,13 @@ services:
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./mysql/:/home/sparrow/mysql/
       - ./mysql/templates/my.cnf:/etc/my.cnf
       - ./mysql/data/:/var/lib/mysql/ # data persistence
     ports:
+      # You don't need to expose the port in the Dockerfile.
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
     networks:
       - backend

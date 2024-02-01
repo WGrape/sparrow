@@ -26,6 +26,7 @@ docker build \
   --build-arg REDIS_PORT=${REDIS_PORT} \
   --build-arg REDIS_PASSWORD=${REDIS_PASSWORD} \
   --build-arg REDIS_CONF_FILE=${REDIS_CONF_FILE} \
+  --build-arg REDIS_CONTAINER_PORT=${REDIS_CONTAINER_PORT} \
   \
   -f ./make_app_image/Dockerfile \
   -t sparrow-app-$service_name:${IMAGE_APP_REDIS_VERSION} .

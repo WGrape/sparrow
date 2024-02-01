@@ -187,7 +187,7 @@ RUN if [ ${PHPFPM_INSTALL_PGSQL} = true ]; then \
 ###########################################################################
 
 ARG PHPFPM_INSTALL_XDEBUG
-ARG PHPFPM_XDEBUG_PORT
+ARG PHPFPM_CONTAINER_XDEBUG_PORT
 RUN if [ ${PHPFPM_INSTALL_XDEBUG} = true ]; then \
   # Install the xdebug extension
   # https://xdebug.org/docs/compat
@@ -217,10 +217,12 @@ RUN if [ -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini ]; then \
 fi
 COPY ./templates/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
+ARG PHPFPM_CONTAINER_PORT
+ARG PHPFPM_CONTAINER_XDEBUG_PORT
 RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
   sed -i "s/xdebug.remote_host=/xdebug.client_host=/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_connect_back=0/xdebug.discover_client_host=false/" /usr/local/etc/php/conf.d/xdebug.ini && \
-  sed -i "s/xdebug.remote_port=9000/xdebug.client_port=${PHPFPM_XDEBUG_PORT}/" /usr/local/etc/php/conf.d/xdebug.ini && \
+  sed -i "s/xdebug.remote_port=${PHPFPM_CONTAINER_PORT}/xdebug.client_port=${PHPFPM_CONTAINER_XDEBUG_PORT}/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.profiler_enable=0/; xdebug.profiler_enable=0/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.profiler_output_dir=/xdebug.output_dir=/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_mode=req/; xdebug.remote_mode=req/" /usr/local/etc/php/conf.d/xdebug.ini && \
@@ -605,9 +607,5 @@ WORKDIR /var/www
 # End Stage
 FROM final_config as endstage
 # ========================================================================>
-
-ARG PHPFPM_PORT
-ARG PHPFPM_XDEBUG_PORT
-EXPOSE ${PHPFPM_PORT} ${PHPFPM_XDEBUG_PORT}
 
 CMD ["php-fpm"]

@@ -23,6 +23,13 @@ if ! docker build \
   --build-arg FROM_PLATFORM=${FROM_PLATFORM} \
   --build-arg IMAGE_BASIC_MYSQL_VERSION=${IMAGE_BASIC_MYSQL_VERSION} \
   \
+  --build-arg MYSQL_USER=${MYSQL_USER} \
+  --build-arg MYSQL_PASSWORD=${MYSQL_PASSWORD} \
+  --build-arg MYSQL_ROOT_USER=${MYSQL_ROOT_USER} \
+  --build-arg MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+  --build-arg MYSQL_DATABASE=${MYSQL_DATABASE} \
+  --build-arg MYSQL_CONTAINER_PORT=${MYSQL_CONTAINER_PORT} \
+  \
   -f ./make_app_image/Dockerfile \
   -t sparrow-app-$service_name:${IMAGE_APP_MYSQL_VERSION} . ; then
     print_error "build image failed"

@@ -22,6 +22,4 @@ COPY ./templates/main.go /dist/main.go
 
 RUN cd /dist/ && go build -o demoapp
 
-ARG GO_CONTAINER_PORT
-EXPOSE ${GO_CONTAINER_PORT}
 CMD ["./demoapp"]

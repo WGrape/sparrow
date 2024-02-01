@@ -16,6 +16,20 @@ source .work/include/sdk.sh
 # before run install command.
 before_install_command() {
     print_stage "do before_install_command..."
+
+    # check docker is installed.
+    if ! command -v docker &> /dev/null; then
+        print_info "please install docker and docker-compose firstly, reference: https://github.com/WGrape/sparrow/tree/main/.work/extra/doc/QA.md"
+
+        # install docker
+        # curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+        # install docker-compose
+        # curl -L https://github.com/docker/compose/releases/download/1.3.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+        # chmod +x /usr/local/bin/docker-compose
+    else
+        print_info "docker is already installed."
+    fi
 }
 
 # after run install command.

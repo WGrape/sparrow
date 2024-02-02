@@ -15,7 +15,12 @@ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 curl -L https://github.com/docker/compose/releases/download/1.3.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-# 3. install docker-compose by using yum.
+# 3. install docker-compose by using pip3
+pip3 install --upgrade pip
+pip3 install docker-compose
+
+# 4. install docker-compose by using yum
+# pay attention to using at least version 1.20 or higher. Using a lower version may result in a failed compose.
 yum install -y docker-compose
 ```
 

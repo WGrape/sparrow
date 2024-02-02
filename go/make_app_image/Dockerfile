@@ -20,6 +20,6 @@ WORKDIR /dist
 COPY ./templates/go.mod /dist/go.mod
 COPY ./templates/main.go /dist/main.go
 
-RUN cd /dist/ && go build -o demoapp
+RUN cd /dist/ && go mod download && go mod tidy && go build -o demoapp
 
 CMD ["./demoapp"]

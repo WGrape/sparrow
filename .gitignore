@@ -2,6 +2,9 @@
 .DS_Store
 .idea/
 
+# ignore golang.
+go.sum
+
 # ignore any directory in the 'www' directory except for 'demo'.
 nginx/templates/www/*
 !nginx/templates/www/demo

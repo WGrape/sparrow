@@ -13,7 +13,7 @@ ENV GO111MODULE=on \
 RUN GO111MODULE=on go install github.com/zeromicro/go-zero/tools/goctl@latest \
     && goctl env check --install --verbose --force \
     && goctl env install --verbose --force \
-    && goctl env check --verbose \
+    && goctl env check --verbose
 
 WORKDIR /dist
 

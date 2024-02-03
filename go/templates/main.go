@@ -16,10 +16,10 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// 获取环境变量 GO_CONTAINER_PORT，如果不存在则使用默认值 ":7080"
+	// 获取环境变量 GO_CONTAINER_PORT，如果不存在则使用默认值 ":8001"
 	port := os.Getenv("GO_CONTAINER_PORT")
 	if port == "" {
-		port = ":7080"
+		port = ":8001"
 	}
 
 	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {

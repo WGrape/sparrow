@@ -19,7 +19,7 @@ func main() {
 	// 获取环境变量 GO_CONTAINER_PORT，如果不存在则使用默认值 ":8001"
 	port := os.Getenv("GO_CONTAINER_PORT")
 	if port == "" {
-		port = 8001
+		port = "8001"
 	}
 
 	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +27,8 @@ func main() {
 	})
 
 	// 启动 HTTP 服务器，监听端口
-	fmt.Printf("Server is running on port %d\n", port)
-	err = http.ListenAndServe(fmt.Printf("127.0.0.1:%d", port), nil)
+	fmt.Printf("Server is running on port %s\n", port)
+	err = http.ListenAndServe(fmt.Printf("127.0.0.1:%s", port), nil)
 	if err != nil {
 		log.Fatal("Error:", err)
 	}

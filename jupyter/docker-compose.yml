@@ -1,0 +1,22 @@
+services:
+  ### jupyter #########################################################
+  jupyter:
+    hostname: jupyter
+    image: sparrow-app-jupyter:${IMAGE_APP_JUPYTER_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_jupyter
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./jupyter/:/home/sparrow/jupyter/
+      - ./jupyter/data/:/var/data/jupyter/ # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${JUPYTER_HOST_PORT}:${JUPYTER_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

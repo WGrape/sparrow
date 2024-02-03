@@ -37,4 +37,36 @@ The usage is the same as above, not repeated here.
 ./sparrowtool upload -t app -s etcd -v latest -r true
 ```
 
+## 2. How to create new service
 
+### (1) use sparrowtool
+
+You can use the ```sparrowtool``` to create new service. If you want to create a ```jupyter``` service, you can use this command bellow.
+
+```bash
+# if you forget command, for help.
+./sparrowtool --help
+
+./sparrowtool new -t service -s jupyter -p 8888
+```
+
+After a successful execution, there will be a directory named ```./jupyter``` under the project root directory.
+
+### (2) modify your service configuration.
+
+You must modify these image variables in ```./jupyter/.env``` file as bellow.
+
+- ```IMAGE_OFFICIAL_JUPYTER_NAME```: the official image name
+- ```IMAGE_OFFICIAL_JUPYTER_VERSION```: the official image version
+- ```IMAGE_BASIC_JUPYTER_VERSION```: the basic image name.
+- ```IMAGE_APP_JUPYTER_VERSION```: the app image name.
+
+These are must modify variables, if you have another demand, you can modify more in the ```./jupyter``` directory.
+
+### (3) add your service to ENABLE_SERVICE_LIST in /.env file.
+
+The ```ENABLE_SERVICE_LIST``` variables is defined in ```/.env``` file, you should add ```jupyter``` the new service to the variable.
+
+```
+ENABLE_SERVICE_LIST=("xxx" "xxx" "jupyter")
+```

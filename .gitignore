@@ -5,11 +5,9 @@
 # ignore golang.
 go.sum
 
-# ignore any directory in the 'www' directory except for 'demo'.
+# ignore any directory in the 'www' directory except for 'phpdemo'.
 nginx/templates/www/*
-!nginx/templates/www/demo
-!nginx/templates/www/go
-!nginx/templates/www/python
+!nginx/templates/www/phpdemo
 
 # ignore all logs.
 */logs/*

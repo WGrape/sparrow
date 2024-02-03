@@ -15,7 +15,7 @@ services:
       - ./{{SERVICE}}/data/:/var/data/{{SERVICE}}/ # data persistence
     ports:
       # You don't need to expose the port in the Dockerfile.
-      - "${{{SERVICE_UPPER}}_PORT}:0"
+      - "${{{SERVICE_UPPER}}_HOST_PORT}:${{{SERVICE_UPPER}}_CONTAINER_PORT}"
     networks:
       - backend
     # only for debug

@@ -18,3 +18,5 @@ services:
       - "${{{SERVICE_UPPER}}_PORT}:0"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

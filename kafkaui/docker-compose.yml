@@ -19,3 +19,5 @@ services:
       - "${KAFKAUI_HOST_PORT}:${KAFKAUI_CONTAINER_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

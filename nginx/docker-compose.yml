@@ -12,7 +12,6 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./nginx/:/home/sparrow/nginx/
-      - ./nginx/templates/nginx.conf:/etc/nginx/nginx.conf
       - ${NGINX_WWW_PATH}:/var/www/
       - ${NGINX_LOG_PATH}:/var/log/nginx/
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available/
@@ -22,3 +21,5 @@ services:
       - "${NGINX_HOST_HTTPS_PORT}:${NGINX_CONTAINER_HTTPS_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

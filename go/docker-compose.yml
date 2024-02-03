@@ -22,3 +22,5 @@ services:
     tty: true
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

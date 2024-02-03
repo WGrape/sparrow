@@ -18,3 +18,5 @@ services:
       - "${ZOOKEEPER_HOST_PORT}:${ZOOKEEPER_CONTAINER_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

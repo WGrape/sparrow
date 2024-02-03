@@ -18,3 +18,5 @@ services:
       - "${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

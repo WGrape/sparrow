@@ -37,6 +37,7 @@ RUN echo "upstream php-upstream { server ${NGINX_PHPFPM_UPSTREAM_CONTAINER}:${NG
 ARG NGINX_CONTAINER_HTTP_PORT
 ENV NGINX_PORT ${NGINX_CONTAINER_HTTP_PORT}
 
+COPY ./templates/nginx.conf /etc/nginx/nginx.conf
 COPY ./templates/startup.sh /opt/startup.sh
 RUN sed -i 's/\r//g' /opt/startup.sh
 

@@ -23,3 +23,5 @@ services:
       - "${PHPFPM_HOST_XDEBUG_PORT}:${PHPFPM_CONTAINER_XDEBUG_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

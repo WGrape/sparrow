@@ -18,3 +18,5 @@ services:
       - "${ETCDKEEPER_HOST_PORT}:${ETCDKEEPER_CONTAINER_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

@@ -19,3 +19,5 @@ services:
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
     networks:
       - backend
+    # only for debug
+    # command: "tail -f /dev/null"

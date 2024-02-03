@@ -8,6 +8,9 @@ go.sum
 # ignore any directory in the 'www' directory except for 'phpdemo'.
 nginx/templates/www/*
 !nginx/templates/www/phpdemo
+nginx/templates/sites/*
+!nginx/templates/sites/godemo.conf.template
+!nginx/templates/sites/phpdemo.conf.template
 
 # ignore all logs.
 */logs/*

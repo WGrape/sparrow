@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// 加载环境变量
-	err := godotenv.Load("../.env") // 注意修改路径以适应你的实际文件结构
+	err := godotenv.Load("/home/sparrow/go/.env") // 注意修改路径以适应你的实际文件结构
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}

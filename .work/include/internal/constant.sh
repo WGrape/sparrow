@@ -14,8 +14,7 @@ CONST_HOOK_BEFORE_STOP="before_stop"
 CONST_HOOK_AFTER_STOP="after_stop"
 
 # defined dir
-CONST_TEMPLATE_DIR=".work/extra/templates/"
-CONST_TEMPLATE_SERVICE_DIR=".work/extra/templates/service/"
+CONST_SERVICE_EXAMPLE_DIR=".work/extra/service_example/"
 
 # defined different config files.
 CONST_BASE_CONFIG_ENV_AMD64_FILE=".work/config/.env.amd64"

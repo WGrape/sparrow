@@ -52,7 +52,7 @@ new() {
 
     # create nginx site config.
     if [ "$type" == "nginx" ]; then
-        sed -e "s/{{APP_NAME}}/$service/g" "./nginx/templates/virtual_host.conf" > "${NGINX_SITES_PATH}/$service.conf"
+        sed -e "s/{{APP_NAME}}/$service/g" "./nginx/templates/virtual_host.conf.template" > "${NGINX_SITES_PATH}/$service.conf"
         docker exec -it sparrow_container_${CONTAINER_NAMESPACE}_nginx nginx -s reload
         exit 0
     fi
@@ -64,13 +64,13 @@ new() {
     elif ! mkdir -p ./$service; then
         print_error "mkdir ./$service failed"
         exit 1
-    elif ! cp -r "${CONST_TEMPLATE_DIR}/service/" ./$service/; then
+    elif ! cp -r "${CONST_SERVICE_EXAMPLE_DIR}/" ./$service/; then
         print_error "cp failed"
         exit 1
     fi
     files=("$CONST_SPARROW_CONFIG_ENV_FILE" "$CONST_SPARROW_CONFIG_COMPOSE_FILE" "Dockerfile" "README.md")
-    find "${CONST_TEMPLATE_SERVICE_DIR}" -type f -print0 | while IFS= read -r -d '' file; do
-        relative_path="${file#$CONST_TEMPLATE_SERVICE_DIR}"
+    find "${CONST_SERVICE_EXAMPLE_DIR}" -type f -print0 | while IFS= read -r -d '' file; do
+        relative_path="${file#$CONST_SERVICE_EXAMPLE_DIR}"
 
         print_info "rewrite file: ./${service}/${relative_path}"
         sed -e "s/{{SERVICE}}/$service/g" \
@@ -78,7 +78,7 @@ new() {
         -e "s/{{SERVICE_PORT}}/$service_port/g" \
         -e "s/{{IMAGE_BASIC_VERSION}}/$image_basic_version/g" \
         -e "s/{{IMAGE_APP_VERSION}}/$image_app_version/g" \
-        "${CONST_TEMPLATE_SERVICE_DIR}/${relative_path}" > "./${service}/${relative_path}"
+        "${CONST_SERVICE_EXAMPLE_DIR}/${relative_path}" > "./${service}/${relative_path}"
     done
 }
 

@@ -1,5 +1,7 @@
 ## Introduce
 
+When you need to install dependencies, remember to install them inside the container, so that you can use Jupyter notebook to write code normally.
+
 - [local jupyter lab](http://localhost:8888/lab/)
 - [local jupyter notebook](http://localhost:8888/tree)
 

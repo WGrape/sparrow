@@ -38,3 +38,12 @@ sudo systemctl status docker
 sudo systemctl start docker
 ```
 
+## 2. Errors
+
+## (1) failed programming external connectivity … iptables: No chain/target/match by that name”
+
+```bash
+service docker restart
+iptables -L 
+```
+

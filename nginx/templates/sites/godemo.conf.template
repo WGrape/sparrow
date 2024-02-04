@@ -1,24 +1,13 @@
 server {
-
-    listen 80;
-    listen [::]:80;
-    server_name godemo.sparrow.com;
-
-    # For https
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    ssl_certificate /etc/nginx/ssl/default.crt;
-    ssl_certificate_key /etc/nginx/ssl/default.key;
-
-    root /var/www/godemo/;
-    index index.html index.htm;
+    listen 8081;
+    server_name example.com;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ /\.ht {
-        deny all;
+        proxy_pass http://{go_server_addr}:8081;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     error_log /var/log/nginx/nginx_error.log;

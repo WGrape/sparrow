@@ -28,7 +28,7 @@ func main() {
 
 	// 启动 HTTP 服务器，监听端口
 	fmt.Printf("Server is running on port %s\n", port)
-	err = http.ListenAndServe(fmt.Sprintf("127.0.0.1:%s", port), nil)
+	err = http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), nil)
 	if err != nil {
 		log.Fatal("Error:", err)
 	}

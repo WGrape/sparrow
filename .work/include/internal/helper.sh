@@ -313,8 +313,6 @@ sparrowtool_help() {
     printf "(1) create service: ./sparrowtool new -t service -s {service_name} -p port -v version\n"
     printf "    ① params: -t(type:service) / -s(service) / -p(port) / -v(version)\n"
     printf "    ② example: ./sparrowtool new -s prometheus -p 9876 -v 0.0.98\n"
-    printf "(2) create nginx virtual host file: ./sparrowtool new -t nginx -s {app_name}\n"
-    printf "    ① params: -t(type:service) / -s(app_name)\n"
     printf "\n"
     printf "2、about image.\n"
     printf "(1) upload image: ./sparrowtool upload -t(type:app|basic) -s(service) -v(version) -r(replace)\n"

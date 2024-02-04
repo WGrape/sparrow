@@ -26,7 +26,9 @@ func main() {
 		fmt.Fprintf(w, "Hello Go!")
 	})
 
-	// 启动 HTTP 服务器，监听端口
+	// start http server
+	// listen 127.0.0.1 => only allow local requests.
+	// listen 0.0.0.0 => allow requests from any endpoint.
 	fmt.Printf("Server is running on port %s\n", port)
 	err = http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), nil)
 	if err != nil {

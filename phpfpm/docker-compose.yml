@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./phpfpm/:/home/sparrow/phpfpm/
-      - ./phpfpm/templates/php${PHPFPM_VERSION_MIDLEN}.ini:/usr/local/etc/php/php.ini
+      - ./phpfpm/data/:/var/data/phpfpm/ # data persistence
       - ${PHPFPM_LOCALHOST_LARAVEL_APP_LOG_PATH}:${PHPFPM_LARAVEL_APP_LOG_PATH}
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"

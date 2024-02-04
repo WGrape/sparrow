@@ -599,6 +599,8 @@ ENV PGID ${PHPFPM_PGID}
 RUN groupmod -o -g ${PHPFPM_PGID} www-data && \
     usermod -o -u ${PHPFPM_PUID} -g www-data www-data
 
+COPY ./templates/php${PHPFPM_VERSION_MIDLEN}.ini /usr/local/etc/php/php.ini
+
 # Configure locale.
 ARG LOCALE=POSIX
 ENV LC_ALL ${LOCALE}

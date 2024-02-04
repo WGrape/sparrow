@@ -49,12 +49,9 @@ new() {
         print_error "miss option: type/service"
         exit 1
     fi
-
-    # create nginx site config.
-    if [ "$type" == "nginx" ]; then
-        sed -e "s/{{APP_NAME}}/$service/g" "./nginx/templates/virtual_host.conf.template" > "${NGINX_SITES_PATH}/$service.conf"
-        docker exec -it sparrow_container_${CONTAINER_NAMESPACE}_nginx nginx -s reload
-        exit 0
+    if [ "$type" != "service" ]; then
+        print_error "type error: ${type}"
+        exit 1
     fi
 
     # create service
@@ -144,7 +141,15 @@ search_env() {
   done
 
   array=()
-  while IFS='=' read -r key value; do
+  while IFS= read -r line || [[ -n "$line" ]]; do
+      line=$(echo "$line" | sed 's/#.*//' | awk '{$1=$1};1')
+      if [ "$line" = "" ]; then
+          continue
+      fi
+
+      key=$(echo "$line" | cut -d '=' -f1)
+      value=$(echo "$line" | cut -d '=' -f2-)
+
       if [[ $key =~ $pattern ]]; then
           array+=("$key=$value")
       fi
@@ -164,9 +169,7 @@ enter() {
     fi
 
     dir="/"
-    if [ "$1" == "go" ] || [ "$1" == "phpfpm" ]; then
-        dir="/var/www/"
-    elif [ "$1" == "nginx" ]; then
+    if [ "$1" == "nginx" ]; then
         dir="/etc/nginx/"
     elif [ "$1" == "kafka" ]; then
         dir="/opt/kafka_${IMAGE_OFFICIAL_KAFKA_VERSION}/bin"

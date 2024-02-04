@@ -15,11 +15,9 @@ RUN go install github.com/zeromicro/go-zero/tools/goctl@latest \
     && goctl env install --verbose --force \
     && goctl env check --verbose
 
+# verify the go environment is deployed successfully, do not start the server.
 WORKDIR /dist
-
 COPY ./templates/go.mod /dist/go.mod
 COPY ./templates/main.go /dist/main.go
-
-RUN cd /dist/ && go mod download && go mod tidy && go build -o demoapp
-
-CMD ["./demoapp"]
+RUN cd /dist/ && go mod download && go mod tidy && go build -o demoapp && rm -rf /dist
+# CMD ["./demoapp"]

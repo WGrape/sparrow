@@ -10,7 +10,7 @@
             "request": "launch",
             "port": 9001,
             "pathMappings": {
-                "/var/www/phpdemo": "${workspaceFolder}" // 这里的路径自己查看一下docker的WorkingDir
+                "/var/data/phpfpm/": "${workspaceFolder}" // 这里的路径自己查看一下docker的WorkingDir
             }
         },
         {

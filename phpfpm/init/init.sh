@@ -11,10 +11,10 @@ sleep 10
 # Such as the network error, the authentication required error.
 composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 
-# Traverse all php-fpm project directories under /var/www/ and execute composer install
+# Traverse all php-fpm project directories under /var/data/phpfpm/ and execute composer install
 auto_composer_install=false
 if [ "${auto_composer_install}" = "true" ]; then
-  for dir in /var/www/*; do
+  for dir in /var/data/phpfpm/*; do
     # Check if the directory is a directory and contains a composer.json file
     if [[ -d "$dir" && -f "$dir/composer.json" ]]; then
       # Change to the project directory

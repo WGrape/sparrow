@@ -13,7 +13,6 @@ sleep_seconds 2
 testhttp() {
     # open websites.
     open "http://127.0.0.1:${ETCDKEEPER_HOST_PORT}/etcdkeeper/" # etcdkeeper
-    open "http://127.0.0.1:${GO_HOST_PORT}/test" # golang
     open "http://127.0.0.1:${KAFKAUI_HOST_PORT}/" # kafkaui
 }
 testhttp

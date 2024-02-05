@@ -5,23 +5,41 @@ CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 cd $CUR_PATH
 BATH_PATH=$(pwd)
 
+# =================================== sparrow help command ===================================
+COMMAND=$1
+if [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
+    # sparrow's help command
+    printf "welcome to sparrow\n"
+    printf "\n"
+    printf "1、Control all service.\n"
+    printf "(1) stop all services: ./sparrow stop\n"
+    printf "(2) start all services: ./sparrow start\n"
+    printf "(3) restart all services: ./sparrow restart\n"
+    printf "\n"
+    printf "2、Control one service.\n"
+    printf "(1) stop one service: ./sparrow stopone {service_name}\n"
+    printf "(2) start one service: ./sparrow startone {service_name}\n"
+    printf "(3) update one service: ./sparrow updateone {service_name}\n"
+    printf "\n"
+    printf "4、Container helper.\n"
+    printf "(1) enter all containers(Automatically open all required resources): ./sparrow enter\n"
+    printf "(2) enter one container: ./sparrow enter {service_name}\n"
+    printf "\n"
+    exit 0
+fi
+# =================================== sparrow help command ===================================
+
 # include sdk of sparrow.
 source .work/include/sdk.sh
 
-# before run sparrow command.
-before_sparrow_command() {
-    print_info "do before_sparrow_command..."
-
-    print_stage "check startable..."
-    if ! check_startable; then
-        print_error "check startable failed"
-        exit 1
+# do sparrow hook
+hook() {
+    # hook {hook_type} {service}
+    hook_file="$2/hooks/$1.sh"
+    if [ -f "${hook_file}" ]; then
+        print_info "do hook: ${hook_file}"
+        source "${hook_file}"
     fi
-}
-
-# after run sparrow command.
-after_sparrow_command() {
-    print_info "do after_sparrow_command..."
 }
 
 # start one service.
@@ -132,6 +150,38 @@ restart() {
     start
 }
 
+# before run sparrow command.
+before_sparrow_command() {
+    print_info "do before_sparrow_command..."
+
+    # check docker.
+    if ! docker info > /dev/null 2>&1; then
+        print_error "error: please install or start docker first."
+        exit 1
+    fi
+
+    # check ip.
+    local_ip=$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | sed 's/,$//' | head -n 1)
+    if [ "$local_ip" != "$DOCKER_HOST_IP" ]; then
+        print_warn "your ip: before=$DOCKER_HOST_IP, after=$local_ip"
+
+        DOCKER_HOST_IP=$local_ip  # update environment DOCKER_HOST_IP
+        if is_mac; then
+            sed -i '' "s/^DOCKER_HOST_IP=.*/DOCKER_HOST_IP=${DOCKER_HOST_IP}/g" "${CONST_SPARROW_CONFIG_ENV_FILE}"
+        elif is_linux; then
+            sed -i "s/^DOCKER_HOST_IP=.*/DOCKER_HOST_IP=${DOCKER_HOST_IP}/g" "${CONST_SPARROW_CONFIG_ENV_FILE}"
+        else
+            print_error "your local ip changed, please modify DOCKER_HOST_IP in the ${CONST_SPARROW_CONFIG_ENV_FILE} file"
+            exit 1
+        fi
+    fi
+}
+
+# after run sparrow command.
+after_sparrow_command() {
+    print_info "do after_sparrow_command..."
+}
+
 ##################### start script exec flow #####################
 
 # before run sparrow command.
@@ -146,35 +196,19 @@ elif [ "${COMMAND}" = "restart" ]; then
     restart
 elif [ "${COMMAND}" = "stop" ]; then
     stop
-elif [ "${COMMAND}" = "startone" ]; then
+elif [ "${COMMAND}" = "startone" ] || [ "${COMMAND}" = "stopone" ] || [ "${COMMAND}" = "updateone" ]; then
     if [ "$2" == "" ]; then
         print_error "check param error: miss service param"
         exit 1
     fi
-    startone "$2"
-elif [ "${COMMAND}" = "stopone" ]; then
-    if [ "$2" == "" ]; then
-        print_error "check param error: miss service param"
-        exit 1
+
+    if [ "${COMMAND}" = "startone" ]; then
+        startone "$2"
+    elif [ "${COMMAND}" = "stopone" ]; then
+        stopone "$2"
+    elif [ "${COMMAND}" = "updateone" ]; then
+        updateone "$2"
     fi
-    stopone "$2"
-elif [ "${COMMAND}" = "updateone" ]; then
-    if [ "$2" == "" ]; then
-        print_error "check param error: miss service param"
-        exit 1
-    fi
-    updateone "$2"
-# not core commands.
-elif [ "${COMMAND}" = "clear" ]; then
-    clear_service "all"
-elif [ "${COMMAND}" = "clearone" ]; then
-    if [ "$2" == "" ]; then
-        print_error "check param error: miss service param"
-        exit 1
-    fi
-    clear_service "$2"
-elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
-    sparrow_help
 else
     echo "not support command: ${COMMAND}"
 fi

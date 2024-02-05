@@ -23,6 +23,9 @@ if ! docker build \
   --build-arg FROM_PLATFORM=${FROM_PLATFORM} \
   --build-arg IMAGE_BASIC_ETCD_VERSION=${IMAGE_BASIC_ETCD_VERSION} \
   \
+  --build-arg ETCD_CLIENT_CONTAINER_PORT=${ETCD_CLIENT_CONTAINER_PORT} \
+  --build-arg ETCD_SERVER_CONTAINER_PORT=${ETCD_SERVER_CONTAINER_PORT} \
+  \
   -f ./make_app_image/Dockerfile \
   -t sparrow-app-$service_name:${IMAGE_APP_ETCD_VERSION} . ; then
     print_error "build image failed"

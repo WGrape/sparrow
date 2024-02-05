@@ -5,18 +5,51 @@ CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 cd $CUR_PATH
 BATH_PATH=$(pwd)
 
+# =================================== sparrowtool help command ===================================
+COMMAND=$1
+if [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
+    printf "welcome to sparrowtool\n"
+    printf "\n"
+    printf "1、about create.\n"
+    printf "(1) create service: ./sparrowtool new -t service -s {service_name} -p port -v version\n"
+    printf "    ① params: -t(type:service) / -s(service) / -p(port) / -v(version)\n"
+    printf "    ② example 1: ./sparrowtool new -s prometheus -p 9876 -v 0.0.98\n"
+    printf "\n"
+    printf "2、about container.\n"
+    printf "(1) enter container: ./sparrowtool enter {service?}\n"
+    printf "    ① param: if you pass nothing, if will enter all containers.\n"
+    printf "    ② example 1: ./sparrowtool enter\n"
+    printf "    ② example 2: ./sparrowtool enter go\n"
+    printf "\n"
+    printf "3、about image.\n"
+    printf "(1) upload image: ./sparrowtool upload -t(type:app|basic) -s(service) -v(version) -r(replace)\n"
+    printf "    ① param: {app}means the application image, {basic}means the basic image, {service}means the name of service.\n"
+    printf "    ② example 1: ./sparrowtool upload -t basic -s etcd -v 3.5.0\n"
+    printf "(2) mupload image: ./sparrowtool mupload {service1} {service2} ...\n"
+    printf "    ① param: mupload means multi/batch upload\n"
+    printf "    ② example 1: ./sparrowtool mupload etcd kafka mysql\n"
+    printf "\n"
+    printf "4、about env.\n"
+    printf "(1) list all matched environment variables in /env file : ./sparrowtool env -l {match_pattern}\n"
+    printf "    ① param: -l(match_pattern)\n"
+    printf "    ① example 1: ./sparrowtool env -l port\n"
+    printf "\n"
+    printf "5、about clear.\n"
+    printf "(1) clear one service or all service : ./sparrowtool clear {service?}\n"
+    printf "    ① param: if you pass nothing, if will clear all services.\n"
+    printf "    ① example 1: ./sparrowtool clear\n"
+    printf "    ② example 2: ./sparrowtool clear go\n"
+    printf "\n"
+    printf "5、about tip.\n"
+    printf "(1) show all tips : ./sparrowtool tip\n"
+    printf "\n"
+    printf "========================================================\n"
+    exit 0
+fi
+# =================================== sparrowtool help command ===================================
+
 # include sdk of sparrow.
 source .work/include/sdk.sh
-
-# before run sparrowtool command.
-before_sparrowtool_command() {
-    print_stage "do before_sparrowtool_command..."
-}
-
-# after run sparrowtool command.
-after_sparrowtool_command() {
-    print_stage "do after_sparrowtool_command..."
-}
 
 # new something.
 new() {
@@ -38,7 +71,7 @@ new() {
         image_app_version=latest
         ;;
         \?)
-        echo "无效的选项: -$OPTARG" >&2
+        echo "invalid option: -$OPTARG" >&2
         exit 1
         ;;
     esac
@@ -76,6 +109,59 @@ new() {
         -e "s/{{IMAGE_BASIC_VERSION}}/$image_basic_version/g" \
         -e "s/{{IMAGE_APP_VERSION}}/$image_app_version/g" \
         "${CONST_SERVICE_EXAMPLE_DIR}/${relative_path}" > "./${service}/${relative_path}"
+    done
+}
+
+# show some tips.
+tip() {
+    # -u root: fix error(https://stackoverflow.com/questions/37836124/i-have-no-name-as-user-logging-into-jenkins-in-a-docker-container-that-uses-t)
+    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_go bash"
+    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_nginx bash"
+    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_mysql bash"
+    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_redis bash"
+
+    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_mysql bash -c 'mysql -u ${MYSQL_ROOT_USER} -h 127.0.0.1 -p${MYSQL_ROOT_PASSWORD} -P${MYSQL_CONTAINER_PORT} --default-character-set=utf8'"
+    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_redis bash -c 'redis-cli -h 127.0.0.1 -p ${REDIS_CONTAINER_PORT} -a ${REDIS_PASSWORD}'"
+}
+
+# search the matched variables in /env file
+search_env() {
+    shift # remove the first argument: new
+    while getopts "l:" opt; do
+    case $opt in
+        l)
+        arg=$(echo "$OPTARG" | awk '{print toupper($0)}')
+        pattern=".*$arg.*"
+        ;;
+        \?)
+        echo "invalid option: -$OPTARG" >&2
+        exit 1
+        ;;
+    esac
+    done
+
+    subdirectories=$(ls -l | grep '^d' | awk '{print $9}')
+
+    for dir in $subdirectories; do
+        env_file="$dir/${CONST_SPARROW_CONFIG_ENV_FILE}"
+        if [ ! -f "$env_file" ]; then
+            continue
+        fi
+
+        printf "${dir} Service\n===========================================================\n"
+        while IFS= read -r line; do
+            # ignore comments.
+            if [[ "$line" =~ ^\# ]]; then
+                continue
+            fi
+
+            if echo "$line" | grep -q "$pattern"; then
+                key=$(echo "$line" | cut -d '=' -f1)
+                value=$(echo "$line" | cut -d '=' -f2-)
+                printf "${key}=${value}\n"
+            fi
+        done < "$env_file"
+        printf "\n"
     done
 }
 
@@ -124,61 +210,38 @@ multi_upload() {
     done
 }
 
-# search the matched variables in /env file
-search_env() {
-  shift # remove the first argument: new
-  while getopts "l:" opt; do
-  case $opt in
-      l)
-      arg=$(echo "$OPTARG" | awk '{print toupper($0)}')
-      pattern=".*$arg.*"
-      ;;
-      \?)
-      echo "无效的选项: -$OPTARG" >&2
-      exit 1
-      ;;
-  esac
-  done
+# clear service, include remove container and remove images.
+clear_service() {
+    # check service param.
+    if [ "$1" == "" ]; then
+        service_list=("${ENABLE_SERVICE_LIST[@]}")  # copy the whole array
+    else
+        service_list=($1)
+    fi
 
-  array=()
-  while IFS= read -r line || [[ -n "$line" ]]; do
-      line=$(echo "$line" | sed 's/#.*//' | awk '{$1=$1};1')
-      if [ "$line" = "" ]; then
-          continue
-      fi
+    print_info "clear service_list: ${service_list}"
+    for service in "${service_list[@]}"; do
+        # remove the $service container.
+        print_stage "stop and remove container: sparrow_container_${CONTAINER_NAMESPACE}_${service}"
+        docker stop "sparrow_container_${CONTAINER_NAMESPACE}_${service}"
+        docker rm "sparrow_container_${CONTAINER_NAMESPACE}_${service}"
 
-      key=$(echo "$line" | cut -d '=' -f1)
-      value=$(echo "$line" | cut -d '=' -f2-)
-
-      if [[ $key =~ $pattern ]]; then
-          array+=("$key=$value")
-      fi
-  done < $CONST_SPARROW_CONFIG_ENV_FILE
-
-  sorted_array=($(printf "%s\n" "${array[@]}" | sort))
-  for element in "${sorted_array[@]}"; do
-    echo "$element"
-  done
+        # remove the all version images of sparrow-basic-$service/sparrow-app-$service.
+        print_stage "removing images: sparrow-basic-$service(all version), sparrow-app-$service(all version)"
+        docker images | grep "sparrow-app-$service" | awk '{print $3}' | xargs -I {} sh -c 'if [ -n "{}" ]; then docker rmi "{}"; fi'
+        # perhaps there's no need to delete the basic image; we'll see later if this operation can be removed.
+        docker images | grep "sparrow-basic-$service" | awk '{print $3}' | xargs -I {} sh -c 'if [ -n "{}" ]; then docker rmi "{}"; fi'
+    done
 }
 
-# enter command
-enter() {
-    if [ "$1" == "" ]; then
-        osascript "enter.applescript"
-        return
-    fi
+# before run sparrowtool command.
+before_sparrowtool_command() {
+    print_stage "do before_sparrowtool_command..."
+}
 
-    dir="/"
-    if [ "$1" == "nginx" ]; then
-        dir="/etc/nginx/"
-    elif [ "$1" == "kafka" ]; then
-        dir="/opt/kafka_${IMAGE_OFFICIAL_KAFKA_VERSION}/bin"
-    fi
-
-    # -u root: fix error(https://stackoverflow.com/questions/37836124/i-have-no-name-as-user-logging-into-jenkins-in-a-docker-container-that-uses-t)
-    container_name="sparrow_container_${CONTAINER_NAMESPACE}_$1"
-    print_info "docker exec -w $dir -u root -it $container_name bash"
-    docker exec -w $dir -u root -it "$container_name" bash
+# after run sparrowtool command.
+after_sparrowtool_command() {
+    print_stage "do after_sparrowtool_command..."
 }
 
 # before run sparrowtool command.
@@ -198,11 +261,10 @@ elif [ "${COMMAND}" = "new" ]; then
     new "$@"
 elif [ "${COMMAND}" = "env" ]; then
     search_env "$@"
-# not core commands.
-elif [ "${COMMAND}" = "enter" ]; then
-    enter "$2"
-elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
-    sparrowtool_help
+elif [ "${COMMAND}" = "clear" ]; then
+    clear_service "$2"
+elif [ "${COMMAND}" = "tip" ] || [ "${COMMAND}" = "tips" ]; then
+    tip
 else
     echo "not support command: ${COMMAND} (Unknown command: ${COMMAND})"
 fi

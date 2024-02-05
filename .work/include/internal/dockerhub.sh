@@ -81,7 +81,7 @@ upload() {
         replace="$OPTARG"
         ;;
         \?)
-        echo "无效的选项: -$OPTARG" >&2
+        echo "invalid option: -$OPTARG" >&2
         exit 1
         ;;
     esac
@@ -102,7 +102,6 @@ upload() {
     print_info "tag image: $local_image => $remote_image"
     if ! docker tag "$local_image" "$remote_image"; then
         print_error "not find local_image: $local_image"
-        error_cmdtip "./sparrow updateone $(echo $image | awk -F'-' '{print $2}')"
         exit 1
     fi
 

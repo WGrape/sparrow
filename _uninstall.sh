@@ -24,16 +24,6 @@ fi
 # include sdk of sparrow.
 source .work/include/sdk.sh
 
-# before run uninstall command.
-before_uninstall_command() {
-    print_stage "do before_uninstall_command..."
-}
-
-# after run uninstall command.
-after_uninstall_command() {
-    print_stage "do after_uninstall_command..."
-}
-
 # remove files.
 remove_files() {
     print_stage "removing files..."
@@ -44,6 +34,16 @@ remove_files() {
             rm -f "./$file"
         fi
     done
+}
+
+# before run uninstall command.
+before_uninstall_command() {
+    print_stage "do before_uninstall_command..."
+}
+
+# after run uninstall command.
+after_uninstall_command() {
+    print_stage "do after_uninstall_command..."
 }
 
 ##################### start script exec flow #####################

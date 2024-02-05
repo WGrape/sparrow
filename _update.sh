@@ -13,12 +13,21 @@ BATH_PATH=$(pwd)
 # include sdk of sparrow.
 source .work/include/sdk.sh
 
+# update project.
+update_project() {
+    print_stage "git pull..."
+    if ! git pull; then
+        print_error "update project failed: git pull error"
+        exit 1
+    fi
+}
+
 # before run update command.
 before_update_command() {
     print_stage "do before_update_command..."
 
-    # check updatable.
-    if ! check_updatable; then
+    # check updatable
+    if ! git diff --quiet; then
         print_error "update failed: please don't modify any files."
         exit 1
     fi
@@ -27,15 +36,6 @@ before_update_command() {
 # after run update command.
 after_update_command() {
     print_stage "do after_update_command..."
-}
-
-# update project.
-update_project() {
-    print_stage "git pull..."
-    if ! git pull; then
-        print_error "update project failed: git pull error"
-        exit 1
-    fi
 }
 
 ##################### start script exec flow #####################

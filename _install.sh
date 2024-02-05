@@ -13,30 +13,6 @@ BATH_PATH=$(pwd)
 # include sdk of sparrow.
 source .work/include/sdk.sh
 
-# before run install command.
-before_install_command() {
-    print_stage "do before_install_command..."
-
-    # check docker is installed.
-    if ! command -v docker &> /dev/null; then
-        print_info "please install docker and docker-compose firstly, reference: https://github.com/WGrape/sparrow/tree/main/.work/extra/doc/QA.md"
-
-        # install docker
-        # curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
-
-        # install docker-compose
-        # curl -L https://github.com/docker/compose/releases/download/1.3.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-        # chmod +x /usr/local/bin/docker-compose
-    else
-        print_info "docker is already installed."
-    fi
-}
-
-# after run install command.
-after_install_command() {
-    print_stage "do after_install_command..."
-}
-
 # chmod files.
 chmod_files() {
     print_stage "do chmod_files..."
@@ -84,6 +60,30 @@ modify_files() {
     # this operation is fine because when the sdk.sh file is included at the beginning, the /env file is created.
     print_info "set GO_PATH: before($GO_PATH), after($local_go_path)"
     awk -F= '/^GO_PATH=/{OFS="="; $2="'${local_go_path}'"}1' "$CONST_SPARROW_CONFIG_ENV_FILE" > temp && mv temp "$CONST_SPARROW_CONFIG_ENV_FILE"
+}
+
+# before run install command.
+before_install_command() {
+    print_stage "do before_install_command..."
+
+    # check docker is installed.
+    if ! command -v docker &> /dev/null; then
+        print_info "please install docker and docker-compose firstly, reference: https://github.com/WGrape/sparrow/tree/main/.work/extra/doc/QA.md"
+
+        # install docker
+        # curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+        # install docker-compose
+        # curl -L https://github.com/docker/compose/releases/download/1.3.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+        # chmod +x /usr/local/bin/docker-compose
+    else
+        print_info "docker is already installed."
+    fi
+}
+
+# after run install command.
+after_install_command() {
+    print_stage "do after_install_command..."
 }
 
 ##################### start script exec flow #####################

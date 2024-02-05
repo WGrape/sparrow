@@ -15,8 +15,8 @@ services:
       - ./etcd/data/:/var/data/etcd/ # data persistence
     ports:
       # You don't need to expose the port in the Dockerfile.
-      - "${ETCD_HOST_CLIENT_PORT}:${ETCD_CONTAINER_CLIENT_PORT}"
-      - "${ETCD_HOST_SERVER_PORT}:${ETCD_CONTAINER_SERVER_PORT}"
+      - "${ETCD_CLIENT_HOST_PORT}:${ETCD_CLIENT_CONTAINER_PORT}"
+      - "${ETCD_SERVER_HOST_PORT}:${ETCD_SERVER_CONTAINER_PORT}"
     networks:
       - backend
     # only for debug

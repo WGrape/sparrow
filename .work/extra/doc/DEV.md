@@ -104,7 +104,7 @@ server {
 }
 ```
 
-## 4. The mounting of service on the host.
+## 4. The mounting of service on the host
 
 ### (1) service directory mounting
 

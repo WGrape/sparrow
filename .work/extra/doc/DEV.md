@@ -70,3 +70,48 @@ The ```ENABLE_SERVICE_LIST``` variables is defined in ```/.env``` file, you shou
 ```
 ENABLE_SERVICE_LIST=("xxx" "xxx" "jupyter")
 ```
+
+## 3、How nginx proxy pass server
+
+<img width="700" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/e9ce4bfc-cac7-4474-b1c8-07d17c16cfbe">
+
+### (1) Container Config
+
+```
+GO_HOST_PORT=8002 # port number of the host that deployed the go service.
+GO_CONTAINER_PORT=8001 # port number of go container
+
+NGINX_HOST_GO_PROXY_PORT=8004 # the host port number for nginx proxying the go service.
+NGINX_CONTAINER_GO_PROXY_PORT=8003 # the container port number for nginx proxying the go service.
+```
+
+### (2) Proxy Config
+
+```conf
+server {
+    listen {{go_proxy_port}};
+
+    location / {
+        proxy_pass http://{go_server_addr}:{{go_server_port}};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    error_log /var/log/nginx/nginx_error.log;
+    access_log /var/log/nginx/goproxy_access.log;
+}
+```
+
+## 4. The mounting of service on the host.
+
+### (1) service directory mounting
+
+Each service directory will be mounted to the /home/sparrow/{service} directory of the container.
+
+### (2) data directory mounting
+Each service has a ```data``` directory, which is the only data channel from the host to the container. For example
+
+- the persistent data of databases like MySQL and Redis will be mounted to their ```data``` directories.
+- projects based on environments such as Python/PHP/Go will be mounted to their ```ata``` directories.

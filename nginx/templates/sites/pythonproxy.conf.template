@@ -12,3 +12,18 @@ server {
     error_log /var/log/nginx/nginx_error.log;
     access_log /var/log/nginx/pythonproxy_access.log;
 }
+
+# server {
+#     listen 8003;
+#
+#     location / {
+#         proxy_pass http://172.24.0.1:8002; # notice not use the 127.0.0.1, must use the ip of the container
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#    }
+#
+#    error_log /var/log/nginx/nginx_error.log;
+#    access_log /var/log/nginx/server_access.log;
+# }

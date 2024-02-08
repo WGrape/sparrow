@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./kafka/:/home/sparrow/kafka/
-      - ./kafka/data/:/var/data/kafka/
+      - ./kafka/data/:/var/data/kafka/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${KAFKA_HOST_PORT}:${KAFKA_CONTAINER_PORT}"

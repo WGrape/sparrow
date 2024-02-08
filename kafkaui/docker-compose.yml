@@ -13,7 +13,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./kafkaui/:/home/sparrow/kafkaui/
       - ./kafkaui/templates/config.yml:/etc/kafkaui/dynamic_config.yaml
-      - ./kafkaui/data/:/var/data/kafkaui/
+      - ./kafkaui/data/:/var/data/kafkaui/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${KAFKAUI_HOST_PORT}:${KAFKAUI_CONTAINER_PORT}"

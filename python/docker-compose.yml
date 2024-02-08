@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./python/:/home/sparrow/python/
-      - ./python/data/:/var/data/python/ # data persistence
+      - ./python/data/:/var/data/python/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${PYTHON_HOST_PORT}:${PYTHON_CONTAINER_PORT}"

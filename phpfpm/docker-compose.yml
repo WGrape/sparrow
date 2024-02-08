@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./phpfpm/:/home/sparrow/phpfpm/
-      - ./phpfpm/data/:/var/data/phpfpm/ # data persistence
+      - ./phpfpm/data/:/var/data/phpfpm/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
       - ${PHPFPM_LOCALHOST_LARAVEL_APP_LOG_PATH}:${PHPFPM_LARAVEL_APP_LOG_PATH}
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"

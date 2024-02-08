@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./etcdkeeper/:/home/sparrow/etcdkeeper/
-      - ./etcdkeeper/data/:/var/data/etcdkeeper/ # data persistence
+      - ./etcdkeeper/data/:/var/data/etcdkeeper/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${ETCDKEEPER_HOST_PORT}:${ETCDKEEPER_CONTAINER_PORT}"

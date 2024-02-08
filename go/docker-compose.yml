@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./go/:/home/sparrow/go/
-      - ./go/data/:/var/data/go/ # data persistence
+      - ./go/data/:/var/data/go/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
       - ${GO_PATH}:/go
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"

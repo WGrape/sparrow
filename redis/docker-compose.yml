@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./redis/:/home/sparrow/redis/
-      - ./redis/data/:/data/ # data persistence
+      - ./redis/data/:/var/data/redis/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}"

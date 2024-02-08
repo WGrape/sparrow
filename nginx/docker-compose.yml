@@ -12,7 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./nginx/:/home/sparrow/nginx/
-      - ./nginx/data/:/var/data/nginx/ # data persistence
+      - ./nginx/data/:/var/data/nginx/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
       - ${NGINX_LOG_PATH}:/var/log/nginx/
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available/
     ports:

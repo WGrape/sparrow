@@ -5,29 +5,28 @@ CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 cd $CUR_PATH
 BATH_PATH=$(pwd)
 
-# =================================== sparrow help command ===================================
+# extract command
 COMMAND=$1
-if [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ] ; then
-    # sparrow's help command
-    printf "welcome to sparrow\n"
-    printf "\n"
-    printf "1、Control all service.\n"
-    printf "(1) stop all services: ./sparrow stop\n"
-    printf "(2) start all services: ./sparrow start\n"
-    printf "(3) restart all services: ./sparrow restart\n"
-    printf "\n"
-    printf "2、Control one service.\n"
-    printf "(1) stop one service: ./sparrow stopone {service_name}\n"
-    printf "(2) start one service: ./sparrow startone {service_name}\n"
-    printf "(3) update one service: ./sparrow updateone {service_name}\n"
-    printf "\n"
-    printf "4、Container helper.\n"
-    printf "(1) enter all containers(Automatically open all required resources): ./sparrow enter\n"
-    printf "(2) enter one container: ./sparrow enter {service_name}\n"
-    printf "\n"
-    exit 0
+if [ "${COMMAND}" = "start" ]; then
+    VAR_IS_START_COMMAND=true
+elif [ "${COMMAND}" = "restart" ]; then
+    VAR_IS_RESTART_COMMAND=true
+elif [ "${COMMAND}" = "stop" ]; then
+    VAR_IS_STOP_COMMAND=true
+elif [ "${COMMAND}" = "startone" ]; then
+    VAR_IS_STARTONE_COMMAND=true
+    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
+elif [ "${COMMAND}" = "stopone" ]; then
+    VAR_IS_STOPONE_COMMAND=true
+elif [ "${COMMAND}" = "updateone" ]; then
+    VAR_IS_UPDATEONE_COMMAND=true
+elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ]; then
+    VAR_IS_HELP_COMMAND=true
+    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
+else
+    echo "not support command: ${COMMAND} (Unknown command: ${COMMAND})"
+    exit 1
 fi
-# =================================== sparrow help command ===================================
 
 # include sdk of sparrow.
 source .work/include/sdk.sh
@@ -190,27 +189,43 @@ before_sparrow_command
 # when run sparrow command.
 COMMAND=$1
 # core commands.
-if [ "${COMMAND}" = "start" ]; then
+if "${VAR_IS_START_COMMAND}"; then
     start
-elif [ "${COMMAND}" = "restart" ]; then
+elif "${VAR_IS_RESTART_COMMAND}"; then
     restart
-elif [ "${COMMAND}" = "stop" ]; then
+elif "${VAR_IS_STOP_COMMAND}"; then
     stop
-elif [ "${COMMAND}" = "startone" ] || [ "${COMMAND}" = "stopone" ] || [ "${COMMAND}" = "updateone" ]; then
+elif [ "${VAR_IS_STARTONE_COMMAND}" = true ] || [ "${VAR_IS_STOPONE_COMMAND}" = true ] || [ "${VAR_IS_UPDATEONE_COMMAND}" = true ]; then
     if [ "$2" == "" ]; then
         print_error "check param error: miss service param"
         exit 1
     fi
 
-    if [ "${COMMAND}" = "startone" ]; then
+    if "${VAR_IS_STARTONE_COMMAND}"; then
         startone "$2"
-    elif [ "${COMMAND}" = "stopone" ]; then
+    elif "${VAR_IS_STOPONE_COMMAND}"; then
         stopone "$2"
-    elif [ "${COMMAND}" = "updateone" ]; then
+    elif "${VAR_IS_UPDATEONE_COMMAND}"; then
         updateone "$2"
     fi
-else
-    echo "not support command: ${COMMAND}"
+elif "${VAR_IS_HELP_COMMAND}" ; then
+    # sparrow's help command
+    printf "welcome to sparrow\n"
+    printf "\n"
+    printf "1、Control all service.\n"
+    printf "(1) stop all services: ./sparrow stop\n"
+    printf "(2) start all services: ./sparrow start\n"
+    printf "(3) restart all services: ./sparrow restart\n"
+    printf "\n"
+    printf "2、Control one service.\n"
+    printf "(1) stop one service: ./sparrow stopone {service_name}\n"
+    printf "(2) start one service: ./sparrow startone {service_name}\n"
+    printf "(3) update one service: ./sparrow updateone {service_name}\n"
+    printf "\n"
+    printf "4、Container helper.\n"
+    printf "(1) enter all containers(Automatically open all required resources): ./sparrow enter\n"
+    printf "(2) enter one container: ./sparrow enter {service_name}\n"
+    printf "\n"
 fi
 
 # after run sparrow command.

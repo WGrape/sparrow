@@ -49,11 +49,18 @@ sleep_seconds() {
 
 # print info message.
 print_info() {
+    if [ "$VAR_RUNTIME_NO_PRINT_MESSAGE" = "ON" ]; then
+        return 0
+    fi
     printf "\033[34m\n===== $1 =====\033[0m\n\n"
 }
 
 # print stage message.
 print_stage() {
+    if [ "$VAR_RUNTIME_NO_PRINT_MESSAGE" = "ON" ]; then
+        return 0
+    fi
+
     if [ "$STAGE_ID" = "" ]; then
         STAGE_ID=0
     fi
@@ -120,7 +127,7 @@ upenv() {
 
         key=$(echo "$line" | cut -d '=' -f1)
         value=$(echo "$line" | cut -d '=' -f2-)
-        print_info "env variable: ${key}=${value}"
+        # print_info "env variable: ${key}=${value}"
         if ! eval "$key"="$value"; then
             print_error "parse env error: $line | $key | $value"
             exit 1

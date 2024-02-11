@@ -9,12 +9,16 @@ BATH_PATH=$(pwd)
 COMMAND=$1
 if [ "${COMMAND}" = "upload" ]; then
     VAR_IS_UPLOAD_COMMAND=true
+    shift # pass all params and remove the first argument: mupload
 elif [ "${COMMAND}" = "mupload" ]; then
     VAR_IS_MUPLOAD_COMMAND=true
+    shift # pass all params and remove the first argument: mupload
 elif [ "${COMMAND}" = "new" ]; then
     VAR_IS_NEW_COMMAND=true
+    shift # pass all params and remove the first argument: mupload
 elif [ "${COMMAND}" = "env" ]; then
     VAR_IS_ENV_COMMAND=true
+    shift # pass all params and remove the first argument: mupload
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
 elif [ "${COMMAND}" = "clear" ]; then
     VAR_IS_CLEAR_COMMAND=true
@@ -104,9 +108,48 @@ tip() {
     echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_redis bash -c 'redis-cli -h 127.0.0.1 -p ${REDIS_CONTAINER_PORT} -a ${REDIS_PASSWORD}'"
 }
 
+# help document.
+help() {
+    printf "welcome to sparrowtool\n"
+    printf "\n"
+    printf "1、about create.\n"
+    printf "(1) create service: ./sparrowtool new -t service -s {service_name} -p port -v version\n"
+    printf "    ① params: -t(type:service) / -s(service) / -p(port) / -v(version)\n"
+    printf "    ② example 1: ./sparrowtool new -s prometheus -p 9876 -v 0.0.98\n"
+    printf "\n"
+    printf "2、about container.\n"
+    printf "(1) enter container: ./sparrowtool enter {service?}\n"
+    printf "    ① param: if you pass nothing, if will enter all containers.\n"
+    printf "    ② example 1: ./sparrowtool enter\n"
+    printf "    ② example 2: ./sparrowtool enter go\n"
+    printf "\n"
+    printf "3、about image.\n"
+    printf "(1) upload image: ./sparrowtool upload -t(type:app|basic) -s(service) -v(version) -r(replace)\n"
+    printf "    ① param: {app}means the application image, {basic}means the basic image, {service}means the name of service.\n"
+    printf "    ② example 1: ./sparrowtool upload -t basic -s etcd -v 3.5.0\n"
+    printf "(2) mupload image: ./sparrowtool mupload {service1} {service2} ...\n"
+    printf "    ① param: mupload means multi/batch upload\n"
+    printf "    ② example 1: ./sparrowtool mupload etcd kafka mysql\n"
+    printf "\n"
+    printf "4、about env.\n"
+    printf "(1) list all matched environment variables in /env file : ./sparrowtool env -l {match_pattern}\n"
+    printf "    ① param: -l(match_pattern)\n"
+    printf "    ① example 1: ./sparrowtool env -l port\n"
+    printf "\n"
+    printf "5、about clear.\n"
+    printf "(1) clear one service or all service : ./sparrowtool clear {service?}\n"
+    printf "    ① param: if you pass nothing, if will clear all services.\n"
+    printf "    ① example 1: ./sparrowtool clear\n"
+    printf "    ② example 2: ./sparrowtool clear go\n"
+    printf "\n"
+    printf "5、about tip.\n"
+    printf "(1) show all tips : ./sparrowtool tip\n"
+    printf "\n"
+    printf "========================================================\n"
+}
+
 # search the matched variables in /env file
 search_env() {
-    shift # remove the first argument: new
     while getopts "l:" opt; do
     case $opt in
         l)
@@ -228,13 +271,10 @@ before_sparrowtool_command
 
 # when run sparrowtool command.
 if "${VAR_IS_UPLOAD_COMMAND}"; then
-    shift # remove the first argument: upload
     upload "$@"
 elif "${VAR_IS_MUPLOAD_COMMAND}"; then
-    shift # remove the first argument: mupload
     multi_upload "$@"
 elif "${VAR_IS_NEW_COMMAND}"; then
-    shift # remove the first argument: new
     new "$@"
 elif "${VAR_IS_ENV_COMMAND}"; then
     search_env "$@"
@@ -243,42 +283,7 @@ elif "${VAR_IS_CLEAR_COMMAND}"; then
 elif "${VAR_IS_TIP_COMMAND}"; then
     tip
 elif "${VAR_IS_HELP_COMMAND}"; then
-    printf "welcome to sparrowtool\n"
-    printf "\n"
-    printf "1、about create.\n"
-    printf "(1) create service: ./sparrowtool new -t service -s {service_name} -p port -v version\n"
-    printf "    ① params: -t(type:service) / -s(service) / -p(port) / -v(version)\n"
-    printf "    ② example 1: ./sparrowtool new -s prometheus -p 9876 -v 0.0.98\n"
-    printf "\n"
-    printf "2、about container.\n"
-    printf "(1) enter container: ./sparrowtool enter {service?}\n"
-    printf "    ① param: if you pass nothing, if will enter all containers.\n"
-    printf "    ② example 1: ./sparrowtool enter\n"
-    printf "    ② example 2: ./sparrowtool enter go\n"
-    printf "\n"
-    printf "3、about image.\n"
-    printf "(1) upload image: ./sparrowtool upload -t(type:app|basic) -s(service) -v(version) -r(replace)\n"
-    printf "    ① param: {app}means the application image, {basic}means the basic image, {service}means the name of service.\n"
-    printf "    ② example 1: ./sparrowtool upload -t basic -s etcd -v 3.5.0\n"
-    printf "(2) mupload image: ./sparrowtool mupload {service1} {service2} ...\n"
-    printf "    ① param: mupload means multi/batch upload\n"
-    printf "    ② example 1: ./sparrowtool mupload etcd kafka mysql\n"
-    printf "\n"
-    printf "4、about env.\n"
-    printf "(1) list all matched environment variables in /env file : ./sparrowtool env -l {match_pattern}\n"
-    printf "    ① param: -l(match_pattern)\n"
-    printf "    ① example 1: ./sparrowtool env -l port\n"
-    printf "\n"
-    printf "5、about clear.\n"
-    printf "(1) clear one service or all service : ./sparrowtool clear {service?}\n"
-    printf "    ① param: if you pass nothing, if will clear all services.\n"
-    printf "    ① example 1: ./sparrowtool clear\n"
-    printf "    ② example 2: ./sparrowtool clear go\n"
-    printf "\n"
-    printf "5、about tip.\n"
-    printf "(1) show all tips : ./sparrowtool tip\n"
-    printf "\n"
-    printf "========================================================\n"
+    help
 fi
 
 # after run sparrowtool command.

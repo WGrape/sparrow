@@ -149,6 +149,27 @@ restart() {
     start
 }
 
+# help document.
+help() {
+    # sparrow's help command
+    printf "welcome to sparrow\n"
+    printf "\n"
+    printf "1、Control all service.\n"
+    printf "(1) stop all services: ./sparrow stop\n"
+    printf "(2) start all services: ./sparrow start\n"
+    printf "(3) restart all services: ./sparrow restart\n"
+    printf "\n"
+    printf "2、Control one service.\n"
+    printf "(1) stop one service: ./sparrow stopone {service_name}\n"
+    printf "(2) start one service: ./sparrow startone {service_name}\n"
+    printf "(3) update one service: ./sparrow updateone {service_name}\n"
+    printf "\n"
+    printf "4、Container helper.\n"
+    printf "(1) enter all containers(Automatically open all required resources): ./sparrow enter\n"
+    printf "(2) enter one container: ./sparrow enter {service_name}\n"
+    printf "\n"
+}
+
 # before run sparrow command.
 before_sparrow_command() {
     print_info "do before_sparrow_command..."
@@ -209,23 +230,7 @@ elif [ "${VAR_IS_STARTONE_COMMAND}" = true ] || [ "${VAR_IS_STOPONE_COMMAND}" = 
         updateone "$2"
     fi
 elif "${VAR_IS_HELP_COMMAND}" ; then
-    # sparrow's help command
-    printf "welcome to sparrow\n"
-    printf "\n"
-    printf "1、Control all service.\n"
-    printf "(1) stop all services: ./sparrow stop\n"
-    printf "(2) start all services: ./sparrow start\n"
-    printf "(3) restart all services: ./sparrow restart\n"
-    printf "\n"
-    printf "2、Control one service.\n"
-    printf "(1) stop one service: ./sparrow stopone {service_name}\n"
-    printf "(2) start one service: ./sparrow startone {service_name}\n"
-    printf "(3) update one service: ./sparrow updateone {service_name}\n"
-    printf "\n"
-    printf "4、Container helper.\n"
-    printf "(1) enter all containers(Automatically open all required resources): ./sparrow enter\n"
-    printf "(2) enter one container: ./sparrow enter {service_name}\n"
-    printf "\n"
+    help
 fi
 
 # after run sparrow command.

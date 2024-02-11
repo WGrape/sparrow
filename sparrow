@@ -210,11 +210,11 @@ before_sparrow_command
 # when run sparrow command.
 COMMAND=$1
 # core commands.
-if "${VAR_IS_START_COMMAND}"; then
+if [ "${VAR_IS_START_COMMAND}" = true ]; then
     start
-elif "${VAR_IS_RESTART_COMMAND}"; then
+elif [ "${VAR_IS_RESTART_COMMAND}" = true ]; then
     restart
-elif "${VAR_IS_STOP_COMMAND}"; then
+elif [ "${VAR_IS_STOP_COMMAND}" = true ]; then
     stop
 elif [ "${VAR_IS_STARTONE_COMMAND}" = true ] || [ "${VAR_IS_STOPONE_COMMAND}" = true ] || [ "${VAR_IS_UPDATEONE_COMMAND}" = true ]; then
     if [ "$2" == "" ]; then
@@ -222,14 +222,14 @@ elif [ "${VAR_IS_STARTONE_COMMAND}" = true ] || [ "${VAR_IS_STOPONE_COMMAND}" = 
         exit 1
     fi
 
-    if "${VAR_IS_STARTONE_COMMAND}"; then
+    if [ "${VAR_IS_STARTONE_COMMAND}" = true ]; then
         startone "$2"
-    elif "${VAR_IS_STOPONE_COMMAND}"; then
+    elif [ "${VAR_IS_STOPONE_COMMAND}" = true ]; then
         stopone "$2"
-    elif "${VAR_IS_UPDATEONE_COMMAND}"; then
+    elif [ "${VAR_IS_UPDATEONE_COMMAND}" = true ]; then
         updateone "$2"
     fi
-elif "${VAR_IS_HELP_COMMAND}" ; then
+elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then
     help
 fi
 

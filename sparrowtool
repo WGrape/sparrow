@@ -164,13 +164,16 @@ search_env() {
     done
 
     subdirectories=$(ls -l | grep '^d' | awk '{print $9}')
+    start_port=1900
     for dir in $subdirectories; do
         env_file="$dir/${CONST_SPARROW_CONFIG_ENV_FILE}"
         if [ ! -f "$env_file" ]; then
             continue
         fi
 
-        printf "${dir} Service\n===========================================================\n"
+        start_port=$((start_port + 100))
+        end_port=$((start_port + 100))
+        printf "${dir} service (the port range of host: [$start_port, $end_port))\n===========================================================\n"
         while IFS= read -r line; do
             # ignore comments.
             if [[ "$line" =~ ^\# ]]; then
@@ -266,25 +269,29 @@ after_sparrowtool_command() {
     print_stage "do after_sparrowtool_command..."
 }
 
+##################### start script exec flow #####################
+
 # before run sparrowtool command.
 before_sparrowtool_command
 
 # when run sparrowtool command.
-if "${VAR_IS_UPLOAD_COMMAND}"; then
+if [ "${VAR_IS_UPLOAD_COMMAND}" = true ]; then
     upload "$@"
-elif "${VAR_IS_MUPLOAD_COMMAND}"; then
+elif [ "${VAR_IS_MUPLOAD_COMMAND}" = true ]; then
     multi_upload "$@"
-elif "${VAR_IS_NEW_COMMAND}"; then
+elif [ "${VAR_IS_NEW_COMMAND}" = true ]; then
     new "$@"
-elif "${VAR_IS_ENV_COMMAND}"; then
+elif [ "${VAR_IS_ENV_COMMAND}" = true ]; then
     search_env "$@"
-elif "${VAR_IS_CLEAR_COMMAND}"; then
+elif [ "${VAR_IS_CLEAR_COMMAND}" = true ]; then
     clear_service "$2"
-elif "${VAR_IS_TIP_COMMAND}"; then
+elif [ "${VAR_IS_TIP_COMMAND}" = true ]; then
     tip
-elif "${VAR_IS_HELP_COMMAND}"; then
+elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then
     help
 fi
 
 # after run sparrowtool command.
 after_sparrowtool_command
+
+##################### end script exec flow #######################

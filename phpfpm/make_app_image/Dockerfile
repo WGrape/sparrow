@@ -500,6 +500,7 @@ RUN if [ ${PHPFPM_INSTALL_RDKAFKA} = true ]; then \
 
 ARG PHPFPM_INSTALL_GETTEXT
 RUN if [ ${PHPFPM_INSTALL_GETTEXT} = true ]; then \
+    apt-get update -yqq && \
     apt-get install -yqq zlib1g-dev libicu-dev g++ libpq-dev libssl-dev gettext && \
     docker-php-ext-install gettext \
 ;fi

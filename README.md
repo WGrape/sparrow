@@ -58,16 +58,6 @@ bash _update.sh
 bash .work/tests/run.sh
 ```
 
-#### (3) 进入容器
-
-使用以下命令，自动进入所有的容器中。如果只进入某个容器，输入```./sparrow enter {service_name}```即可
-
-```bash
-./sparrowtool enter # 自动进入所有容器
-
-./sparrowtool enter go/phpfpm/nginx/redis/mysql/postgres # 自动进入某一个容器中
-```
-
 ### 2、停止
 
 停止整个环境中的所有服务

@@ -94,6 +94,8 @@ new() {
         -e "s/{{IMAGE_APP_VERSION}}/$image_app_version/g" \
         "${CONST_SERVICE_EXAMPLE_DIR}/${relative_path}" > "./${service}/${relative_path}"
     done
+
+    print_warn "In order to avoid confusion in port number allocation, it is recommended to use './sparrowtool env -l _port ' this command to view the current range of port number."
 }
 
 # show some tips.

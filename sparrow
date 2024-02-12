@@ -15,7 +15,6 @@ elif [ "${COMMAND}" = "stop" ]; then
     VAR_IS_STOP_COMMAND=true
 elif [ "${COMMAND}" = "startone" ]; then
     VAR_IS_STARTONE_COMMAND=true
-    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
 elif [ "${COMMAND}" = "stopone" ]; then
     VAR_IS_STOPONE_COMMAND=true
 elif [ "${COMMAND}" = "updateone" ]; then

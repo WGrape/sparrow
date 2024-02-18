@@ -84,6 +84,14 @@ bash .work/tests/run.sh
 ./sparrow updateone {service}
 ```
 
+### (2) 使用示例
+
+当我们需要把Go版本调整为```1.17.0```（默认为1.21.1）时，使用如下步骤完成
+
+1. 先修改官方镜像 ：把```/.env```文件中的```IMAGE_OFFICIAL_GO_VERSION=1.21.1```修改为```IMAGE_OFFICIAL_GO_VERSION=1.17.0```
+2. 再修改basic镜像 ：把```/.env```文件中的```IMAGE_BASIC_GO_VERSION=1.21.1```修改为```IMAGE_BASIC_GO_VERSION=1.17.0```
+3. 最后更新go服务 ：执行```./sparrow updateone go```
+
 ## 五、相关文档
 
 - [Q&A汇总文档](.work/extra/doc/QA.md)

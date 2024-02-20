@@ -1,4 +1,4 @@
-# Q&A DoC
+# Q&A Doc
 
 ## 1. Install and start docker/docker-compose
 
@@ -38,12 +38,11 @@ sudo systemctl status docker
 sudo systemctl start docker
 ```
 
-## 2. Errors
+## 2. Some common errors
 
-## (1) failed programming external connectivity … iptables: No chain/target/match by that name”
+### (1) failed programming external connectivity … iptables: No chain/target/match by that name”
 
 ```bash
 service docker restart
 iptables -L 
 ```
-

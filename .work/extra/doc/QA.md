@@ -2,6 +2,8 @@
 
 ## 1. Install and start docker/docker-compose
 
+> Docker Release Notes: https://docs.docker.com/release-notes/
+
 ### (1) Install
 
 #### a. Linux

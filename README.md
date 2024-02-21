@@ -1,99 +1,115 @@
-# sparrow
-基于Docker一键创建多种语言环境、多种服务环境的容器化编排工具
+<div align="center" >
+    <img width="350" alt="img" src="https://github.com/WGrape/sparrow/assets/35942268/ab3ef3f3-8625-41df-99ed-50edde47a68e">
+</div>
 
-## 一、介绍
-sparrow是基于Docker，用于本地一键创建多种语言环境、多种服务环境的容器化编排工具。
+<div align="center">
+    <p>A docker tool for one-click startup of multi-service environment.</p>
+</div>
 
-## 二、环境依赖
-本项目完全依赖于Docker，所以一定要先安装和开启Docker。
+<p align="center">
+    <a href="https://www.oscs1024.com/project/oscs/WGrape/sparrow?ref=badge_small" alt="OSCS Status"><img src="https://www.oscs1024.com/platform/badge/WGrape/sparrow.svg?size=small"/></a>
+    <img src="https://img.shields.io/badge/language-shell-blue.svg">
+    <img src="https://img.shields.io/badge/dockerdesktop-4.10.0+-red.svg">
+    <img src="https://img.shields.io/badge/docker-18.01+-red.svg">
+    <img src="https://img.shields.io/badge/dockercompose-1.20.0+-red.svg">
+    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/wgrape/sparrow">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg"></a>
+    <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/doc-中文-green.svg"></a>
+</p>
 
-## 三、安装和更新
+## 1. Introduction
+Sparrow is a docker tool for one-click startup of multi-service environment.
 
-### 1、安装
+## 2. Environment Dependencies
+This project relies entirely on Docker, so Docker must be installed and running.
 
-如果是首次使用，使用如下命令快速完成安装。
+## 3. Installation and Update
+
+### (1) Installation
+
+If it is the first time using it, use the following command to complete the installation quickly.
 
 ```bash
 git clone https://github.com/WGrape/sparrow.git
 cd sparrow
 
-# 执行安装脚本
+# Run the installation script
 bash _install.sh
 
-# 查看使用帮助
+# View usage help
 ./sparrow --help
 ```
 
-### 2、更新
+### ② Update
 
-在安装后，如果需要更新至最新版本，执行以下命令开始更新。
+After installation, if you need to update to the latest version, execute the following command to start the update.
 
 ```bash
 bash _update.sh
 ```
 
-## 四、快速使用
+## 4. Quick Start
 
-### 1、启动
+### (1) Start
 
-使用如下命令启动整个环境中的所有服务。当然这个```所有服务```是可定义的，它由根目录下```/.env```文件中配置的```ENABLE_SERVICE_LIST```数组变量控制。
+Use the following command to start all services in the entire environment. Of course, this ```all services``` can be defined and is controlled by the ```ENABLE_SERVICE_LIST``` array variable configured in the ```/.env``` file in the root directory.
 
 ```bash
 ./sparrow start
 ```
 
-#### (1) 启动某一个服务
+#### ① Start a Specific Service
 
-如果只需要启动某一个服务，使用如下命令即可，传递的```service```就是在```docker-compose.yml```配置文件中的```services```列表中某一个服务的名称，如```phpfpm/nginx/mysql/redis```等
+If you only need to start a specific service, you can use the following command. The ```service``` passed in is the name of a service in the ```services``` list in the ```docker-compose.yml``` configuration file, such as ```phpfpm/nginx/mysql/redis```, etc.
 
 ```bash
 ./sparrow startone {service_name}
 ```
 
-#### (2) 测试是否启动成功
+#### ② Test if Startup is Successful
 
-使用如下命令，会自动在Chrome中打开对应的网页，如果每一个网页都可以成功打开，则说明安装成功
+Use the following command, if nothing wrong output, it means the installation is successful.
 
 ```bash
 bash .work/tests/run.sh
 ```
 
-### 2、停止
+### (2) Stop
 
-停止整个环境中的所有服务
+Stop all services in the entire environment
 
 ```bash
 ./sparrow stop
 ```
 
-### 3、重启
+### (3) Restart
 
-重启整个环境中的所有服务
+Restart all services in the entire environment
 
 ```bash
 ./sparrow restart
 ```
 
-### 4、更新
+### (4) Update
 
-当镜像内容需要修改以支持新的需求时，就需要对服务进行更新，其实就是对镜像进行更新
+When the content of the image needs to be modified to support new requirements, the services need to be updated, which is actually updating the image.
 
-#### (1) 更新一个服务
+#### ① Update a Service
 
 ```bash
 ./sparrow updateone {service}
 ```
 
-#### (2) 使用示例
+#### ② Usage Example
 
-当我们需要把Go版本调整为```1.17.0```（默认为1.21.1）时，使用如下步骤完成
+When we need to adjust the Go version to ```1.17.0``` (default is 1.21.1), follow these steps:
 
-1. 先修改官方镜像 ：把```/.env```文件中的```IMAGE_OFFICIAL_GO_VERSION=1.21.1```修改为```IMAGE_OFFICIAL_GO_VERSION=1.17.0```
-2. 再修改basic镜像 ：把```/.env```文件中的```IMAGE_BASIC_GO_VERSION=1.21.1```修改为```IMAGE_BASIC_GO_VERSION=1.17.0```
-3. 最后更新go服务 ：执行```./sparrow updateone go```
+1. First, modify the official image: change ```IMAGE_OFFICIAL_GO_VERSION=1.21.1``` in the ```/.env``` file to ```IMAGE_OFFICIAL_GO_VERSION=1.17.0```.
+2. Then, modify the basic image: change ```IMAGE_BASIC_GO_VERSION=1.21.1``` in the ```/.env``` file to ```IMAGE_BASIC_GO_VERSION=1.17.0```.
+3. Finally, update the go service: execute ```./sparrow updateone go```.
 
-## 五、相关文档
+## 5. About Documents
 
-- [Q&A汇总文档](.work/extra/doc/QA.md)
-- [DEV开发文档](.work/extra/doc/DEV.md)
-- [FEEDBACK反馈文档](.work/extra/doc/FEEDBACK.md)
+- [Q&A Document](.work/extra/doc/QA.md)
+- [DEV Document](.work/extra/doc/DEV.md)
+- [FEEDBACK Document](.work/extra/doc/FEEDBACK.md)

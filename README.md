@@ -8,7 +8,6 @@
 
 <p align="center">
     <a href="https://www.oscs1024.com/project/oscs/WGrape/sparrow?ref=badge_small" alt="OSCS Status"><img src="https://www.oscs1024.com/platform/badge/WGrape/sparrow.svg?size=small"/></a>
-    <img src="https://img.shields.io/badge/language-shell-blue.svg">
     <img src="https://img.shields.io/badge/dockerdesktop-4.10.0+-red.svg">
     <img src="https://img.shields.io/badge/docker-18.01+-red.svg">
     <img src="https://img.shields.io/badge/dockercompose-1.20.0+-red.svg">

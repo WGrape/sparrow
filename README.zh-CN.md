@@ -1,5 +1,20 @@
-# sparrow
-基于Docker一键创建多种语言环境、多种服务环境的容器化编排工具
+<div align="center" >
+    <img width="350" alt="img" src="https://github.com/WGrape/sparrow/assets/35942268/ab3ef3f3-8625-41df-99ed-50edde47a68e">
+</div>
+
+<div align="center">
+    <p>基于Docker一键创建多种语言环境、多种服务环境的容器化编排工具</p>
+</div>
+
+<p align="center">
+    <a href="https://www.oscs1024.com/project/oscs/WGrape/sparrow?ref=badge_small" alt="OSCS Status"><img src="https://www.oscs1024.com/platform/badge/WGrape/sparrow.svg?size=small"/></a>
+    <img src="https://img.shields.io/badge/dockerdesktop-4.10.0+-red.svg">
+    <img src="https://img.shields.io/badge/docker-18.01+-red.svg">
+    <img src="https://img.shields.io/badge/dockercompose-1.20.0+-red.svg">
+    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/wgrape/sparrow">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg"></a>
+    <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/doc-中文-green.svg"></a>
+</p>
 
 ## 一、介绍
 sparrow是基于Docker，用于本地一键创建多种语言环境、多种服务环境的容器化编排工具。

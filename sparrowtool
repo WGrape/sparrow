@@ -82,9 +82,11 @@ new() {
         print_error "cp failed"
         exit 1
     fi
-    files=("$CONST_SPARROW_CONFIG_ENV_FILE" "$CONST_SPARROW_CONFIG_COMPOSE_FILE" "Dockerfile" "README.md")
     find "${CONST_SERVICE_EXAMPLE_DIR}" -type f -print0 | while IFS= read -r -d '' file; do
         relative_path="${file#$CONST_SERVICE_EXAMPLE_DIR}"
+        if [ "$relative_path" == "/.DS_Store" ]; then
+            continue
+        fi
 
         print_info "rewrite file: ./${service}/${relative_path}"
         sed -e "s/{{SERVICE}}/$service/g" \
@@ -115,7 +117,7 @@ help() {
     printf "welcome to sparrowtool\n"
     printf "\n"
     printf "1、about create.\n"
-    printf "(1) create service: ./sparrowtool new -t service -s {service_name} -p port -v version\n"
+    printf "(1) create service: ./sparrowtool new -t service -s {service_name} -p port -v {version}\n"
     printf "    ① params: -t(type:service) / -s(service) / -p(port) / -v(version)\n"
     printf "    ② example 1: ./sparrowtool new -s prometheus -p 9876 -v 0.0.98\n"
     printf "\n"

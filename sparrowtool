@@ -167,9 +167,11 @@ search_env() {
     esac
     done
 
-    subdirectories=$(ls -l | grep '^d' | awk '{print $9}')
     start_port=1900
-    for dir in $subdirectories; do
+    # subdirectories=$(ls -l | grep '^d' | awk '{print $9}')
+    # when you create a new service, then append it to the subdirectories variable
+    subdirectories=("etcd" "etcdkeeper" "go" "jupyter" "kafka" "kafkaui" "mysql" "nginx" "phpfpm" "postgres" "python" "redis" "zookeeper" "langchain")
+    for dir in "${subdirectories[@]}"; do
         env_file="$dir/${CONST_SPARROW_CONFIG_ENV_FILE}"
         if [ ! -f "$env_file" ]; then
             continue

@@ -47,10 +47,22 @@ You can use the ```sparrowtool``` to create new service. If you want to create a
 # if you forget command, for help.
 ./sparrowtool --help
 
-./sparrowtool new -t service -s jupyter -p 8888
+./sparrowtool new -t service -s jupyter -p 2300 -v 0.1.0
 ```
 
 After a successful execution, there will be a directory named ```./jupyter``` under the project root directory.
+
+#### ① assign a port number
+
+If you don't know which port number to use, you add your service(such as ```langchain```) to ```subdirectories=("etcd" "etcdkeeper" ... "langchain")``` of ```search_env()``` in ```sparrowtool``` file. Then run this command bellow.
+
+```bash
+./sparrowtool env -l _port 
+```
+
+From the image below, you can see that the system has allocated a port range of [3300, 3400) to the new service langchain.
+
+<img width="500" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/ab47592e-2755-4f84-b354-73ef1c6d4b9b">
 
 ### (2) modify your service configuration.
 

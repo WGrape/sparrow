@@ -77,7 +77,7 @@ These are must modify variables, if you have another demand, you can modify more
 
 ### (3) add your service to ENABLE_SERVICE_LIST in /.env file.
 
-The ```ENABLE_SERVICE_LIST``` variables is defined in ```/.env``` file, you should add ```jupyter``` the new service to the variable.
+The ```ENABLE_SERVICE_LIST``` variables is defined in ```/.work/config/.env.amd64``` or ```/.work/config/.env.arm64``` file, you should add ```jupyter``` the new service to the variable.
 
 ```
 ENABLE_SERVICE_LIST=("xxx" "xxx" "jupyter")

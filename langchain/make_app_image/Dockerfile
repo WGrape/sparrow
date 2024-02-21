@@ -1,0 +1,5 @@
+ARG FROM_PLATFORM
+ARG IMAGE_BASIC_LANGCHAIN_VERSION
+FROM --platform=${FROM_PLATFORM} sparrow-basic-langchain:${IMAGE_BASIC_LANGCHAIN_VERSION}
+
+RUN pip install langchain-openai

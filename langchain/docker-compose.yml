@@ -1,0 +1,23 @@
+services:
+  ### langchain #########################################################
+  langchain:
+    hostname: langchain
+    image: sparrow-app-langchain:${IMAGE_APP_LANGCHAIN_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_langchain
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./langchain/:/home/sparrow/langchain/
+      - ./langchain/data/:/var/data/langchain/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${LANGCHAIN_HOST_PORT}:${LANGCHAIN_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+    command: "tail -f /dev/null" # Because there is no startup command for the langchain service, use this command to ensure it can be started successfully.

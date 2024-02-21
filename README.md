@@ -3,7 +3,7 @@
 </div>
 
 <div align="center">
-    <p>A docker tool for one-click startup of multi-service environment.</p>
+    <p>A docker tool for one-click startup of multi services and environments.</p>
 </div>
 
 <p align="center">
@@ -17,7 +17,7 @@
 </p>
 
 ## 1. Introduction
-Sparrow is a docker tool for one-click startup of multi-service environment.
+Sparrow is a docker tool for one-click startup of multi services and environments.
 
 ## 2. Environment Dependencies
 This project relies entirely on Docker, so Docker must be installed and running.

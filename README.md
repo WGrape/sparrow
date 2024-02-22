@@ -16,6 +16,11 @@
     <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/doc-中文-green.svg"></a>
 </p>
 
+## Support Service List
+
+<img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/5bf35edb-7b5f-4407-86e8-f1fcc1815e03">
+
+
 ## 1. Introduction
 Sparrow is a docker tool for one-click startup of multi services and environments.
 

@@ -18,6 +18,8 @@
 
 ## 支持的服务列表
 
+添加一个新的服务，请[点击这里](https://github.com/WGrape/sparrow/issues/4)。
+
 <img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/5bf35edb-7b5f-4407-86e8-f1fcc1815e03">
 
 ## 一、介绍

@@ -75,6 +75,9 @@ print_error() {
 
 # print warn message.
 print_warn() {
+    if [ "$VAR_RUNTIME_NO_PRINT_MESSAGE" = "ON" ]; then
+        return 0
+    fi
     printf "\e[33m~~~~~ $1 ~~~~~\e[0m\n\n"
 }
 

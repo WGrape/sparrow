@@ -19,6 +19,9 @@ elif [ "${COMMAND}" = "stopone" ]; then
     VAR_IS_STOPONE_COMMAND=true
 elif [ "${COMMAND}" = "updateone" ]; then
     VAR_IS_UPDATEONE_COMMAND=true
+elif [ "${COMMAND}" = "status" ] || [ "${COMMAND}" = "stats" ]; then
+    VAR_IS_STATUS_COMMAND=true
+    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
 elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ]; then
     VAR_IS_HELP_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
@@ -148,6 +151,25 @@ restart() {
     start
 }
 
+# watch status
+status() {
+    running_container_stdout=$(docker container ls --format "container_id: {{.ID}} => image: {{.Image}} => port: [{{.Ports}}] => container_name: {{.Names}}" | grep 'sparrow')
+    if [ "$running_container_stdout" != "" ]; then
+        echo "status: running"
+    else
+        echo "status: not running"
+    fi
+    echo "working dir: $(pwd)"
+
+    printf "====================ENV=========================\n"
+    echo "CONTAINER_NAMESPACE: $CONTAINER_NAMESPACE"
+    echo "ENABLE_SERVICE_LIST: ${ENABLE_SERVICE_LIST[@]}"
+    if [ "$running_container_stdout" != "" ]; then
+        printf "====================Services====================\n"
+        echo "$running_container_stdout"
+    fi
+}
+
 # help document.
 help() {
     # sparrow's help command
@@ -228,6 +250,8 @@ elif [ "${VAR_IS_STARTONE_COMMAND}" = true ] || [ "${VAR_IS_STOPONE_COMMAND}" = 
     elif [ "${VAR_IS_UPDATEONE_COMMAND}" = true ]; then
         updateone "$2"
     fi
+elif [ "${VAR_IS_STATUS_COMMAND}" = true ]; then
+    status
 elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then
     help
 fi

@@ -142,6 +142,14 @@ bash .work/tests/run.sh
 2. 再修改basic镜像 ：把```/.env```文件中的```IMAGE_BASIC_GO_VERSION=1.21.1```修改为```IMAGE_BASIC_GO_VERSION=1.17.0```
 3. 最后更新go服务 ：执行```./sparrow updateone go```
 
+### 5、监控
+
+如果需要查看sparrow的运行状态和所允许服务的容器信息，使用如下命令即可
+
+```bash
+./sparrow status
+```
+
 ## 五、相关文档
 
 - [Q&A汇总文档](.work/extra/doc/QA.md)

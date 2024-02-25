@@ -142,6 +142,14 @@ When we need to adjust the Go version to ```1.17.0``` (default is 1.21.1), follo
 2. Then, modify the basic image: change ```IMAGE_BASIC_GO_VERSION=1.21.1``` in the ```/.env``` file to ```IMAGE_BASIC_GO_VERSION=1.17.0```.
 3. Finally, update the go service: execute ```./sparrow updateone go```.
 
+### (5) Monitor
+
+If you need to view the running status of sparrow and the container information of the allowed services, you can use the following command.
+
+```bash
+./sparrow status
+```
+
 ## 5. About Documents
 
 - [Q&A Document](.work/extra/doc/QA.md)

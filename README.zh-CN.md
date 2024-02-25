@@ -145,7 +145,7 @@ bash .work/tests/run.sh
 
 ### 5、监控
 
-如果需要查看sparrow的运行状态和所允许服务的容器信息，使用如下命令即可
+如果需要查看sparrow的运行状态和所运行服务的容器信息，使用如下命令即可
 
 ```bash
 ./sparrow status

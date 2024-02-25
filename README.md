@@ -3,7 +3,7 @@
 </div>
 
 <div align="center">
-    <p>A docker tool for one-click startup of multi services and environments.</p>
+    <p>A Docker tool for one-click startup of multiple services and environments.</p>
 </div>
 
 <p align="center">
@@ -24,35 +24,63 @@ Add a new service, please [click  here](https://github.com/WGrape/sparrow/issues
 
 
 ## 1. Introduction
-Sparrow is a docker tool for one-click startup of multi services and environments.
+Sparrow is a Docker tool for one-click startup of multiple services and environments.
 
-## 2. Environment Dependencies
+## 2. Dependencies
 This project relies entirely on Docker, so Docker must be installed and running.
 
 ## 3. Installation and Update
 
-### (1) Installation
+This project offers two different installation methods: development version and release version. The differences between the two are as follows. Please choose according to your needs:
 
-If it is the first time using it, use the following command to complete the installation quickly.
+- Development version: The project updates at a high frequency, so the features and functionalities are always up-to-date! However, there may be some bugs that cannot be avoided, and 100% stability cannot be guaranteed.
+- Release version: A version of the project released at a certain point in time, which has undergone multi-level testing and has been running stably for a period of time. You can view various release versions [here](https://github.com/WGrape/sparrow/releases).
+
+### (1) Development version
+
+#### ① Installation
+
+If it's the first time, you can use the following commands to install.
 
 ```bash
+# get project
 git clone https://github.com/WGrape/sparrow.git
 cd sparrow
 
-# Run the installation script
+# install
 bash _install.sh
 
-# View usage help
+# usage help
 ./sparrow --help
 ```
 
-### ② Update
+#### ② Update
 
-After installation, if you need to update to the latest version, execute the following command to start the update.
+After installation, if you need to update to the latest development version, execute the following command to begin the update.
 
 ```bash
 bash _update.sh
 ```
+
+### (2) Release version
+
+#### ① Installation
+
+If you need a specific version of the release package, please [click here](https://github.com/WGrape/sparrow/releases) to download, and then follow these steps.
+
+```bash
+cd sparrow
+
+# install
+bash _install.sh
+
+# usage help
+./sparrow --help
+```
+
+#### ② Update
+
+Please note that the release package does not support updates! So after installing a specific version of the release package, please do not execute the ```bash _update.sh``` command.
 
 ## 4. Quick Start
 

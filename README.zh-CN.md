@@ -26,15 +26,23 @@
 sparrow是基于Docker，用于本地一键创建多种语言环境、多种服务环境的容器化编排工具。
 
 ## 二、环境依赖
-本项目完全依赖于Docker，所以一定要先安装和开启Docker。
+本项目完全依赖于Docker环境，所以一定要先安装并启动Docker。
 
 ## 三、安装和更新
 
-### 1、安装
+此项目提供了开发版本和Release版本两种不同的安装方式，二者的区别如下，请根据需求的不同自行选择。
 
-如果是首次使用，使用如下命令快速完成安装。
+- 开发版本 ：项目以高频率的速度更新，所以功能和特性一定是最新的！但是无法避免的会出现些bug，不能保证100%稳定
+- Release版本 ：项目在某个时间下发布的一个经过多级测试，且稳定运行一段时间后的版本，在[这里查看](https://github.com/WGrape/sparrow/releases)各个Release版本
+
+### 1、开发版本
+
+#### (1) 安装
+
+如果是首次安装，使用如下命令快速完成安装。
 
 ```bash
+# 获取项目
 git clone https://github.com/WGrape/sparrow.git
 cd sparrow
 
@@ -45,13 +53,34 @@ bash _install.sh
 ./sparrow --help
 ```
 
-### 2、更新
+#### (2) 更新
 
-在安装后，如果需要更新至最新版本，执行以下命令开始更新。
+在安装后，如果需要更新至最新的开发版本，执行以下命令开始更新。
 
 ```bash
 bash _update.sh
 ```
+
+### 2、Release版本
+
+#### (1) 安装
+
+如果需要特定版本的Release包，请[点击这里](https://github.com/WGrape/sparrow/releases)下载，然后执行以下操作
+
+```bash
+cd sparrow
+
+# 执行安装脚本
+bash _install.sh
+
+# 查看使用帮助
+./sparrow --help
+```
+
+#### (2) 更新
+
+需要注意的是，Release包不支持更新 ！所以在安装完特定版本的Release包后，请不要执行```bash _update.sh```命令。
+
 
 ## 四、快速使用
 

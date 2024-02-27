@@ -24,7 +24,7 @@
 <img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/5bf35edb-7b5f-4407-86e8-f1fcc1815e03">
 
 ## 一、介绍
-sparrow是基于Docker，用于本地一键创建多种语言环境、多种服务环境的容器化编排工具。
+sparrow是基于Docker，用于本地一键创建多种语言环境、多种服务环境的容器化编排工具。如果访问慢，可以查看[Gitee镜像仓库](https://gitee.com/WGrape/sparrow)。
 
 ## 二、环境依赖
 本项目完全依赖于Docker环境，所以一定要先安装并启动Docker。

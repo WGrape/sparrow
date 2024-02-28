@@ -1,0 +1,23 @@
+services:
+  ### nodejs #########################################################
+  nodejs:
+    hostname: nodejs
+    image: sparrow-app-nodejs:${IMAGE_APP_NODEJS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_nodejs
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./nodejs/:/home/sparrow/nodejs/
+      - ./nodejs/data/:/var/data/nodejs/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${NODEJS_HOST_PORT}:${NODEJS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+    command: "tail -f /dev/null" # Because there is no startup command for the nodejs service, use this command to ensure it can be started successfully.

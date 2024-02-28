@@ -64,18 +64,18 @@ From the image below, you can see that the system has allocated a port range of 
 
 <img width="500" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/ab47592e-2755-4f84-b354-73ef1c6d4b9b">
 
-### (2) modify your service configuration.
+### (2) modify your service configuration
 
 You must modify these image variables in ```./jupyter/.env``` file as bellow.
 
 - ```IMAGE_OFFICIAL_JUPYTER_NAME```: the official image name.
 - ```IMAGE_OFFICIAL_JUPYTER_VERSION```: \[optional modify\] the official image version, such as ```IMAGE_OFFICIAL_JUPYTER_VERSION=18.19.0```.
-- ```IMAGE_BASIC_JUPYTER_VERSION```: \[optional modify\] the basic image version. It is recommended to set the same value as ```IMAGE_OFFICIAL_JUPYTER_NAME```.
+- ```IMAGE_BASIC_JUPYTER_VERSION```: \[optional modify\] the basic image version. It is recommended to set the same value as ```IMAGE_OFFICIAL_JUPYTER_VERSION```.
 - ```IMAGE_APP_JUPYTER_VERSION```: \[optional modify\] the app image name. It is recommended to set ```latest```
 
 These are must modify variables, if you have another demand, you can modify more in the ```./jupyter``` directory.
 
-### (3) add your service to ENABLE_SERVICE_LIST in /.env file.
+### (3) add your service to ENABLE_SERVICE_LIST in your /.work/config/.env file
 
 The ```ENABLE_SERVICE_LIST``` variables is defined in ```/.work/config/.env.amd64``` or ```/.work/config/.env.arm64``` file, you should add ```jupyter``` the new service to the variable.
 
@@ -83,7 +83,39 @@ The ```ENABLE_SERVICE_LIST``` variables is defined in ```/.work/config/.env.amd6
 ENABLE_SERVICE_LIST=("xxx" "xxx" "jupyter")
 ```
 
-## 3、How nginx proxy pass server
+### (4) delete /.env file
+
+After that, you should delete ```/.env``` file in the root path of your project, because an updated ```/.env``` file can be automatically generated in a while.
+
+### (5) start service
+
+Now, you can enjoy the service use the following command.
+
+```bash
+./sparrow startone jupyter
+```
+
+Of course, if you need to make some custom modifications to the image, you can update the service ! Please continue to the next part: [How to update a service](./.work/extra/doc/DEV.md#3How-to-update-a-service) doc
+
+## 3、How to update a service
+
+When the content of the image needs to be modified to support new requirements, the services need to be updated, which is actually updating the image.
+
+### (1) Update a Service
+
+```bash
+./sparrow updateone {service}
+```
+
+### (2) Usage Example
+
+When we need to adjust the Go version to ```1.17.0``` (default is 1.21.1), follow these steps:
+
+1. First, modify the official image: change ```IMAGE_OFFICIAL_GO_VERSION=1.21.1``` in the ```/.env``` file to ```IMAGE_OFFICIAL_GO_VERSION=1.17.0```.
+2. Then, modify the basic image: change ```IMAGE_BASIC_GO_VERSION=1.21.1``` in the ```/.env``` file to ```IMAGE_BASIC_GO_VERSION=1.17.0```.
+3. Finally, update the go service: execute ```./sparrow updateone go```.
+
+## 4、How nginx proxy pass server
 
 <img width="700" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/e9ce4bfc-cac7-4474-b1c8-07d17c16cfbe">
 
@@ -116,7 +148,7 @@ server {
 }
 ```
 
-## 4. The mounting of service on the host
+## 5、The mounting of service on the host
 
 ### (1) service directory mounting
 

@@ -81,47 +81,15 @@ print_warn() {
     printf "\e[33m~~~~~ $1 ~~~~~\e[0m\n\n"
 }
 
-# ------------------------------end-------------------------------------
-
-# -----------------------define some sparrow helpers-----------------------
-
-# create /env file and export these variables.
-upenv() {
-    print_stage "upenv"
-
-    # must not to regenerate the env file, if env file exists.
-    env_file=$CONST_SPARROW_CONFIG_ENV_FILE
-    if [ ! -f "${env_file}" ]; then
-        print_info "cp ${CONST_BASE_CONFIG_ENV_AMD64_FILE} file to ${env_file} file..."
-        cp "${CONST_BASE_CONFIG_ENV_AMD64_FILE}" "./${env_file}"
-
-        # traverse every service directory.
-        for dir in */; do
-            # remove the end slash (/) from the path
-            dir_name=$(basename "$dir")
-            if [ "$dir_name" == ".work" ]; then
-                print_info "pass: $dir"
-                continue
-            fi
-
-            # find every service's env file.
-            srv_env_file="${dir_name}/${CONST_SPARROW_CONFIG_ENV_FILE}"
-            if [ ! -f "${srv_env_file}" ]; then
-                print_error "no ${env_file} file found in ${dir_name}"
-                exit 1
-            fi
-
-            # cp every service's env file to /env file.
-            print_info "cp ${srv_env_file} file to /${env_file} file..."
-            echo "" >> $CONST_SPARROW_CONFIG_ENV_FILE
-            cat "${srv_env_file}" >> $CONST_SPARROW_CONFIG_ENV_FILE
-        done
-    else
-        print_info "/${env_file} file exists, pass"
+# the common function to parse env file, and export variables.
+parse_env_file() {
+    if [ "$1" == "" ]; then
+        print_error "miss file to parse"
+        exit 1
     fi
 
     # export environment variables.
-    print_stage "export environment variables..."
+    print_info "parse_env_file: parse and export environment variables..."
     while IFS= read -r line || [[ -n "$line" ]]; do
         line=$(echo "$line" | sed 's/#.*//' | awk '{$1=$1};1')
         if [ "$line" = "" ]; then
@@ -135,7 +103,51 @@ upenv() {
             print_error "parse env error: $line | $key | $value"
             exit 1
         fi
-    done < $CONST_SPARROW_CONFIG_ENV_FILE
+    done < $1
+}
+
+# ------------------------------end-------------------------------------
+
+# -----------------------define some sparrow helpers-----------------------
+
+# create /env file and export these variables.
+upenv() {
+    print_stage "upenv"
+
+    # must not to regenerate the env file, if env file exists.
+    env_file=$CONST_SPARROW_CONFIG_ENV_FILE
+    if [ ! -f "${env_file}" ]; then
+        # parse /.work/config/.env file firstly
+        # Because there are many variables in this file that need to be used now, such as ```ENABLE_SERVICE_LIST```
+        parse_env_file $CONST_BASE_CONFIG_ENV_AMD64_FILE
+
+        # copy /.work/config/.env file to /.env file
+        print_info "cp ${CONST_BASE_CONFIG_ENV_AMD64_FILE} file to ${env_file} file..."
+        cp "${CONST_BASE_CONFIG_ENV_AMD64_FILE}" "./${env_file}"
+
+        # copy every /service/.env file to /.env file
+        # traverse every service directory, but only include enabled service, so not run ```for dir in */; do```
+        service_list=("${ENABLE_SERVICE_LIST[@]}")
+        for service in "${service_list[@]}"; do
+            # find service's env file.
+            srv_env_file="${service}/${CONST_SPARROW_CONFIG_ENV_FILE}"
+            if [ ! -f "${srv_env_file}" ]; then
+                print_error "no ${env_file} file found in ${service}"
+                exit 1
+            fi
+
+            # cp every service's env file to /env file.
+            print_info "cp ${srv_env_file} file to /${env_file} file..."
+            echo "" >> $CONST_SPARROW_CONFIG_ENV_FILE
+            cat "${srv_env_file}" >> $CONST_SPARROW_CONFIG_ENV_FILE
+        done
+    else
+        print_info "/${env_file} file exists, pass"
+    fi
+
+    # parse /.env file
+    # must put it outer, because even if there is an .env file when it is started, the variables in this file need to be parsed.
+    parse_env_file $CONST_SPARROW_CONFIG_ENV_FILE
 
     # check environment configuration.
     enable_service_list_length=${#ENABLE_SERVICE_LIST[@]}

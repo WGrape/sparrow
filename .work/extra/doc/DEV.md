@@ -95,7 +95,7 @@ Now, you can enjoy the service use the following command.
 ./sparrow startone jupyter
 ```
 
-Of course, if you need to make some custom modifications to the image, you can update the service ! Please continue to the next part: [How to update a service](./.work/extra/doc/DEV.md#3How-to-update-a-service) doc
+Of course, if you need to make some custom modifications to the image, you can update the service ! Please continue to the next part: [How to update a service](#3How-to-update-a-service) doc
 
 ## 3、How to update a service
 

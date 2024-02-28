@@ -68,10 +68,10 @@ From the image below, you can see that the system has allocated a port range of 
 
 You must modify these image variables in ```./jupyter/.env``` file as bellow.
 
-- ```IMAGE_OFFICIAL_JUPYTER_NAME```: the official image name
-- ```IMAGE_OFFICIAL_JUPYTER_VERSION```: the official image version
-- ```IMAGE_BASIC_JUPYTER_VERSION```: the basic image name.
-- ```IMAGE_APP_JUPYTER_VERSION```: the app image name.
+- ```IMAGE_OFFICIAL_JUPYTER_NAME```: the official image name.
+- ```IMAGE_OFFICIAL_JUPYTER_VERSION```: \[optional modify\] the official image version, such as ```IMAGE_OFFICIAL_JUPYTER_VERSION=18.19.0```.
+- ```IMAGE_BASIC_JUPYTER_VERSION```: \[optional modify\] the basic image version. It is recommended to set the same value as ```IMAGE_OFFICIAL_JUPYTER_NAME```.
+- ```IMAGE_APP_JUPYTER_VERSION```: \[optional modify\] the app image name. It is recommended to set ```latest```
 
 These are must modify variables, if you have another demand, you can modify more in the ```./jupyter``` directory.
 

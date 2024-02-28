@@ -167,19 +167,22 @@ search_env() {
     esac
     done
 
-    start_port=1900
-    # subdirectories=$(ls -l | grep '^d' | awk '{print $9}')
-    # when you create a new service, then append it to the subdirectories variable
-    subdirectories=("etcd" "etcdkeeper" "go" "jupyter" "kafka" "kafkaui" "mysql" "nginx" "phpfpm" "postgres" "python" "redis" "zookeeper" "langchain")
+    # search these directory
+    subdirectories=("etcd" "etcdkeeper" "go" "jupyter" "kafka" "kafkaui" "mysql" "nginx" "phpfpm" "postgres" "python" "redis" "zookeeper" "langchain" "nodejs") # when you create a new service, then append it to the subdirectories variable
     for dir in "${subdirectories[@]}"; do
+        # show the service information
+        if [ "$start_port" == "" ]; then
+            start_port=1900
+        fi
+        start_port=$((start_port + 100))
+        end_port=$((start_port + 100))
+        printf "${dir} service (the port range of host: [$start_port, $end_port))\n===========================================================\n"
+
+        # search pattern in the env file.
         env_file="$dir/${CONST_SPARROW_CONFIG_ENV_FILE}"
         if [ ! -f "$env_file" ]; then
             continue
         fi
-
-        start_port=$((start_port + 100))
-        end_port=$((start_port + 100))
-        printf "${dir} service (the port range of host: [$start_port, $end_port))\n===========================================================\n"
         while IFS= read -r line; do
             # ignore comments.
             if [[ "$line" =~ ^\# ]]; then

@@ -4,7 +4,7 @@
 
 <div align="center">
     <p><a href="https://github.com/WGrape/sparrow">English</a> / <a href="./README.zh-CN.md">中文</a></p>
-    <p>基于Docker一键创建多个服务环境的容器化编排工具</p>
+    <p>基于Docker一键启动多个服务环境的容器化编排工具</p>
 </div>
 
 <p align="center">

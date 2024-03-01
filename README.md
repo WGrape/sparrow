@@ -4,7 +4,7 @@
 
 <div align="center">
     <p><a href="https://github.com/WGrape/sparrow">English</a> / <a href="./README.zh-CN.md">中文</a></p>
-    <p>A Docker tool for one-click startup of multiple services and environments.</p>
+    <p>A Docker tool for one-click startup of multiple services.</p>
 </div>
 
 <p align="center">

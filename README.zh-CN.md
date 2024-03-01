@@ -4,7 +4,7 @@
 
 <div align="center">
     <p><a href="https://github.com/WGrape/sparrow">English</a> / <a href="./README.zh-CN.md">中文</a></p>
-    <p>基于Docker一键创建多种语言环境、多种服务环境的容器化编排工具</p>
+    <p>基于Docker一键创建多个服务环境的容器化编排工具</p>
 </div>
 
 <p align="center">
@@ -17,30 +17,17 @@
     <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/doc-中文-green.svg"></a>
 </p>
 
-## 支持的服务列表
+## 1. 支持的服务列表
 
 添加一个新的服务，请[点击这里](https://github.com/WGrape/sparrow/issues/4)。
 
 <img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/5bf35edb-7b5f-4407-86e8-f1fcc1815e03">
 
-## 一、介绍
-sparrow是基于Docker，用于本地一键创建多种语言环境、多种服务环境的容器化编排工具。如果访问慢，可以查看[Gitee镜像仓库](https://gitee.com/WGrape/sparrow)。
+## 2. 快速开始
 
-## 二、环境依赖
-本项目完全依赖于Docker环境，所以一定要先安装并启动Docker。
+### (1) 安装
 
-## 三、安装和更新
-
-此项目提供了开发版本和Release版本两种不同的安装方式，二者的区别如下，请根据需求的不同自行选择。
-
-- 开发版本 ：项目以高频率的速度更新，所以功能和特性一定是最新的！但是无法避免的会出现些bug，不能保证100%稳定
-- Release版本 ：项目在某个时间下发布的一个经过多级测试，且稳定运行一段时间后的版本，在[这里查看](https://github.com/WGrape/sparrow/releases)各个Release版本
-
-### 1、开发版本
-
-#### (1) 安装
-
-如果是首次安装，使用如下命令快速完成安装。
+使用如下命令快速完成安装。
 
 ```bash
 # 获取项目
@@ -54,38 +41,7 @@ bash _install.sh
 ./sparrow --help
 ```
 
-#### (2) 更新
-
-在安装后，如果需要更新至最新的开发版本，执行以下命令开始更新。
-
-```bash
-bash _update.sh
-```
-
-### 2、Release版本
-
-#### (1) 安装
-
-如果需要特定版本的Release包，请[点击这里](https://github.com/WGrape/sparrow/releases)下载，然后执行以下操作
-
-```bash
-cd sparrow
-
-# 执行安装脚本
-bash _install.sh
-
-# 查看使用帮助
-./sparrow --help
-```
-
-#### (2) 更新
-
-需要注意的是，Release包不支持更新 ！所以在安装完特定版本的Release包后，请不要执行```bash _update.sh```命令。
-
-
-## 四、快速使用
-
-### 1、启动
+### (2) 启动
 
 使用如下命令启动整个环境中的所有服务。当然这个```所有服务```是可定义的，它由根目录下```/.env```文件中配置的```ENABLE_SERVICE_LIST```数组变量控制。
 
@@ -93,31 +49,27 @@ bash _install.sh
 ./sparrow start
 ```
 
-#### (1) 启动某一个服务
-
 如果只需要启动某一个服务，使用如下命令即可，传递的```service```就是在```docker-compose.yml```配置文件中的```services```列表中某一个服务的名称，如```phpfpm/nginx/mysql/redis```等
 
 ```bash
 ./sparrow startone {service_name}
 ```
 
-#### (2) 测试是否启动成功
+### (3) 停止
 
-使用如下命令，会自动在Chrome中打开对应的网页，如果每一个网页都可以成功打开，则说明安装成功
-
-```bash
-bash .work/tests/run.sh
-```
-
-### 2、停止
-
-停止整个环境中的所有服务
+停止整个环境中的所有服务。
 
 ```bash
 ./sparrow stop
 ```
 
-### 3、重启
+同样的如果只需要停止某一个服务，使用如下命令即可
+
+```bash
+./sparrow stopone {service_name}
+```
+
+### (4) 重启
 
 重启整个环境中的所有服务
 
@@ -125,36 +77,28 @@ bash .work/tests/run.sh
 ./sparrow restart
 ```
 
-### 4、更新
+### (5) 更新一个服务
 
-当镜像内容需要修改以支持新的需求时，就需要对服务进行更新，其实就是对镜像进行更新
-
-#### (1) 更新一个服务
+当某个服务需要更新时，如其镜像内容需要修改，就需要对服务（镜像）进行更新，在自行修改完后，使用如下命令更新
 
 ```bash
 ./sparrow updateone {service}
 ```
 
-#### (2) 使用示例
+## 3. 更多文档
 
-当我们需要把Go版本调整为```1.17.0```（默认为1.21.1）时，使用如下步骤完成
+- 1.项目背景 ：[English](.work/extra/doc/1.WHY_SPARROW_EN.md) / [中文](.work/extra/doc/1.WHY_SPARROW_ZH.md)
+- 2.使用文档 ：[English](.work/extra/doc/2.USAGE_EN.md) / [中文](.work/extra/doc/2.USAGE_ZH.md)
+- 3.开发教程 ：[English](.work/extra/doc/3.DEVELOPMENT_EN.md) / [中文](.work/extra/doc/3.DEVELOPMENT_ZH.md)
+- 4.如何贡献 ：[English](.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) / [中文](.work/extra/doc/4.HOW_TO_CONTRIBUTE_ZH.md)
+- 5.常见问题 ：[English](.work/extra/doc/5.QA_EN.md) / [中文](.work/extra/doc/5.QA_ZH.md)
 
-1. 先修改官方镜像 ：把```/.env```文件中的```IMAGE_OFFICIAL_GO_VERSION=1.21.1```修改为```IMAGE_OFFICIAL_GO_VERSION=1.17.0```
-2. 再修改basic镜像 ：把```/.env```文件中的```IMAGE_BASIC_GO_VERSION=1.21.1```修改为```IMAGE_BASIC_GO_VERSION=1.17.0```
-3. 最后更新go服务 ：执行```./sparrow updateone go```
+## 4. 贡献
 
-更多使用讲解，请参考[How to update a service](./.work/extra/doc/DEV.md#3How-to-update-a-service)文档
+在使用项目的过程中，如果您有任何的问题和建议可以随时在 [Issues](https://github.com/WGrape/ngxway/issues/new) 中提问，或者在 [Pull Requests](https://github.com/WGrape/ngxway/pulls) 中提交代码。关于代码贡献等，请参考 [如何贡献](./.work/extra/doc/CONTRIBUTION_ZH.md) 文档
 
-### 5、监控
+<img src="https://contrib.rocks/image?repo=wgrape/ngxway">
 
-如果需要查看sparrow的运行状态和所运行服务的容器信息，使用如下命令即可
+## 5. 开源许可证
 
-```bash
-./sparrow status
-```
-
-## 五、相关文档
-
-- [Q&A汇总文档](.work/extra/doc/QA.md)
-- [DEV开发文档](.work/extra/doc/DEV.md)
-- [FEEDBACK反馈文档](.work/extra/doc/FEEDBACK.md)
+[MIT](https://opensource.org/licenses/MIT), Copyright (c) 2013-present, [Wgrape](https://github.com/WGrape/)

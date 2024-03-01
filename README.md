@@ -25,6 +25,8 @@ Add a new service, please [click  here](https://github.com/WGrape/sparrow/issues
 
 ## 2. Quick start
 
+> Here is a quick usage example. You can check [Usage Document](.work/extra/doc/2.USAGE_EN.md) for detailed tutorials.
+
 ### (1) Installation
 
 You can use the following commands to install.
@@ -82,7 +84,7 @@ Restart all services in the entire environment
 When a service needs to be updated, such as when its image content needs to be modified, the service (image) needs to be updated after making the modifications. After modifying it manually, use the following command to update it.
 
 ```bash
-./sparrow updateone {service}
+./sparrow updateone {service_name}
 ```
 
 ## 3. More documents
@@ -94,7 +96,7 @@ When a service needs to be updated, such as when its image content needs to be m
 - 5.Q&A Document ：[English](.work/extra/doc/5.QA_EN.md) / [中文](.work/extra/doc/5.QA_EN.md)
 
 ## 4. Contributions
-During the use of the project, if you have any questions or suggestions, please submit [issues](https://github.com/WGrape/ngxway/issues/new) or [pull requests](https://github.com/WGrape/ngxway/pulls) any time. About Contribution，please check [How to contribute](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) document.
+During the use of the project, if you have any questions or suggestions, please submit [issues](https://github.com/WGrape/ngxway/issues/new) or [pull requests](https://github.com/WGrape/ngxway/pulls) any time. About Contribution，please check [How to Contribute](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) document.
 
 <img src="https://contrib.rocks/image?repo=wgrape/ngxway">
 

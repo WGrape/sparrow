@@ -25,6 +25,8 @@
 
 ## 2. 快速开始
 
+> 下面是快速使用的简单例子，请点击[使用文档](./.work/extra/doc/2.USAGE_ZH.md)查看更多详细教程。
+
 ### (1) 安装
 
 使用如下命令快速完成安装。
@@ -82,7 +84,7 @@ bash _install.sh
 当某个服务需要更新时，如其镜像内容需要修改，就需要对服务（镜像）进行更新，在自行修改完后，使用如下命令更新
 
 ```bash
-./sparrow updateone {service}
+./sparrow updateone {service_name}
 ```
 
 ## 3. 更多文档
@@ -95,7 +97,7 @@ bash _install.sh
 
 ## 4. 贡献
 
-在使用项目的过程中，如果您有任何的问题和建议可以随时在 [Issues](https://github.com/WGrape/ngxway/issues/new) 中提问，或者在 [Pull Requests](https://github.com/WGrape/ngxway/pulls) 中提交代码。关于代码贡献等，请参考 [如何贡献](./.work/extra/doc/CONTRIBUTION_ZH.md) 文档
+在使用项目的过程中，如果您有任何的问题和建议可以随时在 [Issues](https://github.com/WGrape/ngxway/issues/new) 中提问，或者在 [Pull Requests](https://github.com/WGrape/ngxway/pulls) 中提交代码。关于代码贡献等，请参考 [如何贡献](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_ZH.md) 文档
 
 <img src="https://contrib.rocks/image?repo=wgrape/ngxway">
 

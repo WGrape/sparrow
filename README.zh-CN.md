@@ -43,7 +43,7 @@ bash _install.sh
 ./sparrow --help
 ```
 
-> 如果在使用```./sparrow xxx```命令时出现了些语法错误，请尝试使用bash运行如```bash ./sparrow xxx```
+> 如果使用```./sparrow xxx```命令时出现语法错误，请尝试使用bash运行```bash ./sparrow xxx```，或查看[常见问题](.work/extra/doc/5.QA_ZH.md)
 
 ### (2) 启动
 

@@ -43,7 +43,7 @@ bash _install.sh
 ./sparrow --help
 ```
 
-> If you encounter some syntax errors while using the ```./sparrow xxx``` command, please try to run with bash ```bash ./sparrow xxx``` command.
+> If you encounter some syntax errors while using the ```./sparrow xxx``` command, please try to run with bash ```bash ./sparrow xxx``` command. Check the [Q&A Document](.work/extra/doc/5.QA_EN.md) for more help. 
 
 ### (2) Start
 

@@ -39,9 +39,13 @@ is_linux() {
 # sleep for x seconds.
 sleep_seconds() {
     print_info "sleeping for while"
-    for ((i = $1; i >= 0; i--)); do
+    i=$1
+    # this syntax is not available in sh, only available in bash, so changed it.
+    # for ((i = $1; i >= 0; i--)); do
+    while [ "$i" -ge 0 ]; do
         printf  "sleep seconds: $i seconds\r"
         sleep 1
+        i=$(( i - 1 ))
     done
     printf "\r\n"
 }

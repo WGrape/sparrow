@@ -71,14 +71,15 @@ before_install_command() {
 
     # check docker is installed.
     if ! command -v docker &> /dev/null; then
-        print_info "please install docker and docker-compose firstly, reference: https://github.com/WGrape/sparrow/tree/main/.work/extra/doc/QA.md"
+        print_info "please install docker and docker-compose firstly, reference: https://github.com/WGrape/sparrow/tree/main/.work/extra/doc/5.QA_EN.md"
+        echo "==================================================================================="
 
-        # install docker
-        # curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+        echo "1. install docker"
+        echo "curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun"
 
-        # install docker-compose
-        # curl -L https://github.com/docker/compose/releases/download/1.27.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-        # chmod +x /usr/local/bin/docker-compose
+        echo "2. install docker-compose"
+        echo "curl -L https://github.com/docker/compose/releases/download/1.27.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
+        echo "chmod +x /usr/local/bin/docker-compose"
     else
         print_info "docker is already installed."
     fi

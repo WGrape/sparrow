@@ -5,13 +5,16 @@
 # To maintain consistency and facilitate management, the filenames of these scripts all use the underscore (_) prefix.
 # _update.sh
 
+# define the base path of project.
+CUR_PATH=$(cd "$(dirname "$0")" && pwd)
+SPARROW_BASE_PATH=$CUR_PATH
+
 # cd base dir of project.
-CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
-cd $CUR_PATH
-BATH_PATH=$(pwd)
+# the process is in the same shell as the starting shell.
+cd $SPARROW_BASE_PATH
 
 # include sdk of sparrow.
-source .work/include/sdk.sh
+. .work/include/sdk.sh
 
 # update project.
 update_project() {

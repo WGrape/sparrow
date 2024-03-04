@@ -1,9 +1,8 @@
 #!/bin/sh
 
 # cd base dir of project.
-CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
-cd $CUR_PATH && cd ../../../
-BATH_PATH=$(pwd)
+# the process is in the same shell as the starting shell.
+cd $SPARROW_BASE_PATH
 
 # only define variables, these variables may used defined environment variables in /env file.
 

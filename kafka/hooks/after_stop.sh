@@ -2,7 +2,7 @@
 
 # not need to include sdk of sparrow.
 # because the execution of hook scripts must be within the sparrow script, sdk.sh has already been imported at this point.
-# source .work/include/sdk.sh
+# . .work/include/sdk.sh
 
 output=$(docker container ps -a | grep 'sparrow_container_${CONTAINER_NAMESPACE}_kafka1')
 if [ -n "$output" ]; then

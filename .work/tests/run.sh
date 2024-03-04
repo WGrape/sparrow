@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # include sdk of sparrow.
-source .work/include/sdk.sh
+. .work/include/sdk.sh
 
 testhttp() {
     if is_mac; then

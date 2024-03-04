@@ -1,9 +1,8 @@
 #!/bin/sh
 
 # cd base dir of project.
-CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
-cd $CUR_PATH && cd ../../../
-BATH_PATH=$(pwd)
+# the process is in the same shell as the starting shell.
+cd $SPARROW_BASE_PATH
 
 # -----------------------define some basic helpers-----------------------
 
@@ -200,7 +199,7 @@ pull_or_build_app_image() {
     version=$(eval echo "$"$version_name)
     if pull app $service $version; then
         print_info "pull success: pull app $service $version"
-    elif source "./$service/make_app_image/run.sh"; then
+    elif . "./$service/make_app_image/run.sh"; then
         print_info "build success: run $service/make_app_image/run.sh"
     else
         print_error "pull and build sparrow-app-$service image error"

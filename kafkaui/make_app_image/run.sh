@@ -1,9 +1,8 @@
 #!/bin/sh
 
 # cd base dir of project.
-CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
-cd $CUR_PATH && cd ../../
-BATH_PATH=$(pwd)
+# the process is in the same shell as the starting shell.
+cd $SPARROW_BASE_PATH
 
 # define this service.
 service_name="kafkaui"
@@ -11,7 +10,7 @@ service_name="kafkaui"
 print_stage "try to pull/build sparrow-basic-${service_name} $IMAGE_BASIC_KAFKAUI_VERSION"
 if pull basic $service_name $IMAGE_BASIC_KAFKAUI_VERSION; then
     print_info "pull success"
-elif source "./${service_name}/make_basic_image/run.sh"; then
+elif . "./${service_name}/make_basic_image/run.sh"; then
     print_info "build success"
 else
     print_error "pull/build failed"

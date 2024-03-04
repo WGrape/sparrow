@@ -1,9 +1,12 @@
 #!/bin/sh
 
+# define the base path of project.
+CUR_PATH=$(cd "$(dirname "$0")" && pwd)
+SPARROW_BASE_PATH=$CUR_PATH
+
 # cd base dir of project.
-CUR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
-cd $CUR_PATH
-BATH_PATH=$(pwd)
+# the process is in the same shell as the starting shell.
+cd $SPARROW_BASE_PATH
 
 # extract command
 COMMAND=$1
@@ -31,7 +34,7 @@ else
 fi
 
 # include sdk of sparrow.
-source .work/include/sdk.sh
+. .work/include/sdk.sh
 
 # do sparrow hook
 hook() {
@@ -39,7 +42,7 @@ hook() {
     hook_file="$2/hooks/$1.sh"
     if [ -f "${hook_file}" ]; then
         print_info "do hook: ${hook_file}"
-        source "${hook_file}"
+        . "${hook_file}"
     fi
 }
 
@@ -98,7 +101,7 @@ updateone() {
 
     # build app image
     print_stage "do build sparrow-app-${1} image..."
-    if ! source "./${1}/make_app_image/run.sh"; then
+    if ! . "./${1}/make_app_image/run.sh"; then
         print_error "failed to build sparrow-app-${1} image"
         exit 1
     fi

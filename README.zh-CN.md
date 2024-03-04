@@ -43,6 +43,8 @@ bash _install.sh
 ./sparrow --help
 ```
 
+> 如果在使用```./sparrow xxx```命令时出现了些语法错误，请尝试使用bash运行如```bash ./sparrow xxx```
+
 ### (2) 启动
 
 使用如下命令启动整个环境中的所有服务。当然这个```所有服务```是可定义的，它由根目录下```/.env```文件中配置的```ENABLE_SERVICE_LIST```数组变量控制。

@@ -43,6 +43,8 @@ bash _install.sh
 ./sparrow --help
 ```
 
+> If you encounter some syntax errors while using the ```./sparrow xxx``` command, please try to run with bash ```bash ./sparrow xxx``` command.
+
 ### (2) Start
 
 Use the following command to start all services in the entire environment. Of course, this ```all services``` can be defined and is controlled by the ```ENABLE_SERVICE_LIST``` array variable configured in the ```/.env``` file in the root directory.

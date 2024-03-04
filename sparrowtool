@@ -217,10 +217,12 @@ multi_upload() {
         version_name="IMAGE_APP_${service_upper}_VERSION"
         image_app_version=$(eval echo "$"$version_name)
 
+        # Notice: maybe the basic/app image is not in local
+
         cmd="upload -t basic -s $service -v $image_basic_version"
         print_info "single upload command 1: $cmd"
         if ! ($cmd) ; then
-            print_error "single upload error 1"
+            print_error "single upload error 1, maybe the basic image is not in local"
             exit 1
         fi
 
@@ -234,7 +236,7 @@ multi_upload() {
         cmd="upload -t app -s $service -v $image_app_version"
         print_info "single upload command 3: $cmd"
         if ! ($cmd) ; then
-            print_error "single upload error 3"
+            print_error "single upload error 3, maybe the app image is not in local"
             exit 1
         fi
 

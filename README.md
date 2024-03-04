@@ -93,7 +93,7 @@ When a service needs to be updated, such as when its image content needs to be m
 - 2.Usage Document ：[English](.work/extra/doc/2.USAGE_EN.md) / [中文](.work/extra/doc/2.USAGE_ZH.md)
 - 3.Development Document ：[English](.work/extra/doc/3.DEVELOPMENT_EN.md) / [中文](.work/extra/doc/3.DEVELOPMENT_ZH.md)
 - 4.How to contribute ：[English](.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) / [中文](.work/extra/doc/4.HOW_TO_CONTRIBUTE_ZH.md)
-- 5.Q&A Document ：[English](.work/extra/doc/5.QA_EN.md) / [中文](.work/extra/doc/5.QA_EN.md)
+- 5.Q&A Document ：[English](.work/extra/doc/5.QA_EN.md) / [中文](.work/extra/doc/5.QA_ZH.md)
 
 ## 4. Contributions
 During the use of the project, if you have any questions or suggestions, please submit [issues](https://github.com/WGrape/ngxway/issues/new) or [pull requests](https://github.com/WGrape/ngxway/pulls) any time. About Contribution，please check [How to Contribute](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) document.

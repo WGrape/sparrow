@@ -201,6 +201,9 @@ before_sparrow_command() {
     # check docker.
     if ! docker info > /dev/null 2>&1; then
         print_error "error: please install or start docker first."
+        echo "==================================================================================="
+        print_warn "Reference: https://github.com/WGrape/sparrow/tree/main/.work/extra/doc/5.QA_EN.md\n"
+        print_warn "Tip: use 'docker info' to check status of docker, and use 'systemctl start docker' to start.\n"
         exit 1
     fi
 

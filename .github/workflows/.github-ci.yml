@@ -41,21 +41,5 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: |
-            printf "================ Start to Boot CIManager ================\n"
-            git clone https://github.com/wgrape/CIManager.git
-            cp -an ./CIManager/.pipeline ./
-            rm -rf ./CIManager
-            cd .pipeline
-            printf "================ End Boot ================\n\n"
-            printf "================ Debug Start ================\n\n"
-            show_env(){
-                echo "1. cat /proc/version="$(cat /proc/version)
-                echo "2. pwd="$(pwd)
-                echo "3. ls="$(ls -a)
-            }
-            show_env
-            printf "================ End Debug ================\n\n"
-            printf "\e[36m>>>>>>>>>>> Start Pipeline\e[0m\n\n"
-            # you can run sudo with the -E/--preserve-env switch, sudo -E/--preserve-env ..., which retains environment variables.
-            sudo --preserve-env bash start.sh
-            printf "\e[36m<<<<<<<<<<< End Pipeline\e[0m"
+          git clone https://github.com/wgrape/CIManager.git && bash ./CIManager/connect.sh 
+          sudo --preserve-env bash .pipeline/start.sh # you can run sudo with the -E/--preserve-env switch, sudo -E/--preserve-env ..., which retains environment variables.

@@ -144,10 +144,8 @@ help() {
     printf "    ① example 1: ./sparrowtool env -l port\n"
     printf "\n"
     printf "5、about clear.\n"
-    printf "(1) clear one service or all service : ./sparrowtool clear {service?}\n"
-    printf "    ① param: if you pass nothing, if will clear all services.\n"
-    printf "    ① example 1: ./sparrowtool clear\n"
-    printf "    ② example 2: ./sparrowtool clear go\n"
+    printf "(1) clear one service or some services : ./sparrowtool clear {service1} {service2} ...\n"
+    printf "    ① example 1: ./sparrowtool clear redis nginx mongodb jupyter\n"
     printf "\n"
     printf "5、about tip.\n"
     printf "(1) show all tips : ./sparrowtool tip\n"
@@ -251,14 +249,8 @@ multi_upload() {
 
 # clear service.
 clear() {
-    # check service param.
-    if [ "$1" == "" ]; then
-        service_list=("${ENABLE_SERVICE_LIST[@]}")  # copy the whole array
-    else
-        service_list=($1)
-    fi
-
-    print_info "clear service_list: ${service_list}"
+    service_list=("$@")
+    print_info "clear service_list: ${service_list[@]}, count: ${#service_list[@]}"
     for service in "${service_list[@]}"; do
         # clear the resources of the service
         clear_service_resources $service
@@ -290,7 +282,7 @@ elif [ "${VAR_IS_NEW_COMMAND}" = true ]; then
 elif [ "${VAR_IS_ENV_COMMAND}" = true ]; then
     search_env "$@"
 elif [ "${VAR_IS_CLEAR_COMMAND}" = true ]; then
-    clear "$2"
+    clear "$@"
 elif [ "${VAR_IS_TIP_COMMAND}" = true ]; then
     tip
 elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then

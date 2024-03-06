@@ -1,0 +1,23 @@
+services:
+  ### mongodb #########################################################
+  mongodb:
+    hostname: mongodb
+    image: sparrow-app-mongodb:${IMAGE_APP_MONGODB_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_mongodb
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mongodb/:/home/sparrow/mongodb/
+      - ./mongodb/templates/mongod.conf:/etc/mongod.conf
+      - ./mongodb/data/:/data/db # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${MONGODB_HOST_PORT}:${MONGODB_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

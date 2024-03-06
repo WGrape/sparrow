@@ -94,7 +94,7 @@ updateone() {
     stopone $1
 
     print_stage "do clear service..."
-    clear_service $1
+    clear_service_resources $1
 
     print_stage "do before_start hook..."
     hook $CONST_HOOK_BEFORE_START $1

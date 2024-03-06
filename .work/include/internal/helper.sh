@@ -211,4 +211,23 @@ pull_or_build_app_image() {
     fi
 }
 
+# clear the resources(container, image) of service
+clear_service_resources() {
+    service=$1
+    if [ "$service" == "" ]; then
+        print_error "clear_service_resources miss param"
+        exit 1
+    fi
+    # remove the $service container.
+    print_stage "stop and remove container: sparrow_container_${CONTAINER_NAMESPACE}_${service}"
+    docker stop "sparrow_container_${CONTAINER_NAMESPACE}_${service}"
+    docker rm "sparrow_container_${CONTAINER_NAMESPACE}_${service}"
+
+    # remove the all version images of sparrow-basic-$service/sparrow-app-$service.
+    print_stage "removing images: sparrow-basic-$service(all version), sparrow-app-$service(all version)"
+    docker images | grep "sparrow-app-$service" | awk '{print $3}' | xargs -I {} sh -c 'if [ -n "{}" ]; then docker rmi "{}"; fi'
+    # perhaps there's no need to delete the basic image; we'll see later if this operation can be removed.
+    docker images | grep "sparrow-basic-$service" | awk '{print $3}' | xargs -I {} sh -c 'if [ -n "{}" ]; then docker rmi "{}"; fi'
+}
+
 # ------------------------------end-------------------------------------

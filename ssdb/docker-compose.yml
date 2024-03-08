@@ -1,0 +1,22 @@
+services:
+  ### ssdb #########################################################
+  ssdb:
+    hostname: ssdb
+    image: sparrow-app-ssdb:${IMAGE_APP_SSDB_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_ssdb
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./ssdb/:/home/sparrow/ssdb/
+      - ./ssdb/data/:/ssdb/data # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${SSDB_HOST_PORT}:${SSDB_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

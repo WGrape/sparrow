@@ -117,6 +117,9 @@ parse_env_file() {
 upenv() {
     print_stage "upenv"
 
+    # Todo Feature
+    # automatically check if the .env file has changed, and delete it automatically if there are any changes.
+
     # must not to regenerate the env file, if env file exists.
     env_file=$CONST_SPARROW_CONFIG_ENV_FILE
     if [ ! -f "${env_file}" ]; then

@@ -21,3 +21,6 @@ CONST_BASE_CONFIG_ENV_ARM64_FILE=".work/config/.env.arm64"
 CONST_BASE_CONFIG_COMPOSE_FILE=".work/config/docker-compose.yml"
 CONST_SPARROW_CONFIG_ENV_FILE=".env"
 CONST_SPARROW_CONFIG_COMPOSE_FILE="docker-compose.yml"
+
+# define some default values
+CONST_DEFAULT_DOCKERHUB_REPO="docker.io/lvsid"

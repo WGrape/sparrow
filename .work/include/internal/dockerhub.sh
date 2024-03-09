@@ -7,22 +7,26 @@ cd $SPARROW_BASE_PATH
 # login of $DOCKERHUB_DOMAIN.
 # to be safety, never allow login with account in the command, you must login manually in your local system firstly.
 # docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD $DOCKERHUB_DOMAIN
-login() {
-    print_info "docker login {$DOCKERHUB_DOMAIN}..."
-    # due to the reasons mentioned above, there is no need to do login explicitly here, as the session will be retained after manual login.
-    # if ! docker login; then
-    #    print_error "docker login failed"
-    #    exit 1
-    # fi
-}
+# @Deprecated: it is not available, and not being called
+# login() {
+     # print_info "docker login {$DOCKERHUB_DOMAIN}..."
+     # due to the reasons mentioned above, there is no need to do login explicitly here, as the session will be retained after manual login.
+     # if ! docker login; then
+     #    print_error "docker login failed"
+     #    exit 1
+     # fi
+# }
 
 # search image
 search() {
     search_image=$1
     remove_prefix_search_image=$(echo "$search_image" | sed 's/^docker.io\///')
+    echo "search search_image=${search_image}, remove_prefix_search_image=${remove_prefix_search_image}"
     if docker search "$search_image" | grep -q "^$remove_prefix_search_image"; then
+        print_info "find it"
         return 0  # find
     else
+        print_warn "not find it"
         return 1  # not find
     fi
 }

@@ -41,12 +41,15 @@ cd sparrow
 
 # install
 bash _install.sh
-
-# usage help
-./sparrow --help
 ```
 
-> If you encounter some syntax errors while using the ```./sparrow xxx``` command, please try to run with bash ```bash ./sparrow xxx``` command. Check the [Q&A Document](.work/extra/doc/5.QA_EN.md) for more help. 
+After successful installation, a ```.env``` file will be automatically generated in the project's root directory, it's the config entry for Sparrow, you can modify service versions, container namespaces, and more. Refer to the [.env.template](./.env.template) file. 
+
+> 1、If you encounter some syntax errors while using the ```./sparrow xxx``` command, please try to run with bash ```bash ./sparrow xxx``` command. 
+>
+> 2、During the installation process, you will be prompted to enter ```DOCKERHUB_REPO```, which is used to configure the remote repository for your Sparrow images. It's default value is ```docker.io/lvsid```, if you need to modify it later, you can directly edit the ```.env``` file.
+>
+> 3、If you need help, check the [Q&A Document](.work/extra/doc/5.QA_EN.md) for more help. 
 
 ### (2) Start
 

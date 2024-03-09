@@ -41,12 +41,15 @@ cd sparrow
 
 # 执行安装脚本
 bash _install.sh
-
-# 查看使用帮助
-./sparrow --help
 ```
 
-> 如果使用```./sparrow xxx```命令时出现语法错误，请尝试使用bash运行```bash ./sparrow xxx```，或查看[常见问题](.work/extra/doc/5.QA_ZH.md)
+在安装成功后，项目根目录下会自动生成一个```.env```配置文件，它是sparrow的唯一且统一的配置入口，可以查看它的[示例文件](./.env.template)，在这里你可以修改服务版本、容器命名空间等。
+
+> 1、如果使用```./sparrow xxx```命令时出现语法错误，请尝试使用bash运行```bash ./sparrow xxx```
+>
+> 2、在安装过程中会提示输入```DOCKERHUB_REPO```，用于配置自己的sparrow镜像的远程仓库。它的默认值是```docker.io/lvsid```，如果以后需要修改，直接修改```/.env```配置文件即可
+>
+> 3、如需要帮助，请查看 [常见问题](.work/extra/doc/5.QA_ZH.md)
 
 ### (2) 启动
 

@@ -16,11 +16,19 @@ sleep_seconds 3
 testhttp() {
     if is_mac; then
         # open websites.
-        open "http://127.0.0.1:${ETCDKEEPER_HOST_PORT}/etcdkeeper/" # etcdkeeper
-        open "http://127.0.0.1:${KAFKAUI_HOST_PORT}/" # kafkaui
+         open "http://127.0.0.1:${ETCDKEEPER_HOST_PORT}/etcdkeeper/" # etcdkeeper
+         open "http://127.0.0.1:${KAFKAUI_HOST_PORT}/" # kafkaui
     fi
 }
-testhttp
+# testhttp
+
+echo "test search"
+for service in "${ENABLE_SERVICE_LIST[@]}"; do
+    image="sparrow-basic-${service}"
+    search "$DOCKERHUB_REPO/$image"
+    image="sparrow-app-${service}"
+    search "$DOCKERHUB_REPO/$image"
+done
 
 printf "UnitTest Success"
 exit 0

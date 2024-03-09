@@ -63,6 +63,20 @@ modify_files() {
     # this operation is fine because when the sdk.sh file is included at the beginning, the /env file is created.
     print_info "set GO_PATH: before($GO_PATH), after($local_go_path)"
     awk -F= '/^GO_PATH=/{OFS="="; $2="'${local_go_path}'"}1' "$CONST_SPARROW_CONFIG_ENV_FILE" > temp && mv temp "$CONST_SPARROW_CONFIG_ENV_FILE"
+
+    # modify DOCKERHUB_REPO in /env file
+    if [ "$DOCKERHUB_REPO" == "$CONST_DEFAULT_DOCKERHUB_REPO" ]; then
+        echo "set DOCKERHUB_REPO to configure your remote repository, press enter will use the default value (default=docker.io/lvsid)"
+        printf "please input: "
+        read dockerhub_repo
+        if [ "$dockerhub_repo" == "" ]; then
+            dockerhub_repo="$CONST_DEFAULT_DOCKERHUB_REPO"
+        else
+            awk -F= '/^DOCKERHUB_REPO=/{OFS="="; $2="'${dockerhub_repo}'"}1' "$CONST_SPARROW_CONFIG_ENV_FILE" > temp && mv temp "$CONST_SPARROW_CONFIG_ENV_FILE"
+        fi
+        print_info "your DOCKERHUB_REPO config is: ${dockerhub_repo}"
+        print_warn "If you need to change the configuration in the future, you can update the DOCKERHUB_REPO variable in the /.env file."
+    fi
 }
 
 # before run install command.

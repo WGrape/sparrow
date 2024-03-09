@@ -47,7 +47,7 @@ bash _install.sh
 
 > 1、如果使用```./sparrow xxx```命令时出现语法错误，请尝试使用bash运行```bash ./sparrow xxx```
 >
-> 2、在安装过程中会提示输入```DOCKERHUB_REPO```，用于配置自己的sparrow镜像的远程仓库。它的默认值是```docker.io/lvsid```，如果以后需要修改，直接修改```/.env```配置文件即可
+> 2、在安装过程中会提示输入```DOCKERHUB_REPO```，用于配置自己的sparrow镜像的远程仓库。它的默认值是[docker.io/lvsid](https://hub.docker.com/repositories/lvsid)，如果以后需要修改，直接修改```/.env```配置文件即可
 >
 > 3、如需要帮助，请查看 [常见问题](.work/extra/doc/5.QA_ZH.md)
 

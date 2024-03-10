@@ -12,6 +12,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./grafana/:/home/sparrow/grafana/
+      # https://community.grafana.com/t/grafana-docker-and-data-persistence/33702
       - ./grafana/data/:/var/lib/grafana # data persistence
     ports:
       # You don't need to expose the port in the Dockerfile.

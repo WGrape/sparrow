@@ -21,6 +21,7 @@ testhttp() {
          open "http://127.0.0.1:${PROMETHEUS_HOST_PORT}/targets" # prometheus
          open "http://127.0.0.1:${PROMETHEUS_HOST_PORT}/graph" # prometheus
          open "http://127.0.0.1:${GRAFANA_HOST_PORT}/graph" # prometheus
+         open "http://127.0.0.1:${GRAFANA_HOST_PORT}/api/v1/query" # prometheus
     fi
 }
 # testhttp

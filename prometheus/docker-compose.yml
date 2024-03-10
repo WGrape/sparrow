@@ -1,0 +1,23 @@
+services:
+  ### prometheus #########################################################
+  prometheus:
+    hostname: prometheus
+    image: sparrow-app-prometheus:${IMAGE_APP_PROMETHEUS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_prometheus
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./prometheus/:/home/sparrow/prometheus/
+      # https://stackoverflow.com/questions/50009065/how-to-persist-data-in-prometheus-running-in-a-docker-container
+      - ./prometheus/data/:/prometheus # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${PROMETHEUS_HOST_PORT}:${PROMETHEUS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

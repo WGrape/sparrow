@@ -1,0 +1,22 @@
+services:
+  ### grafana #########################################################
+  grafana:
+    hostname: grafana
+    image: sparrow-app-grafana:${IMAGE_APP_GRAFANA_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_grafana
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./grafana/:/home/sparrow/grafana/
+      - ./grafana/data/:/var/lib/grafana # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${GRAFANA_HOST_PORT}:${GRAFANA_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

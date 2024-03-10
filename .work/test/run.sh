@@ -18,6 +18,9 @@ testhttp() {
         # open websites.
          open "http://127.0.0.1:${ETCDKEEPER_HOST_PORT}/etcdkeeper/" # etcdkeeper
          open "http://127.0.0.1:${KAFKAUI_HOST_PORT}/" # kafkaui
+         open "http://127.0.0.1:${PROMETHEUS_HOST_PORT}/targets" # prometheus
+         open "http://127.0.0.1:${PROMETHEUS_HOST_PORT}/graph" # prometheus
+         open "http://127.0.0.1:${GRAFANA_HOST_PORT}/graph" # prometheus
     fi
 }
 # testhttp

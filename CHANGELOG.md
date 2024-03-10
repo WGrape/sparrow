@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.2.0](https://github.com/WGrape/sparrow/compare/v1.1.0...v1.2.0) (2024-03-10)
+
+
+### Features
+
+* add .env.template ([3b1a0a0](https://github.com/WGrape/sparrow/commit/3b1a0a094f8bfd516c52eaa47186bb798f63d5a5))
+* add DOCKERHUB_REPO configure when run _install.sh, add search test ([1f33cac](https://github.com/WGrape/sparrow/commit/1f33cac969641dc0d675474361a6b3333f4699ac))
+* add prometheus and grafana support ([c9e3f08](https://github.com/WGrape/sparrow/commit/c9e3f0891b295d37ca74ca4b6e228ab8ddc70a6c))
+* add ssdb support ([7eb25ab](https://github.com/WGrape/sparrow/commit/7eb25ab1e67a830ee7987546d752cff5346da6b1))
+* move SSDB's codes to app ([ecd2d86](https://github.com/WGrape/sparrow/commit/ecd2d8609d18946bd0bc465184d134a69f75fe88))
+
+
+### Docs
+
+* make doc better - add DOCKERHUB_REPO concept ([d31d8d3](https://github.com/WGrape/sparrow/commit/d31d8d3fcf762cbda267d7a69db471916e529bc9))
+* update daoc ([130db40](https://github.com/WGrape/sparrow/commit/130db40208da4f2c95a66a3777d4017e9e9bb55c))
+* update doc ([022df2c](https://github.com/WGrape/sparrow/commit/022df2ca56e15ba2efafacd4a5dd8a568244b61d))
+* update doc ([48ec95c](https://github.com/WGrape/sparrow/commit/48ec95c4845b72eafbac91770ac6241b812a3404))
+
+
+### Tests
+
+* add search test ([4783e8d](https://github.com/WGrape/sparrow/commit/4783e8d51998dc13b97de3ea367b1bf07751f650))
+* add search test ([8622f0c](https://github.com/WGrape/sparrow/commit/8622f0c5518686d54fd5687c7743a7fe742a01a3))
+
 ## [1.1.0](https://github.com/WGrape/sparrow/compare/v1.0.5...v1.1.0) (2024-03-06)
 
 

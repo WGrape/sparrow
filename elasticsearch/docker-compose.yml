@@ -1,0 +1,25 @@
+services:
+  ### elasticsearch #########################################################
+  elasticsearch:
+    hostname: elasticsearch
+    image: sparrow-app-elasticsearch:${IMAGE_APP_ELASTICSEARCH_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_elasticsearch
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      discovery.type: single-node # This must be set, otherwise resources will be consumed excessively and lead to a crash.
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./elasticsearch/:/home/sparrow/elasticsearch/
+      # https://stackoverflow.com/questions/52373356/docker-bind-elasticsearch-volume-in-app-folder
+      - ./elasticsearch/data/:/usr/share/elasticsearch/data # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${ELASTICSEARCH_HOST_HTTP_PORT}:${ELASTICSEARCH_CONTAINER_HTTP_PORT}"
+      - "${ELASTICSEARCH_HOST_TCP_PORT}:${ELASTICSEARCH_CONTAINER_TCP_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

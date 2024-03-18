@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/WGrape/sparrow/compare/v1.2.0...v1.3.0) (2024-03-13)
+
+
+### Features
+
+* add elasticsearch support ([42363e8](https://github.com/WGrape/sparrow/commit/42363e8bebb2abe6c43d2885582464b744489a5b))
+
+
+### Docs
+
+* update CHANGELOG.md ([f5d2b6f](https://github.com/WGrape/sparrow/commit/f5d2b6fc3dd12194114a83bfc645be6f673291e3))
+* update doc ([83478c8](https://github.com/WGrape/sparrow/commit/83478c898022833b59045dc24d9366c262efc574))
+
+
+### Update
+
+* add comments ([c036b37](https://github.com/WGrape/sparrow/commit/c036b3788e9670c8d8fd68139bd4a924fd13cca0))
+
 ## [1.2.0](https://github.com/WGrape/sparrow/compare/v1.1.0...v1.2.0) (2024-03-10)
 
 

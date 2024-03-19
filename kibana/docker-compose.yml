@@ -1,0 +1,24 @@
+services:
+  ### kibana #########################################################
+  kibana:
+    hostname: kibana
+    image: sparrow-app-kibana:${IMAGE_APP_KIBANA_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_kibana
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kibana/:/home/sparrow/kibana/
+      # Based on this question, it looks like it saves into elasticsearch, so you don't need to mount a shared volume.
+      # https://stackoverflow.com/questions/42874034/kibana-running-on-docker-how-to-save-dashboard
+      - ./kibana/data/:/var/data/kibana/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${KIBANA_HOST_PORT}:${KIBANA_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

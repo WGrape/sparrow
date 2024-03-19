@@ -24,7 +24,9 @@
 
 <!-- <img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/5bf35edb-7b5f-4407-86e8-f1fcc1815e03"> -->
 
-<img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/0294fc18-2714-466f-898a-61dac573c479">
+<!-- <img width="882" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/0294fc18-2714-466f-898a-61dac573c479"> -->
+
+<img width="880" alt="image" src="https://github.com/WGrape/sparrow/assets/35942268/52d3a44c-5b89-4847-996e-ebef00a4a107">
 
 ## 2. 快速开始
 

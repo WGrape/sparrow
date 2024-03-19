@@ -1,0 +1,10 @@
+# Default Kibana configuration for docker target
+server.host: "0.0.0.0"
+server.shutdownTimeout: "5s"
+elasticsearch.hosts: [ "http://DOCKER_HOST_IP:ELASTICSEARCH_HOST_HTTP_PORT" ]
+monitoring.ui.container.elasticsearch.enabled: true
+
+# fix the error: missing authentication credentials for REST request
+# xpack.security.enabled: false
+# elasticsearch.username: elastic
+# elasticsearch.password: elastic

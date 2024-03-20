@@ -32,6 +32,8 @@
 
 > 下面是快速使用的简单例子，请点击[使用文档](./.work/extra/doc/2.USAGE_ZH.md)查看更多详细教程。
 
+<video src="https://github.com/WGrape/sparrow/assets/35942268/bc180f06-fedc-42d2-b21b-f7c7fa1b65ea" width="" height="" controls="controls"></video>
+
 ### (1) 安装
 
 使用如下命令快速完成安装。

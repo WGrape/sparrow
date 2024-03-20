@@ -32,6 +32,8 @@ Add a new service, please [click  here](https://github.com/WGrape/sparrow/issues
 
 > Here is a quick usage example. You can check [Usage Document](.work/extra/doc/2.USAGE_EN.md) for detailed tutorials.
 
+<video src="https://github.com/WGrape/sparrow/assets/35942268/bc180f06-fedc-42d2-b21b-f7c7fa1b65ea" width="" height="" controls="controls"></video>
+
 ### (1) Installation
 
 You can use the following commands to install.

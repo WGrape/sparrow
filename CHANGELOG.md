@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/WGrape/sparrow/compare/v1.3.0...v1.4.0) (2024-03-20)
+
+
+### Features
+
+* add kibana service ([d5ec089](https://github.com/WGrape/sparrow/commit/d5ec08959b39d80d68e57bb79f6027376888e480))
+
+
+### Docs
+
+* add ssdb error ([a135f68](https://github.com/WGrape/sparrow/commit/a135f687859059de345c2ff5206abe1a28f28f53))
+* add ssdb error ([d841390](https://github.com/WGrape/sparrow/commit/d8413901fecbea593b3782a1809e04330033292b))
+* doc add video ([8796d89](https://github.com/WGrape/sparrow/commit/8796d89d73c0c2dd91d5c2f222daa480b94803d7))
+
 ## [1.3.0](https://github.com/WGrape/sparrow/compare/v1.2.0...v1.3.0) (2024-03-13)
 
 

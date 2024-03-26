@@ -4,8 +4,9 @@
 
 <div align="center">
     <p><a href="https://github.com/WGrape/sparrow">English</a> / <a href="./README.zh-CN.md">中文</a></p>
-    <p>A Docker tool for one-click startup of multiple services.</p>
+    <p><a href="#2-quick-start">Quick Start</a> / <a href="#3-more-documents">Documents</a> / <a href="https://www.ixigua.com/7350725273806963219">Videos</a></p>
     <p><a href="https://github.com/WGrape/sparrow/blob/main/.work/extra/doc/1.WHY_SPARROW_EN.md">What is sparrow and why should we use sparrow?</a></p>
+    <p>A Docker tool for one-click startup of multiple services.</p>
 </div>
 
 <p align="center">

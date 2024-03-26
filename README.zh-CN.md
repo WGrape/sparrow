@@ -4,8 +4,9 @@
 
 <div align="center">
     <p><a href="https://github.com/WGrape/sparrow">English</a> / <a href="./README.zh-CN.md">中文</a></p>
-    <p>基于Docker一键启动多个服务环境的容器化编排工具</p>
+    <p><a href="#2-快速开始">快速开始</a> / <a href="#3-更多文档">文档教程</a> / <a href="https://www.ixigua.com/7350725273806963219">视频教程</a></p>
     <p><a href="https://github.com/WGrape/sparrow/blob/main/.work/extra/doc/1.WHY_SPARROW_ZH.md">什么是sparrow？为什么要使用sparrow？</a></p>
+    <p>基于Docker一键启动多个服务环境的容器化编排工具</p>
 </div>
 
 <p align="center">

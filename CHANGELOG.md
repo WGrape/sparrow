@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/WGrape/sparrow/compare/v1.4.0...v1.5.0) (2024-03-27)
+
+
+### Features
+
+* add nacos ([392c7a0](https://github.com/WGrape/sparrow/commit/392c7a0305272ff768127e5ab509081275015de6))
+* add prompthub ([db63b2c](https://github.com/WGrape/sparrow/commit/db63b2c73c2f8606bd405dcd6251f509afce1771))
+
+
+### Docs
+
+* make doc better ([4adfede](https://github.com/WGrape/sparrow/commit/4adfede74531d18923e63792baf744e9bda4e809))
+* make doc better ([1043f62](https://github.com/WGrape/sparrow/commit/1043f6279b93e75df0803b8f0bcf7fd85a7d766a))
+* make doc better ([349d68e](https://github.com/WGrape/sparrow/commit/349d68ecabeaede3edf74a5f857947071f3bce5e))
+
 ## [1.4.0](https://github.com/WGrape/sparrow/compare/v1.3.0...v1.4.0) (2024-03-20)
 
 

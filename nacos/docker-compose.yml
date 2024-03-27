@@ -1,0 +1,22 @@
+services:
+  ### nacos #########################################################
+  nacos:
+    hostname: nacos
+    image: sparrow-app-nacos:${IMAGE_APP_NACOS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_nacos
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./nacos/:/home/sparrow/nacos/
+      - ./nacos/data/:/home/nacos/data # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${NACOS_HOST_PORT}:${NACOS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

@@ -1,0 +1,22 @@
+services:
+  ### prompthub #########################################################
+  prompthub:
+    hostname: prompthub
+    image: sparrow-app-prompthub:${IMAGE_APP_PROMPTHUB_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_prompthub
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./prompthub/:/home/sparrow/prompthub/
+      - ./prompthub/data/:/prompts/ # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${PROMPTHUB_HOST_PORT}:${PROMPTHUB_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

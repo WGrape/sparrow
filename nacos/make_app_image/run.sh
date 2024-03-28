@@ -22,6 +22,10 @@ if ! docker build \
   --build-arg FROM_PLATFORM=${FROM_PLATFORM} \
   --build-arg IMAGE_BASIC_NACOS_VERSION=${IMAGE_BASIC_NACOS_VERSION} \
   --build-arg NACOS_MODE=${NACOS_MODE} \
+  --build-arg NACOS_AUTH_ENABLE=${NACOS_AUTH_ENABLE} \
+  --build-arg NACOS_AUTH_TOKEN="${NACOS_AUTH_TOKEN}" \
+  --build-arg NACOS_AUTH_IDENTITY_KEY=${NACOS_AUTH_IDENTITY_KEY} \
+  --build-arg NACOS_AUTH_IDENTITY_VALUE=${NACOS_AUTH_IDENTITY_VALUE} \
   \
   -f ./make_app_image/Dockerfile \
   -t sparrow-app-$service_name:${IMAGE_APP_NACOS_VERSION} . ; then

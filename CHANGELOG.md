@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.0](https://github.com/WGrape/sparrow/compare/v1.5.0...v1.6.0) (2024-03-28)
+
+
+### Features
+
+* nacos add token ([8ba82cf](https://github.com/WGrape/sparrow/commit/8ba82cf9837dcc4598d99c559eaebdf5fa3d1a1c))
+
+
+### Bug Fixes
+
+* fix nacos mount ([e8101d2](https://github.com/WGrape/sparrow/commit/e8101d25b6f46405c831372c2930c047e13c8ae9))
+
+
+### Docs
+
+* CHANGELOG.md ([1bae571](https://github.com/WGrape/sparrow/commit/1bae5712b442c810b487085e91bbcd5109d6dee5))
+
 ## [1.5.0](https://github.com/WGrape/sparrow/compare/v1.4.0...v1.5.0) (2024-03-27)
 
 

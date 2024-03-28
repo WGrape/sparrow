@@ -12,8 +12,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./nacos/:/home/sparrow/nacos/
-      - ./nacos/data/data/:/home/nacos/data/ # data persistence
-      - ./nacos/data/conf/application.properties:/home/nacos/conf/application.properties # data persistence
+      - ./nacos/data/:/home/nacos/data/ # data persistence
+#      - ./nacos/data/conf/application.properties:/home/nacos/conf/application.properties # data persistence
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${NACOS_HOST_PORT}:${NACOS_CONTAINER_PORT}"

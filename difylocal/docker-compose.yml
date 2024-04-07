@@ -1,0 +1,25 @@
+services:
+  ### difylocal #########################################################
+  difylocal:
+    hostname: difylocal
+    image: sparrow-app-difylocal:${IMAGE_APP_DIFYLOCAL_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_difylocal
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./difylocal/:/home/sparrow/difylocal/
+      - ./difylocal/data/:/var/data/difylocal/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${DIFYLOCAL_HOST_WEB_PORT}:${DIFYLOCAL_CONTAINER_WEB_PORT}"
+      - "${DIFYLOCAL_HOST_API_PORT}:${DIFYLOCAL_CONTAINER_API_PORT}"
+      - "${DIFYLOCAL_HOST_CODE_EXECUTION_ENDPOINT_PORT}:${DIFYLOCAL_CONTAINER_CODE_EXECUTION_ENDPOINT_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # a command is needed here, otherwise the container cannot be started successfully.
+    command: "tail -f /dev/null"

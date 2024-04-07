@@ -19,5 +19,5 @@ services:
     networks:
       - backend
     # only for debug
-    # because the django server is started directly by nohup in the background, a command is needed here, otherwise the container cannot be started successfully.
+    # a command is needed here, otherwise the container cannot be started successfully.
     command: "tail -f /dev/null"

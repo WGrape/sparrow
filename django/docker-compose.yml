@@ -1,0 +1,23 @@
+services:
+  ### django #########################################################
+  django:
+    hostname: django
+    image: sparrow-app-django:${IMAGE_APP_DJANGO_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_django
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./django/:/home/sparrow/django/
+      - ./django/data/:/var/data/django/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${DJANGO_HOST_PORT}:${DJANGO_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # because the django server is started directly by nohup in the background, a command is needed here, otherwise the container cannot be started successfully.
+    command: "tail -f /dev/null"

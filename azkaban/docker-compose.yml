@@ -1,0 +1,22 @@
+services:
+  ### azkaban #########################################################
+  azkaban:
+    hostname: azkaban
+    image: sparrow-app-azkaban:${IMAGE_APP_AZKABAN_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_azkaban
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./azkaban/:/home/sparrow/azkaban/
+      - ./azkaban/data/:/var/data/azkaban/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${AZKABAN_HOST_PORT}:${AZKABAN_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

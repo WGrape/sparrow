@@ -1,6 +1,7 @@
 > Since dify relies on too many services, the difylocal service will have the following characteristics, which are different from other services.
 > 1. ```difylocal``` only provides the nodejs and python environment for running dify, and does not have any other dependencies.
-> 2. you should clone dify to ```difylocal/data```, and run it by source code: https://docs.dify.ai/v/zh-hans/getting-started/install-self-hosted/local-source-code
+> 2. the dependencies include ```postgres/redis/```, you can use sparrow to ```./sparrow startone redis``` / ```./sparrow startone postgres```.
+> 3. you should clone dify to ```difylocal/data```, and run it by source code: https://docs.dify.ai/v/zh-hans/getting-started/install-self-hosted/local-source-code
 >
 > ![image](https://github.com/WGrape/sparrow/assets/35942268/5f12c6c5-3e2e-497f-a257-4888439a9b9f)
 

@@ -19,4 +19,5 @@ services:
     networks:
       - backend
     # only for debug
-    # command: "tail -f /dev/null"
+    # Since it(/bin/start-solo.sh) will start a process in the background and exit directly, resulting in no program running in the foreground, you can enable a command like tail -f to ensure that it will not exit.
+    command: "tail -f /dev/null"

@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.6.0](https://github.com/WGrape/sparrow/compare/v1.5.0...v1.6.0) (2024-05-17)
+
+
+### Features
+
+* add azkaban support ([0b6f5e5](https://github.com/WGrape/sparrow/commit/0b6f5e5f0cc01fc63686c3dc2aac39493ee98bb5))
+* add difylocal service ([63bbb5c](https://github.com/WGrape/sparrow/commit/63bbb5c09d939de72707799b63d101c3ce8152c6))
+* add django service and delete unnecessary {service}/Dockerfile ([3a03b69](https://github.com/WGrape/sparrow/commit/3a03b69ccaaccc4ae9746c4ed88dcabdbe7632c0))
+* add start_local.sh of difylocal ([2d4f176](https://github.com/WGrape/sparrow/commit/2d4f1763f81cbf31f5ef36628e10038107db98af))
+* change pip source of difylocal ([e447669](https://github.com/WGrape/sparrow/commit/e447669cc3350076ea36ffb217ead62f4893bbac))
+* limit the memory of elasticsearch ([637460e](https://github.com/WGrape/sparrow/commit/637460e047d85365aa2520e0c53b4389fbecc1c1))
+* nacos add token ([8ba82cf](https://github.com/WGrape/sparrow/commit/8ba82cf9837dcc4598d99c559eaebdf5fa3d1a1c))
+* nacos support application.properties ([442abbf](https://github.com/WGrape/sparrow/commit/442abbfcb2be106f91e37b3b6e1e72500d9531bc))
+* nacos support application.properties ([724cbfc](https://github.com/WGrape/sparrow/commit/724cbfc03c3f9c25068fbe46420afd2aaa97447d))
+
+
+### Bug Fixes
+
+* fix nacos mount ([e8101d2](https://github.com/WGrape/sparrow/commit/e8101d25b6f46405c831372c2930c047e13c8ae9))
+* fix the .env_of_web of difylocal ([3e8c534](https://github.com/WGrape/sparrow/commit/3e8c5347ff10b1c0d2699680787c6e22c22c71ad))
+
+
+### Docs
+
+* CHANGELOG.md ([1bae571](https://github.com/WGrape/sparrow/commit/1bae5712b442c810b487085e91bbcd5109d6dee5))
+* make .env_of_api better ([2f9a0d3](https://github.com/WGrape/sparrow/commit/2f9a0d331b85d67d711cd8c9b78ab53cdcb2bfe5))
+* make difylocal doc better ([1aa0225](https://github.com/WGrape/sparrow/commit/1aa0225ca63c63d372fabd862047d26cd22a706f))
+
 ## [1.5.0](https://github.com/WGrape/sparrow/compare/v1.4.0...v1.5.0) (2024-03-27)
 
 

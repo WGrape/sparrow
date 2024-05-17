@@ -21,5 +21,9 @@ services:
       - "${ELASTICSEARCH_HOST_TCP_PORT}:${ELASTICSEARCH_CONTAINER_TCP_PORT}"
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          memory: 2G  # ES takes up too much memory, so limit it.
     # only for debug
     # command: "tail -f /dev/null"

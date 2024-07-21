@@ -1,6 +1,7 @@
 # ignore system.
 .DS_Store
 .idea/
+*.swp
 
 # ignore golang.
 go.sum
@@ -14,6 +15,10 @@ nginx/templates/sites/*
 # ignore all logs.
 */logs/*
 !*/logs/README.md
+
+# ignore all conf.
+*/conf/*
+!*/conf/README.md
 
 # ignore any directory in the 'data' directory (include the sub directories).
 data/

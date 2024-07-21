@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/WGrape/sparrow/compare/v1.6.0...v1.7.0) (2024-07-21)
+
+
+### Features
+
+* Private cloud does not check whether the image exists ([4d273e1](https://github.com/WGrape/sparrow/commit/4d273e1aef0b160050df9138578c7078198b2c79))
+
+
+### Docs
+
+* update README.md (add /conf dir) ([233ab74](https://github.com/WGrape/sparrow/commit/233ab744c4751b2e90db9c7e3e2fbcaf6b6f28ca))
+
 ## [1.6.0](https://github.com/WGrape/sparrow/compare/v1.5.0...v1.6.0) (2024-05-17)
 
 

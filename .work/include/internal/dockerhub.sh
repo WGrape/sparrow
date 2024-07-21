@@ -19,6 +19,11 @@ cd $SPARROW_BASE_PATH
 
 # search image
 search() {
+    if ! [[ "${DOCKERHUB_REPO}" == *"docker.io"* ]]; then
+        print_warn "Private cloud does not check whether the image exists"
+        return 0
+    fi
+
     search_image=$1
     remove_prefix_search_image=$(echo "$search_image" | sed 's/^docker.io\///')
     echo "search search_image=${search_image}, remove_prefix_search_image=${remove_prefix_search_image}"

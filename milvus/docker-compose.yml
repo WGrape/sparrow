@@ -1,0 +1,28 @@
+services:
+  ### MILVUS #########################################################
+  milvus:
+    hostname: milvus
+    image: sparrow-app-milvus:${IMAGE_APP_MILVUS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_milvus
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      ETCD_USE_EMBED: "true"
+      ETCD_DATA_DIR: /var/lib/milvus/etcd
+      ETCD_CONFIG_PATH: /milvus/configs/embedEtcd.yaml
+      COMMON_STORAGETYPE: local
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./milvus/:/home/sparrow/milvus/
+      - ./milvus/data/:/var/lib/milvus/ # data persistence
+      - ./milvus/templates/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${MILVUS_GRPC_HOST_PORT}:${MILVUS_GRPC_CONTAINER_PORT}"
+      - "${MILVUS_HTTP_HOST_PORT}:${MILVUS_HTTP_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

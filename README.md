@@ -109,9 +109,9 @@ When a service needs to be updated, such as when its image content needs to be m
 - 5.Q&A Document ：[English](.work/extra/doc/5.QA_EN.md) / [中文](.work/extra/doc/5.QA_ZH.md)
 
 ## 4. Contributions
-During the use of the project, if you have any questions or suggestions, please submit [issues](https://github.com/WGrape/ngxway/issues/new) or [pull requests](https://github.com/WGrape/ngxway/pulls) any time. About Contribution，please check [How to Contribute](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) document.
+During the use of the project, if you have any questions or suggestions, please submit [issues](https://github.com/WGrape/sparrow/issues/new) or [pull requests](https://github.com/WGrape/sparrow/pulls) any time. About Contribution，please check [How to Contribute](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_EN.md) document.
 
-<img src="https://contrib.rocks/image?repo=wgrape/ngxway">
+<img src="https://contrib.rocks/image?repo=wgrape/sparrow">
 
 ## 5. License
 

@@ -110,9 +110,9 @@ bash _install.sh
 
 ## 4. 贡献
 
-在使用项目的过程中，如果您有任何的问题和建议可以随时在 [Issues](https://github.com/WGrape/ngxway/issues/new) 中提问，或者在 [Pull Requests](https://github.com/WGrape/ngxway/pulls) 中提交代码。关于代码贡献等，请参考 [如何贡献](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_ZH.md) 文档
+在使用项目的过程中，如果您有任何的问题和建议可以随时在 [Issues](https://github.com/WGrape/sparrow/issues/new) 中提问，或者在 [Pull Requests](https://github.com/WGrape/sparrow/pulls) 中提交代码。关于代码贡献等，请参考 [如何贡献](./.work/extra/doc/4.HOW_TO_CONTRIBUTE_ZH.md) 文档
 
-<img src="https://contrib.rocks/image?repo=wgrape/ngxway">
+<img src="https://contrib.rocks/image?repo=wgrape/sparrow">
 
 ## 5. 开源许可证
 

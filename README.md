@@ -39,6 +39,8 @@ Add a new service, please [click  here](https://github.com/WGrape/sparrow/issues
 
 You can use the following commands to install.
 
+> **Stability note**: The `main` branch receives continuous updates including new features. Although all changes go through extensive testing, new features may occasionally introduce instability. If you encounter unexpected issues, it is recommended to download a stable [Release](https://github.com/WGrape/sparrow/releases) package instead.
+
 ```bash
 # get project
 git clone https://github.com/WGrape/sparrow.git

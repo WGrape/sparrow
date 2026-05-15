@@ -39,6 +39,8 @@
 
 使用如下命令快速完成安装。
 
+> **稳定性提示**：`main` 主分支会持续更新新功能，虽然每次变更都经过了大量测试，但新功能仍可能带来潜在的不稳定。如遇到相关问题，建议优先下载稳定的 [Release](https://github.com/WGrape/sparrow/releases) 版本包使用。
+
 ```bash
 # 获取项目
 git clone https://github.com/WGrape/sparrow.git

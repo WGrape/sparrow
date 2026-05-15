@@ -107,7 +107,7 @@ updateone() {
     fi
 
     print_stage "do compose..."
-    if ! docker compose --env-file $CONST_SPARROW_CONFIG_ENV_FILE up -d --no-deps --pull never "$1"; then
+    if ! docker compose --env-file $CONST_SPARROW_CONFIG_ENV_FILE up -d --no-deps "$1"; then
         print_error "$1 compose failed"
         exit 1
     fi

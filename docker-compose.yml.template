@@ -1,0 +1,641 @@
+# ======================================================= #
+# During the Sparrow startup process, a docker-compose.y- #
+# ml file is automatically generated in the root directo- #
+# ry. This file is simply an environment variable templa- #
+# te and has no actual function.                          #
+# ======================================================= #
+# 在sparrow启动过程中, 会自动在根目录下生成一个.env文件, 所以此  #
+# 文件也只是一个环境变量模板的文件, 无任何实际性作用             #
+# ======================================================= #
+#                                                         #
+#               docker-compose.yml.template               #
+#                                                         #
+###########################################################
+###################### General Setup ######################
+###########################################################
+
+version: '3'
+
+networks:
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+services:
+
+  ### ZOOKEEPER ##################################################
+  zookeeper:
+    hostname: zookeeper
+    image: sparrow-app-zookeeper:${IMAGE_APP_ZOOKEEPER_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_zookeeper
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./zookeeper/:/home/sparrow/zookeeper/
+      - ./zookeeper/data/:/opt/zookeeper-${IMAGE_OFFICIAL_ZOOKEEPER_VERSION}/data/ # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${ZOOKEEPER_HOST_PORT}:${ZOOKEEPER_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### Go #########################################################
+  go:
+    hostname: go
+    image: sparrow-app-go:${IMAGE_APP_GO_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_go
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./go/:/home/sparrow/go/
+      - ./go/data/:/var/data/go/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+      - ${GO_PATH}:/go
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+      - "host.docker.internal:${DOCKER_HOST_IP}"
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${GO_HOST_PORT}:${GO_CONTAINER_PORT}"
+    tty: true
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### PHPFPM #####################################################
+  phpfpm:
+    hostname: phpfpm
+    image: sparrow-app-phpfpm:${IMAGE_APP_PHPFPM_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_phpfpm
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./phpfpm/:/home/sparrow/phpfpm/
+      - ./phpfpm/data/:/var/data/phpfpm/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+      - ${PHPFPM_LOCALHOST_LARAVEL_APP_LOG_PATH}:${PHPFPM_LARAVEL_APP_LOG_PATH}
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+      - "host.docker.internal:${DOCKER_HOST_IP}"
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${PHPFPM_HOST_PORT}:${PHPFPM_CONTAINER_PORT}"
+      - "${PHPFPM_HOST_XDEBUG_PORT}:${PHPFPM_CONTAINER_XDEBUG_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### PYTHON #####################################################
+  python:
+    hostname: python
+    image: sparrow-app-python:${IMAGE_APP_PYTHON_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_python
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./python/:/home/sparrow/python/
+      - ./python/data/:/var/data/python/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${PYTHON_HOST_PORT}:${PYTHON_CONTAINER_PORT}"
+    tty: true # must set the field
+    # command: "tail -f /dev/null" # only for debug
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### MYSQL ######################################################
+  mysql:
+    hostname: mysql
+    image: sparrow-app-mysql:${IMAGE_APP_MYSQL_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_mysql
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mysql/:/home/sparrow/mysql/
+      - ./mysql/templates/my.cnf:/etc/my.cnf
+      - ./mysql/data/:/var/lib/mysql/ # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### REDIS ######################################################
+  redis:
+    hostname: redis
+    image: sparrow-app-redis:${IMAGE_APP_REDIS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_redis
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./redis/:/home/sparrow/redis/
+      - ./redis/data/:/var/data/redis/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### POSTGRES ###################################################
+  postgres:
+    hostname: postgres
+    image: sparrow-app-postgres:${IMAGE_APP_POSTGRES_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_postgres
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./postgres/:/home/sparrow/postgres/
+      - ./postgres/data/:/var/lib/postgresql/data/ # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### ETCD #######################################################
+  etcd:
+    hostname: etcd
+    image: sparrow-app-etcd:${IMAGE_APP_ETCD_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_etcd
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etcd/:/home/sparrow/etcd/
+      - ./etcd/data/:/var/data/etcd/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${ETCD_CLIENT_HOST_PORT}:${ETCD_CLIENT_CONTAINER_PORT}"
+      - "${ETCD_SERVER_HOST_PORT}:${ETCD_SERVER_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### NGINX ######################################################
+  nginx:
+    hostname: nginx
+    image: sparrow-app-nginx:${IMAGE_APP_NGINX_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_nginx
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./nginx/:/home/sparrow/nginx/
+      - ./nginx/data/:/var/data/nginx/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+      - ${NGINX_LOG_PATH}:/var/log/nginx/
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available/
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${NGINX_HOST_HTTP_PORT}:${NGINX_CONTAINER_HTTP_PORT}"
+      - "${NGINX_HOST_HTTPS_PORT}:${NGINX_CONTAINER_HTTPS_PORT}"
+      - "${NGINX_HOST_GO_PROXY_PORT}:${NGINX_CONTAINER_GO_PROXY_PORT}"
+      - "${NGINX_HOST_PHPFPM_PROXY_PORT}:${NGINX_CONTAINER_PHPFPM_PROXY_PORT}"
+      - "${NGINX_HOST_PYTHON_PROXY_PORT}:${NGINX_CONTAINER_PYTHON_PROXY_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### KAFKA ######################################################
+  kafka:
+    hostname: kafka
+    image: sparrow-app-kafka:${IMAGE_APP_KAFKA_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_kafka
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kafka/:/home/sparrow/kafka/
+      - ./kafka/data/:/var/data/kafka/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${KAFKA_HOST_PORT}:${KAFKA_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### KAFKAUI ####################################################
+  kafkaui:
+    hostname: kafkaui
+    image: sparrow-app-kafkaui:${IMAGE_APP_KAFKAUI_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_kafkaui
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kafkaui/:/home/sparrow/kafkaui/
+      - ./kafkaui/templates/config.yml:/etc/kafkaui/dynamic_config.yaml
+      - ./kafkaui/data/:/var/data/kafkaui/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${KAFKAUI_HOST_PORT}:${KAFKAUI_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### ETCDKEEPER #################################################
+  etcdkeeper:
+    hostname: etcdkeeper
+    image: sparrow-app-etcdkeeper:${IMAGE_APP_ETCDKEEPER_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_etcdkeeper
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etcdkeeper/:/home/sparrow/etcdkeeper/
+      - ./etcdkeeper/data/:/var/data/etcdkeeper/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${ETCDKEEPER_HOST_PORT}:${ETCDKEEPER_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### jupyter #########################################################
+  jupyter:
+    hostname: jupyter
+    image: sparrow-app-jupyter:${IMAGE_APP_JUPYTER_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_jupyter
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./jupyter/:/home/sparrow/jupyter/
+      - ./jupyter/data/:/var/data/jupyter/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${JUPYTER_HOST_PORT}:${JUPYTER_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### nodejs #########################################################
+  nodejs:
+    hostname: nodejs
+    image: sparrow-app-nodejs:${IMAGE_APP_NODEJS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_nodejs
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./nodejs/:/home/sparrow/nodejs/
+      - ./nodejs/data/:/var/data/nodejs/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${NODEJS_HOST_PORT}:${NODEJS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+    command: "tail -f /dev/null" # Because there is no startup command for the nodejs service, use this command to ensure it can be started successfully.
+
+  ### mongodb #########################################################
+  mongodb:
+    hostname: mongodb
+    image: sparrow-app-mongodb:${IMAGE_APP_MONGODB_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_mongodb
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mongodb/:/home/sparrow/mongodb/
+      - ./mongodb/templates/mongod.conf:/etc/mongod.conf
+      - ./mongodb/data/:/data/db # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${MONGODB_HOST_PORT}:${MONGODB_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### ssdb #########################################################
+  ssdb:
+    hostname: ssdb
+    image: sparrow-app-ssdb:${IMAGE_APP_SSDB_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_ssdb
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./ssdb/:/home/sparrow/ssdb/
+      - ./ssdb/data/:/ssdb/data # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${SSDB_HOST_PORT}:${SSDB_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### prometheus #########################################################
+  prometheus:
+    hostname: prometheus
+    image: sparrow-app-prometheus:${IMAGE_APP_PROMETHEUS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_prometheus
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./prometheus/:/home/sparrow/prometheus/
+      # https://stackoverflow.com/questions/50009065/how-to-persist-data-in-prometheus-running-in-a-docker-container
+      - ./prometheus/data/:/prometheus # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${PROMETHEUS_HOST_PORT}:${PROMETHEUS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### grafana #########################################################
+  grafana:
+    hostname: grafana
+    image: sparrow-app-grafana:${IMAGE_APP_GRAFANA_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_grafana
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./grafana/:/home/sparrow/grafana/
+      # https://community.grafana.com/t/grafana-docker-and-data-persistence/33702
+      - ./grafana/data/:/var/lib/grafana # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${GRAFANA_HOST_PORT}:${GRAFANA_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### elasticsearch #########################################################
+  elasticsearch:
+    hostname: elasticsearch
+    image: sparrow-app-elasticsearch:${IMAGE_APP_ELASTICSEARCH_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_elasticsearch
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      discovery.type: single-node # This must be set, otherwise resources will be consumed excessively and lead to a crash.
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./elasticsearch/:/home/sparrow/elasticsearch/
+      # https://stackoverflow.com/questions/52373356/docker-bind-elasticsearch-volume-in-app-folder
+      - ./elasticsearch/data/:/usr/share/elasticsearch/data # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${ELASTICSEARCH_HOST_HTTP_PORT}:${ELASTICSEARCH_CONTAINER_HTTP_PORT}"
+      - "${ELASTICSEARCH_HOST_TCP_PORT}:${ELASTICSEARCH_CONTAINER_TCP_PORT}"
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 2G  # ES takes up too much memory, so limit it.
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### kibana #########################################################
+  kibana:
+    hostname: kibana
+    image: sparrow-app-kibana:${IMAGE_APP_KIBANA_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_kibana
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kibana/:/home/sparrow/kibana/
+      # Based on this question, it looks like it saves into elasticsearch, so you don't need to mount a shared volume.
+      # https://stackoverflow.com/questions/42874034/kibana-running-on-docker-how-to-save-dashboard
+      - ./kibana/data/:/var/data/kibana/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${KIBANA_HOST_PORT}:${KIBANA_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### prompthub #########################################################
+  prompthub:
+    hostname: prompthub
+    image: sparrow-app-prompthub:${IMAGE_APP_PROMPTHUB_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_prompthub
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./prompthub/:/home/sparrow/prompthub/
+      - ./prompthub/data/:/prompts/ # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${PROMPTHUB_HOST_PORT}:${PROMPTHUB_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### nacos #########################################################
+  nacos:
+    hostname: nacos
+    image: sparrow-app-nacos:${IMAGE_APP_NACOS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_nacos
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./nacos/:/home/sparrow/nacos/
+      - ./nacos/data/:/home/nacos/data/ # data persistence
+#      - ./nacos/data/conf/application.properties:/home/nacos/conf/application.properties # data persistence
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${NACOS_HOST_PORT}:${NACOS_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"
+
+  ### difylocal #########################################################
+  difylocal:
+    hostname: difylocal
+    image: sparrow-app-difylocal:${IMAGE_APP_DIFYLOCAL_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_difylocal
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./difylocal/:/home/sparrow/difylocal/
+      - ./difylocal/data/:/var/data/difylocal/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${DIFYLOCAL_HOST_WEB_PORT}:${DIFYLOCAL_CONTAINER_WEB_PORT}"
+      - "${DIFYLOCAL_HOST_API_PORT}:${DIFYLOCAL_CONTAINER_API_PORT}"
+      - "${DIFYLOCAL_HOST_CODE_EXECUTION_ENDPOINT_PORT}:${DIFYLOCAL_CONTAINER_CODE_EXECUTION_ENDPOINT_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # a command is needed here, otherwise the container cannot be started successfully.
+    command: "tail -f /dev/null"
+
+  ### django #########################################################
+  django:
+    hostname: django
+    image: sparrow-app-django:${IMAGE_APP_DJANGO_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_django
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./django/:/home/sparrow/django/
+      - ./django/data/:/var/data/django/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${DJANGO_HOST_PORT}:${DJANGO_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # a command is needed here, otherwise the container cannot be started successfully.
+    command: "tail -f /dev/null"
+
+  ### azkaban #########################################################
+  azkaban:
+    hostname: azkaban
+    image: sparrow-app-azkaban:${IMAGE_APP_AZKABAN_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_azkaban
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./azkaban/:/home/sparrow/azkaban/
+      - ./azkaban/data/:/var/data/azkaban/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${AZKABAN_HOST_PORT}:${AZKABAN_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # Since it(/bin/start-solo.sh) will start a process in the background and exit directly, resulting in no program running in the foreground, you can enable a command like tail -f to ensure that it will not exit.
+    command: "tail -f /dev/null"
+
+  ### MILVUS #########################################################
+  milvus:
+    hostname: milvus
+    image: sparrow-app-milvus:${IMAGE_APP_MILVUS_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_milvus
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+      ETCD_USE_EMBED: "true"
+      ETCD_DATA_DIR: /var/lib/milvus/etcd
+      ETCD_CONFIG_PATH: /milvus/configs/embedEtcd.yaml
+      COMMON_STORAGETYPE: local
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./milvus/:/home/sparrow/milvus/
+      - ./milvus/data/:/var/lib/milvus/ # data persistence
+      - ./milvus/templates/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${MILVUS_GRPC_HOST_PORT}:${MILVUS_GRPC_CONTAINER_PORT}"
+      - "${MILVUS_HTTP_HOST_PORT}:${MILVUS_HTTP_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

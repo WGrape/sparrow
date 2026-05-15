@@ -59,9 +59,20 @@ pull() {
         return 1
     fi
 
-    print_info "pull image: $remote_image..."
-    if ! docker pull "$remote_image"; then
+    print_info "pull image: $remote_image (platform: ${FROM_PLATFORM})..."
+    if ! docker pull --platform "${FROM_PLATFORM}" "$remote_image"; then
         print_warn "pull failed: $remote_image"
+        return 1
+    fi
+
+    # Verify the pulled image actually matches the requested platform architecture.
+    # docker pull --platform may succeed with a warning when the remote image only has a
+    # different architecture (e.g. amd64 pulled when arm64 was requested).
+    expected_arch=$(echo "${FROM_PLATFORM}" | cut -d'/' -f2)
+    actual_arch=$(docker inspect --format '{{.Architecture}}' "$remote_image" 2>/dev/null)
+    if [ "$actual_arch" != "$expected_arch" ]; then
+        print_warn "platform mismatch: expected ${expected_arch}, got ${actual_arch} for ${remote_image}. Removing and falling back to build."
+        docker image rm "$remote_image" 2>/dev/null
         return 1
     fi
 
@@ -100,9 +111,9 @@ upload() {
     if [ "${replace}" != "" ]; then
         upload_version="$version"
     else
-        # push the timestamped version.
+        # push the timestamped version with service and version prefix for traceability.
         datestr=$(date +'%Y%m%d%H%M')
-        upload_version="1.0.${datestr}"
+        upload_version="${service}.${version}_${type}.${datestr}"
     fi
     remote_image="$DOCKERHUB_REPO/$image:$upload_version"
     local_image="$image:$version"

@@ -36,6 +36,29 @@ is_linux() {
     fi
 }
 
+# get system platform architecture.
+# returns "amd64", "arm64", or other architecture names
+# if get_platform_arch; then
+#     echo "current platform: $?"
+# fi
+get_platform_arch() {
+    machine_out="$(uname -m)"
+    case "$machine_out" in
+        x86_64)
+            echo "amd64"
+            return 0
+            ;;
+        arm64|aarch64)
+            echo "arm64"
+            return 0
+            ;;
+        *)
+            echo "$machine_out"
+            return 0
+            ;;
+    esac
+}
+
 # sleep for x seconds.
 sleep_seconds() {
     print_info "sleeping for while"
@@ -120,16 +143,32 @@ upenv() {
     # Todo Feature
     # automatically check if the .env file has changed, and delete it automatically if there are any changes.
 
+    # Detect current platform architecture and select appropriate config file
+    platform_arch=$(get_platform_arch)
+    case "$platform_arch" in
+        amd64)
+            base_config_env_file=$CONST_BASE_CONFIG_ENV_AMD64_FILE
+            ;;
+        arm64)
+            base_config_env_file=$CONST_BASE_CONFIG_ENV_ARM64_FILE
+            ;;
+        *)
+            print_warn "Unsupported platform architecture: $platform_arch, fallback to amd64"
+            base_config_env_file=$CONST_BASE_CONFIG_ENV_AMD64_FILE
+            ;;
+    esac
+    print_info "Detected platform architecture: $platform_arch, using config: $base_config_env_file"
+
     # must not to regenerate the env file, if env file exists.
     env_file=$CONST_SPARROW_CONFIG_ENV_FILE
     if [ ! -f "${env_file}" ]; then
         # parse /.work/config/.env file firstly
         # Because there are many variables in this file that need to be used now, such as ```ENABLE_SERVICE_LIST```
-        parse_env_file $CONST_BASE_CONFIG_ENV_AMD64_FILE
+        parse_env_file "$base_config_env_file"
 
         # copy /.work/config/.env file to /.env file
-        print_info "cp ${CONST_BASE_CONFIG_ENV_AMD64_FILE} file to ${env_file} file..."
-        cp "${CONST_BASE_CONFIG_ENV_AMD64_FILE}" "./${env_file}"
+        print_info "cp ${base_config_env_file} file to ${env_file} file..."
+        cp "${base_config_env_file}" "./${env_file}"
 
         # copy every /service/.env file to /.env file
         # traverse every service directory, but only include enabled service, so not run ```for dir in */; do```

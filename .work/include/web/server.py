@@ -17,13 +17,30 @@ from urllib.parse import urlparse
 
 BASE_PATH = os.environ.get("SPARROW_BASE_PATH", os.getcwd())
 
-SERVICES = [
-    "etcd", "etcdkeeper", "go", "jupyter", "kafka", "kafkaui",
-    "mysql", "nginx", "phpfpm", "postgres", "python", "redis",
-    "zookeeper", "langchain", "nodejs", "mongodb", "ssdb",
-    "prometheus", "grafana", "elasticsearch", "kibana",
-    "prompthub", "nacos", "difylocal", "django", "azkaban", "milvus",
-]
+
+def _load_service_list():
+    """Dynamically read ENABLE_SERVICE_LIST from .work/config/.env.* so new services appear automatically."""
+    arch = platform.machine()
+    if arch in ("arm64", "aarch64"):
+        cfg_file = os.path.join(BASE_PATH, ".work/config/.env.arm64")
+    else:
+        cfg_file = os.path.join(BASE_PATH, ".work/config/.env.amd64")
+    if os.path.isfile(cfg_file):
+        with open(cfg_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = re.sub(r'#.*', '', line).strip()
+                if line.startswith("ENABLE_SERVICE_LIST="):
+                    val = line.split("=", 1)[1].strip()
+                    return re.findall(r'"([^"]+)"', val)
+    return [
+        "etcd", "etcdkeeper", "go", "jupyter", "kafka", "kafkaui",
+        "mysql", "nginx", "phpfpm", "postgres", "python", "redis",
+        "zookeeper", "langchain", "nodejs", "mongodb", "ssdb",
+        "prometheus", "grafana", "elasticsearch", "kibana",
+        "prompthub", "nacos", "difylocal", "django", "azkaban", "milvus", "sqlite",
+    ]
+
+SERVICES = _load_service_list()
 
 
 def parse_config_file():

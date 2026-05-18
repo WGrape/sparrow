@@ -1,0 +1,21 @@
+services:
+  ### SQLITE ######################################################
+  sqlite:
+    hostname: sqlite
+    image: sparrow-app-sqlite:${IMAGE_APP_SQLITE_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_sqlite
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./sqlite/:/home/sparrow/sqlite/
+      - ./sqlite/data/:/var/data/sqlite/ # data persistence
+    ports:
+      - "${SQLITE_HOST_PORT}:${SQLITE_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

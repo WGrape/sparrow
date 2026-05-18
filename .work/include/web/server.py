@@ -27,21 +27,27 @@ SERVICES = [
 
 
 def parse_config_file():
-    """Read CONTAINER_NAMESPACE and arch from .work/config/.env.*"""
+    """Read CONTAINER_NAMESPACE from root .env (falls back to .work/config/.env.*)"""
+    # Try root .env first (it's the runtime-merged file)
+    root_env = os.path.join(BASE_PATH, ".env")
+    candidates = [root_env]
     arch = platform.machine()
     if arch in ("arm64", "aarch64"):
-        cfg = os.path.join(BASE_PATH, ".work/config/.env.arm64")
+        candidates.append(os.path.join(BASE_PATH, ".work/config/.env.arm64"))
     else:
-        cfg = os.path.join(BASE_PATH, ".work/config/.env.amd64")
+        candidates.append(os.path.join(BASE_PATH, ".work/config/.env.amd64"))
     result = {}
-    if not os.path.isfile(cfg):
-        return result
-    with open(cfg, "r", encoding="utf-8") as f:
-        for line in f:
-            line = re.sub(r'#.*', '', line).strip()
-            if "=" in line:
-                k, _, v = line.partition("=")
-                result[k.strip()] = v.strip()
+    for cfg in candidates:
+        if not os.path.isfile(cfg):
+            continue
+        with open(cfg, "r", encoding="utf-8") as f:
+            for line in f:
+                line = re.sub(r'#.*', '', line).strip()
+                if "=" in line:
+                    k, _, v = line.partition("=")
+                    result[k.strip()] = v.strip()
+        if result.get("CONTAINER_NAMESPACE"):
+            break
     return result
 
 
@@ -70,34 +76,95 @@ def get_local_images():
 
 
 def parse_env_file(service):
-    """Parse a service .env file, return images list and config list."""
-    env_file = os.path.join(BASE_PATH, service, ".env")
+    """Parse per-service variables from the root .env file."""
+    root_env = os.path.join(BASE_PATH, ".env")
+    service_upper = service.upper()
     images = []
     config = []
-    if not os.path.isfile(env_file):
+    if not os.path.isfile(root_env):
         return images, config
-    with open(env_file, "r", encoding="utf-8") as f:
+
+    # We collect variables that belong to this service:
+    # 1. Variables prefixed with SERVICE_UPPER_
+    # 2. Variables prefixed with IMAGE_*_SERVICE_UPPER_*
+    prefix = service_upper + "_"
+    with open(root_env, "r", encoding="utf-8") as f:
         for raw in f:
             line = raw.rstrip("\n")
             stripped = line.strip()
             if not stripped or stripped.startswith("###") or stripped.startswith("#"):
                 continue
-            if "=" in line:
-                key_part, _, rest = line.partition("=")
-                key = key_part.strip()
-                if "#" in rest:
-                    value, _, comment = rest.partition("#")
-                    value = value.strip()
-                    comment = comment.strip()
-                else:
-                    value = rest.strip()
-                    comment = ""
-                entry = {"key": key, "value": value, "comment": comment}
-                if re.match(r'^IMAGE_', key):
-                    images.append(entry)
-                else:
-                    config.append(entry)
+            if "=" not in line:
+                continue
+            key_part, _, rest = line.partition("=")
+            key = key_part.strip()
+            if "#" in rest:
+                value, _, comment = rest.partition("#")
+                value = value.strip()
+                comment = comment.strip()
+            else:
+                value = rest.strip()
+                comment = ""
+
+            # Match image keys: IMAGE_(BASIC|APP|OFFICIAL)_{SERVICE}_...
+            is_image = bool(re.match(
+                r'^IMAGE_(BASIC|APP|OFFICIAL)_' + re.escape(service_upper) + r'(_|$)', key
+            ))
+            # Match config keys: {SERVICE}_...
+            is_config = key.startswith(prefix)
+
+            if not is_image and not is_config:
+                continue
+
+            entry = {"key": key, "value": value, "comment": comment}
+            if is_image:
+                images.append(entry)
+            else:
+                config.append(entry)
     return images, config
+
+
+def read_compose_file(service):
+    """Extract this service's block from the root docker-compose.yml."""
+    root_compose = os.path.join(BASE_PATH, "docker-compose.yml")
+    if not os.path.isfile(root_compose):
+        return ""
+
+    with open(root_compose, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    # Find the line where this service's block starts (2-space indented key under services:)
+    # e.g. "  etcd:" or "  mysql:"
+    service_pattern = re.compile(r'^  ' + re.escape(service) + r'\s*:')
+    # Any other top-level service key (2-space indent + word + colon, but not deeper indent)
+    next_service_pattern = re.compile(r'^  [a-zA-Z]')
+
+    in_services = False
+    start = None
+    end = None
+
+    for i, line in enumerate(lines):
+        if line.strip() == "services:":
+            in_services = True
+            continue
+        if not in_services:
+            continue
+        if start is None:
+            if service_pattern.match(line):
+                start = i
+        else:
+            # Stop at the next sibling service key (same 2-space indent, different name)
+            if next_service_pattern.match(line) and not service_pattern.match(line):
+                end = i
+                break
+
+    if start is None:
+        return ""
+    block = lines[start:end] if end else lines[start:]
+    # Strip trailing blank lines
+    while block and not block[-1].strip():
+        block.pop()
+    return "".join(block)
 
 
 def build_data():
@@ -110,8 +177,9 @@ def build_data():
     for svc in SERVICES:
         container_name = f"sparrow_container_{namespace}_{svc}" if namespace else f"sparrow_container_{svc}"
         is_running = container_name in running
-        has_env = os.path.isfile(os.path.join(BASE_PATH, svc, ".env"))
         images, config = parse_env_file(svc)
+        compose = read_compose_file(svc)
+        has_env = bool(images or config)
 
         # Enrich image entries with local availability
         for img in images:
@@ -142,6 +210,7 @@ def build_data():
             "hasEnv": has_env,
             "images": images,
             "config": config,
+            "compose": compose,
         })
 
     installed = [s for s in services if s["hasEnv"]]
@@ -329,6 +398,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 /* empty state */
 .empty-row { color: var(--text3); font-size: 12px; padding: 8px 0; }
 .no-results { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 14px; }
+
+/* compose block */
+.compose-block {
+  background: var(--bg); border-radius: 6px; overflow-x: auto;
+  padding: 10px 12px; margin-top: 2px;
+}
+.compose-block pre {
+  font-family: var(--mono); font-size: 11.5px; color: #8b949e;
+  white-space: pre; margin: 0; line-height: 1.6;
+}
+/* syntax highlight classes applied by JS */
+.cy-key    { color: #79c0ff; }  /* yaml key */
+.cy-str    { color: #a5d6ff; }  /* string value */
+.cy-num    { color: #f2cc60; }  /* number */
+.cy-bool   { color: #ff7b72; }  /* true/false */
+.cy-var    { color: #ffa657; }  /* ${VAR} */
+.cy-comment{ color: #484f58; font-style: italic; }
 </style>
 </head>
 <body>
@@ -463,6 +549,15 @@ function cardHTML(s) {
     </div>`;
   }
 
+  // compose section
+  let composeHtml = '';
+  if (s.compose) {
+    composeHtml = `<div class="detail-section">
+      <div class="detail-title">docker-compose.yml</div>
+      <div class="compose-block"><pre>${highlightYaml(esc(s.compose))}</pre></div>
+    </div>`;
+  }
+
   // action buttons (only for installed services)
   let actHtml = '';
   if (s.hasEnv) {
@@ -479,7 +574,7 @@ function cardHTML(s) {
     }
   }
 
-  const hasDetail = imgHtml || cfgHtml;
+  const hasDetail = imgHtml || cfgHtml || composeHtml;
   return `<div class="card ${state}" id="card-${esc(s.name)}">
     <div class="card-head" onclick="toggle('${esc(s.name)}')">
       <div class="dot ${dotCls}"></div>
@@ -488,7 +583,7 @@ function cardHTML(s) {
       ${hasDetail ? '<span class="chevron">▼</span>' : ''}
     </div>
     ${actHtml}
-    ${hasDetail ? `<div class="card-body">${imgHtml}${cfgHtml}</div>` : ''}
+    ${hasDetail ? `<div class="card-body">${imgHtml}${cfgHtml}${composeHtml}</div>` : ''}
   </div>`;
 }
 
@@ -542,6 +637,31 @@ async function doAction(service, action, btn) {
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlightYaml(s) {
+  return s.split('\n').map(line => {
+    // comment lines
+    if (/^\s*#/.test(line)) return `<span class="cy-comment">${line}</span>`;
+    // key: value lines
+    return line.replace(/^(\s*)([\w\-\.]+)(\s*:\s*)(.*)$/, (_, indent, key, sep, val) => {
+      let valHtml = val;
+      // inline comment
+      let comment = '';
+      const ci = val.indexOf(' #');
+      if (ci !== -1) { comment = val.slice(ci); valHtml = val.slice(0, ci); }
+      // ${VAR} substitution highlight
+      valHtml = valHtml.replace(/(\$\{[^}]+\})/g, '<span class="cy-var">$1</span>');
+      // string/num/bool color if no var spans already
+      if (!valHtml.includes('cy-var')) {
+        if (/^(true|false|null|~)$/.test(valHtml.trim())) valHtml = `<span class="cy-bool">${valHtml}</span>`;
+        else if (/^\d/.test(valHtml.trim())) valHtml = `<span class="cy-num">${valHtml}</span>`;
+        else if (valHtml.trim()) valHtml = `<span class="cy-str">${valHtml}</span>`;
+      }
+      const commentHtml = comment ? `<span class="cy-comment">${comment}</span>` : '';
+      return `${indent}<span class="cy-key">${key}</span>${sep}${valHtml}${commentHtml}`;
+    });
+  }).join('\n');
 }
 
 loadData();

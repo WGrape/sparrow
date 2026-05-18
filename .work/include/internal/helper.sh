@@ -204,9 +204,32 @@ upenv() {
 
 # create and update /docker-compose file, must after run upenv.
 # if ENABLE_SERVICE_LIST is configured, the /docker-compose.yml configuration file also needs to be updated accordingly.
-# therefore, it is necessary to regenerate the /docker-compose.yml file each time
+# regenerates /docker-compose.yml only when inputs (.env or any service compose) have changed.
 upcompose() {
     print_stage "upcompose"
+
+    # compute a hash of all inputs: .env + template + each service compose file
+    _compose_hash_file=".upcompose_hash"
+    _hash_input="${CONST_SPARROW_CONFIG_ENV_FILE} ${CONST_BASE_CONFIG_COMPOSE_FILE}"
+    for _svc in "${ENABLE_SERVICE_LIST[@]}"; do
+        _hash_input="${_hash_input} ${_svc}/${CONST_SPARROW_CONFIG_COMPOSE_FILE}"
+    done
+    if command -v md5sum >/dev/null 2>&1; then
+        _current_hash=$(cat ${_hash_input} 2>/dev/null | md5sum | awk '{print $1}')
+    elif command -v md5 >/dev/null 2>&1; then
+        _current_hash=$(cat ${_hash_input} 2>/dev/null | md5)
+    else
+        _current_hash=""
+    fi
+
+    # skip regeneration if inputs haven't changed
+    if [ -f "${_compose_hash_file}" ] && [ -f "./${CONST_SPARROW_CONFIG_COMPOSE_FILE}" ] && [ -n "${_current_hash}" ]; then
+        _saved_hash=$(cat "${_compose_hash_file}" 2>/dev/null)
+        if [ "${_current_hash}" = "${_saved_hash}" ]; then
+            print_info "upcompose: inputs unchanged, skip regeneration"
+            return 0
+        fi
+    fi
 
     # cp base_config_compose file to /docker-compose file.
     print_info "cp ${CONST_BASE_CONFIG_COMPOSE_FILE} file to docker-compose file..."
@@ -231,6 +254,11 @@ upcompose() {
         echo "" >> "${CONST_SPARROW_CONFIG_COMPOSE_FILE}"
         sed '/services:/d' "${srv_compose_file}" >> "${CONST_SPARROW_CONFIG_COMPOSE_FILE}"
     done
+
+    # save hash so next run can skip if inputs unchanged
+    if [ -n "${_current_hash}" ]; then
+        echo "${_current_hash}" > "${_compose_hash_file}"
+    fi
 }
 
 # pull or build app image.

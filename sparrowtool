@@ -108,6 +108,12 @@ new() {
     print_warn "In order to avoid confusion in port number allocation, it is recommended to use './sparrowtool env -l _port ' this command to view the current range of port number."
 }
 
+# start web dashboard.
+web() {
+    port=${1:-7979}
+    python3 "${SPARROW_BASE_PATH}/.work/include/web/server.py" "$port"
+}
+
 # show some tips.
 tip() {
     # -u root: fix error(https://stackoverflow.com/questions/37836124/i-have-no-name-as-user-logging-into-jenkins-in-a-docker-container-that-uses-t)
@@ -118,12 +124,6 @@ tip() {
 
     echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_mysql bash -c 'mysql -u ${MYSQL_ROOT_USER} -h 127.0.0.1 -p${MYSQL_ROOT_PASSWORD} -P${MYSQL_CONTAINER_PORT} --default-character-set=utf8'"
     echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_redis bash -c 'redis-cli -h 127.0.0.1 -p ${REDIS_CONTAINER_PORT} -a ${REDIS_PASSWORD}'"
-}
-
-# start web dashboard.
-web() {
-    port=${1:-7979}
-    python3 "${SPARROW_BASE_PATH}/.work/include/web/server.py" "$port"
 }
 
 # help document.

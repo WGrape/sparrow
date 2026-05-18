@@ -27,6 +27,7 @@ elif [ "${COMMAND}" = "clear" ]; then
     VAR_IS_CLEAR_COMMAND=true
 elif [ "${COMMAND}" = "tip" ] || [ "${COMMAND}" = "tips" ]; then
     VAR_IS_TIP_COMMAND=true
+    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
 elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ]; then
     VAR_IS_HELP_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message

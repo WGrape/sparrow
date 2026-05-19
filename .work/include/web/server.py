@@ -436,7 +436,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 </head>
 <body>
 <div class="topbar">
-  <div class="logo"><span class="logo-icon">🐦</span> Sparrow Dashboard</div>
+  <div class="logo"><img src="https://github.com/WGrape/sparrow/assets/35942268/ab3ef3f3-8625-41df-99ed-50edde47a68e" alt="Sparrow Dashboard"> Sparrow Dashboard</div>
   <span class="ns-tag" id="ns-label">namespace: —</span>
   <div class="topbar-right">
     <span class="updated" id="updated"></span>

@@ -49,10 +49,12 @@ bash _install.sh
 # 操作单个服务
 ./sparrow startone {service_name}
 ./sparrow stopone {service_name}
-./sparrow updateone {service_name}
 
 # 启动工作后台
 ./sparrowtool web
+
+# 更新服务
+./sparrowtool update {service_name}
 ```
 
 完整的使用说明（配置、更新、监控、常见问题等），请查看[使用文档](./.work/extra/doc/2.USAGE_ZH.md)。

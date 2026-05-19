@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.7.0](https://github.com/WGrape/sparrow/compare/v1.6.0...v1.7.0) (2026-05-15)
+
+
+### Features
+
+add arch detect ([1c3a5fa](https://github.com/WGrape/sparrow/commit/1c3a5faedffb04742fbfe8cc8bbbe8954f403b77))
+* add ‎docker-compose.yml.template‎ ([252e1fe](https://github.com/WGrape/sparrow/commit/252e1fe1b3bc3cbdbf1af1030c69df6b2fdc8140))
+* add milvus ([613935b](https://github.com/WGrape/sparrow/commit/613935b74d8d87cddbaead9e76a7e70575f43e8e))
+* fix release.yml ([813894f](https://github.com/WGrape/sparrow/commit/813894f7eee926e2d796098850be628ce42b8d9b))
+* fix release.yml ([08855be](https://github.com/WGrape/sparrow/commit/08855be100f7eab00ab0e706e32de16703a2aae4))
+* Private cloud does not check whether the image exists ([4d273e1](https://github.com/WGrape/sparrow/commit/4d273e1aef0b160050df9138578c7078198b2c79))
+
+
+### Bug Fixes
+
+* docker compose instead of docker-compose ([6d715c2](https://github.com/WGrape/sparrow/commit/6d715c26740e050730111f23e3a8ef31611c74f0))
+* fix mysql init.sh -p vvariable ([e884925](https://github.com/WGrape/sparrow/commit/e884925fd302ca4528c8381d9faceb6934ba95e5))
+* remove ```--pull never``` ([873d6a0](https://github.com/WGrape/sparrow/commit/873d6a0d49b4a0bbd56c26a982531a5ebe93e298))
+
+
+### Docs
+
+* make ```DEVELOPMENT```/```QA``` doc better ([1c3a5fa](https://github.com/WGrape/sparrow/commit/1c3a5faedffb04742fbfe8cc8bbbe8954f403b77))
+* add ```Docker Build Warnings``` ([377e59b](https://github.com/WGrape/sparrow/commit/377e59b2269db301bff0eebcd21749c99f8c10fb))
+* make doc better ([4ab3e72](https://github.com/WGrape/sparrow/commit/4ab3e72111b5dc8c862e8e7d185168a5156ca3ca))
+* make doc better ([75f561b](https://github.com/WGrape/sparrow/commit/75f561bf4840ddd55cd65cef42ffd048601e04e9))
+* update README.md (add /conf dir) ([233ab74](https://github.com/WGrape/sparrow/commit/233ab744c4751b2e90db9c7e3e2fbcaf6b6f28ca))
+* add ```stability note``` ([68a0e0a](https://github.com/WGrape/sparrow/commit/68a0e0a4e217bf2357186841961cfce1396f6d6e))
+
 ## [1.6.0](https://github.com/WGrape/sparrow/compare/v1.5.0...v1.6.0) (2024-05-17)
 
 

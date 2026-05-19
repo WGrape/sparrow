@@ -31,76 +31,28 @@
 
 ## 2. 快速开始
 
-> 下面是快速使用的简单例子，请点击[使用文档](./.work/extra/doc/2.USAGE_ZH.md)查看更多详细教程。
+> 更详细的使用教程，请查看[使用文档](./.work/extra/doc/2.USAGE_ZH.md)。
 
 <video src="https://github.com/WGrape/sparrow/assets/35942268/bc180f06-fedc-42d2-b21b-f7c7fa1b65ea" width="" height="" controls="controls"></video>
 
-### (1) 安装
-
-使用如下命令快速完成安装。
-
-> **稳定性提示**：`main` 主分支会持续更新新功能，虽然每次变更都经过了大量测试，但新功能仍可能带来潜在的不稳定。如遇到相关问题，建议优先下载稳定的 [Release](https://github.com/WGrape/sparrow/releases) 版本包使用。
-
 ```bash
-# 获取项目
+# 安装
 git clone https://github.com/WGrape/sparrow.git
 cd sparrow
-
-# 执行安装脚本
 bash _install.sh
-```
 
-在安装成功后，项目根目录下会自动生成一个```.env```配置文件，它是sparrow的唯一且统一的配置入口，可以查看它的[示例文件](./.env.template)，在这里你可以修改服务版本、容器命名空间等。
-
-> 1、如果使用```./sparrow xxx```命令时出现语法错误，请尝试使用bash运行```bash ./sparrow xxx```
->
-> 2、在安装过程中会提示输入```DOCKERHUB_REPO```，用于配置自己的sparrow镜像的远程仓库。它的默认值是[docker.io/lvsid](https://hub.docker.com/repositories/lvsid)，如果以后需要修改，直接修改```/.env```配置文件即可
->
-> 3、如需要帮助，请查看 [常见问题](.work/extra/doc/5.QA_ZH.md)
-
-### (2) 启动
-
-使用如下命令启动整个环境中的所有服务。当然这个```所有服务```是可定义的，它由根目录下```/.env```文件中配置的```ENABLE_SERVICE_LIST```数组变量控制。
-
-```bash
+# 启动 / 停止 / 重启所有服务
 ./sparrow start
-```
-
-如果只需要启动某一个服务，使用如下命令即可，传递的```service```就是在```docker-compose.yml```配置文件中的```services```列表中某一个服务的名称，如```phpfpm/nginx/mysql/redis```等
-
-```bash
-./sparrow startone {service_name}
-```
-
-### (3) 停止
-
-停止整个环境中的所有服务。
-
-```bash
 ./sparrow stop
-```
-
-同样的如果只需要停止某一个服务，使用如下命令即可
-
-```bash
-./sparrow stopone {service_name}
-```
-
-### (4) 重启
-
-重启整个环境中的所有服务
-
-```bash
 ./sparrow restart
-```
 
-### (5) 更新一个服务
-
-当某个服务需要更新时，如其镜像内容需要修改，就需要对服务（镜像）进行更新，在自行修改完后，使用如下命令更新
-
-```bash
+# 操作单个服务
+./sparrow startone {service_name}
+./sparrow stopone {service_name}
 ./sparrow updateone {service_name}
 ```
+
+完整的使用说明（配置、更新、监控、常见问题等），请查看[使用文档](./.work/extra/doc/2.USAGE_ZH.md)。
 
 ## 3. 更多文档
 

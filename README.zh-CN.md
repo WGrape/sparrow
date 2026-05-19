@@ -49,7 +49,6 @@ bash _install.sh
 # 操作单个服务
 ./sparrow startone {service_name}
 ./sparrow stopone {service_name}
-./sparrow updateone {service_name}
 
 # 启动工作后台
 ./sparrowtool web

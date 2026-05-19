@@ -49,7 +49,6 @@ bash _install.sh
 # Operate a single service
 ./sparrow startone {service_name}
 ./sparrow stopone {service_name}
-./sparrow updateone {service_name}
 
 # Start web dashboard
 ./sparrowtool web

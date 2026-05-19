@@ -32,8 +32,6 @@ elif [ "${COMMAND}" = "web" ]; then
     VAR_IS_WEB_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
     shift # remove "web" from $@, leaving optional port arg
-elif [ "${COMMAND}" = "update" ]; then
-    VAR_IS_UPDATE_COMMAND=true
 elif [ "${COMMAND}" = "enter" ]; then
     VAR_IS_ENTER_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
@@ -117,69 +115,6 @@ new() {
 web() {
     port=${1:-7979}
     python3 "${SPARROW_BASE_PATH}/.work/include/web/server.py" "$port"
-}
-
-# stop one service.
-stopone() {
-    print_info "sparrowtool stop one..."
-
-    print_stage "do before_stop hook..."
-    hook_file="$1/hooks/$CONST_HOOK_BEFORE_STOP.sh"
-    if [ -f "${hook_file}" ]; then
-        print_info "do hook: ${hook_file}"
-        . "${hook_file}"
-    fi
-
-    container_name="sparrow_container_${CONTAINER_NAMESPACE}_${1}"
-    print_stage "do docker stop: ${container_name}..."
-    docker stop "$container_name"
-
-    print_stage "do after_stop hook..."
-    hook_file="$1/hooks/$CONST_HOOK_AFTER_STOP.sh"
-    if [ -f "${hook_file}" ]; then
-        print_info "do hook: ${hook_file}"
-        . "${hook_file}"
-    fi
-}
-
-# update one service.
-update() {
-    print_info "sparrowtool update one..."
-
-    print_stage "do service stopone..."
-    stopone $1
-
-    print_stage "do clear service..."
-    clear_service_resources $1
-
-    print_stage "do before_start hook..."
-    hook_file="$1/hooks/$CONST_HOOK_BEFORE_START.sh"
-    if [ -f "${hook_file}" ]; then
-        print_info "do hook: ${hook_file}"
-        . "${hook_file}"
-    fi
-
-    # build app image
-    print_stage "do build sparrow-app-${1} image..."
-    if ! . "./${1}/make_app_image/run.sh"; then
-        print_error "failed to build sparrow-app-${1} image"
-        exit 1
-    fi
-
-    print_stage "do compose..."
-    if ! docker compose --env-file $CONST_SPARROW_CONFIG_ENV_FILE up -d --no-deps "$1"; then
-        print_error "$1 compose failed"
-        exit 1
-    fi
-
-    print_stage "do after_start hook..."
-    hook_file="$1/hooks/$CONST_HOOK_AFTER_START.sh"
-    if [ -f "${hook_file}" ]; then
-        print_info "do hook: ${hook_file}"
-        . "${hook_file}"
-    fi
-
-    print_info "sparrowtool update one successfully"
 }
 
 # enter container.
@@ -279,11 +214,7 @@ help() {
     printf "    ② example 1: ./sparrowtool web\n"
     printf "    ② example 2: ./sparrowtool web 8080\n"
     printf "\n"
-    printf "7、about update.\n"
-    printf "(1) update one service : ./sparrowtool update {service_name}\n"
-    printf "    ① example 1: ./sparrowtool update go\n"
-    printf "\n"
-    printf "8、about enter.\n"
+    printf "7、about enter.\n"
     printf "(1) enter container : ./sparrowtool enter {service_name?}\n"
     printf "    ① param: service_name (optional) - if not provided, list available containers\n"
     printf "    ② example 1: ./sparrowtool enter              # list available containers\n"
@@ -426,12 +357,6 @@ elif [ "${VAR_IS_TIP_COMMAND}" = true ]; then
     tip
 elif [ "${VAR_IS_WEB_COMMAND}" = true ]; then
     web "$@"
-elif [ "${VAR_IS_UPDATE_COMMAND}" = true ]; then
-    if [ "$2" == "" ]; then
-        print_error "check param error: miss service param"
-        exit 1
-    fi
-    update "$2"
 elif [ "${VAR_IS_ENTER_COMMAND}" = true ]; then
     enter "$2"
 elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then

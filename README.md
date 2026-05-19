@@ -52,9 +52,6 @@ bash _install.sh
 
 # Start web dashboard
 ./sparrowtool web
-
-# Update service
-./sparrowtool update {service_name}
 ```
 
 For full usage details (configuration, update, monitor, Q&A, etc.), see the [Usage Document](.work/extra/doc/2.USAGE_EN.md).

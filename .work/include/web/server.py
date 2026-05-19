@@ -390,9 +390,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
   font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
   text-transform: uppercase; flex-shrink: 0; width: 56px; text-align: center;
 }
-.img-kind.basic  { background: var(--blue); color: #fff; }
-.img-kind.app    { background: var(--purple); color: #fff; }
-.img-kind.official { background: #9a6700; color: #fff; }
+.img-kind.basic  { background: var(--blue); color: #fff; width: 80px;}
+.img-kind.app    { background: var(--purple); color: #fff; width: 80px;}
+.img-kind.official { background: #9a6700; color: #fff; width: 80px;}
 .img-repo {
   font-family: var(--mono); font-size: 13px; color: var(--text); flex: 1;
   word-break: break-all; overflow-wrap: anywhere;
@@ -632,10 +632,18 @@ function openModal(name) {
 
   document.getElementById('modal-dot').className = 'dot ' + dotCls;
   document.getElementById('modal-title').textContent = s.name;
-  document.getElementById('modal-badge').outerHTML = badge;
+  // Replace the badge content while keeping the element with id
+  const badgeEl = document.getElementById('modal-badge');
+  badgeEl.outerHTML = badge.replace('<span ', '<span id="modal-badge" ');
 
   // Build modal body content
   let bodyHtml = '';
+
+  // Container name section
+  bodyHtml += `<div class="detail-section compose">
+    <div class="detail-title">容器名</div>
+    <div class="compose-block"><pre><span class="cy-key">${esc(s.container)}</span></pre></div>
+  </div>`;
 
   // images section
   if (s.images.length) {
@@ -659,13 +667,22 @@ function openModal(name) {
   // config section
   if (s.config.length) {
     const rows = s.config.map(e => `<tr>
-      <td class="kv-key">${esc(e.key)}</td>
-      <td class="kv-value">${esc(e.value)}</td>
+      <td class="kv-key" style="border-right: 1px solid #ddd;">${esc(e.key)}</td>
+      <td class="kv-value" style="border-right: 1px solid #ddd;">${esc(e.value)}</td>
       <td class="kv-comment">${esc(e.comment)}</td>
     </tr>`).join('');
     bodyHtml += `<div class="detail-section config">
       <div class="detail-title">配置变量</div>
-      <div class="kv-wrap"><table class="kv-table"><tbody>${rows}</tbody></table></div>
+      <div class="kv-wrap"><table class="kv-table">
+        <thead>
+          <tr style="border-bottom: 1px solid #ddd;">
+            <th style="text-align:center;width:30%;border-right: 1px solid #ddd;font-family:var(--mono);font-size:11px;color:var(--text2);padding:8px 0 8px 0;">变量名</th>
+            <th style="text-align:center;width:30%;border-right: 1px solid #ddd;font-family:var(--mono);font-size:11px;color:var(--text2);padding:8px 0 8px 0;">变量值</th>
+            <th style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2);padding:8px 0 8px 0;">注释</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table></div>
     </div>`;
   }
 

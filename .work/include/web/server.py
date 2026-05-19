@@ -184,11 +184,32 @@ def read_compose_file(service):
     return "".join(block)
 
 
+def get_enabled_services():
+    """Read ENABLE_SERVICE_LIST from root .env file."""
+    root_env = os.path.join(BASE_PATH, ".env")
+    if not os.path.isfile(root_env):
+        return set()
+
+    enabled = set()
+    with open(root_env, "r", encoding="utf-8") as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped.startswith("ENABLE_SERVICE_LIST="):
+                list_str = stripped.split("=", 1)[1].strip()
+                if list_str.startswith("(") and list_str.endswith(")"):
+                    list_content = list_str[1:-1]
+                    items = re.findall(r'"([^"]+)"', list_content)
+                    enabled.update(items)
+                break
+    return enabled
+
+
 def build_data():
     cfg = parse_config_file()
     namespace = cfg.get("CONTAINER_NAMESPACE", "")
     running = get_running_containers()
     local_images = get_local_images()
+    enabled_services = get_enabled_services()
 
     services = []
     for svc in SERVICES:
@@ -196,7 +217,7 @@ def build_data():
         is_running = container_name in running
         images, config = parse_env_file(svc)
         compose = read_compose_file(svc)
-        has_env = bool(images or config)
+        has_env = svc in enabled_services
 
         # Enrich image entries with local availability
         for img in images:
@@ -538,7 +559,7 @@ function renderStats() {
   document.getElementById('stats').innerHTML = `
     <div class="stat"><div class="stat-label">运行中</div><div class="stat-val green">${d.runningCount}</div></div>
     <div class="stat"><div class="stat-label">未运行</div><div class="stat-val red">${d.stoppedCount}</div></div>
-    <div class="stat"><div class="stat-label">已安装</div><div class="stat-val blue">${d.installedCount}</div></div>
+    <div class="stat"><div class="stat-label">已启用</div><div class="stat-val blue">${d.installedCount}</div></div>
     <div class="stat"><div class="stat-label">全部服务</div><div class="stat-val muted">${d.totalCount}</div></div>
   `;
 }
@@ -581,7 +602,7 @@ function cardHTML(s) {
   const state = !s.hasEnv ? 'is-noenv' : s.running ? 'is-running' : 'is-stopped';
   const dotCls = s.running ? 'on' : 'off';
   const badge = !s.hasEnv
-    ? '<span class="badge badge-none">未安装</span>'
+    ? '<span class="badge badge-none">未启用</span>'
     : s.running
       ? '<span class="badge badge-run">● 运行中</span>'
       : '<span class="badge badge-stop">○ 未运行</span>';
@@ -625,7 +646,7 @@ function openModal(name) {
 
   const dotCls = s.running ? 'on' : 'off';
   const badge = !s.hasEnv
-    ? '<span class="badge badge-none">未安装</span>'
+    ? '<span class="badge badge-none">未启用</span>'
     : s.running
       ? '<span class="badge badge-run">● 运行中</span>'
       : '<span class="badge badge-stop">○ 未运行</span>';
@@ -713,6 +734,9 @@ function openModal(name) {
         <button class="act-btn start" onclick="doAction('${n}','startone',this)">▶ 启动</button>
       `;
     }
+    actHtml += `<button class="act-btn" onclick="doDisable('${esc(s.name)}',this)" style="border-color:#e74c3c;color:#e74c3c;">✕ 禁用</button>`;
+  } else {
+    actHtml += `<button class="act-btn" onclick="doEnable('${esc(s.name)}',this)" style="border-color:#27ae60;color:#27ae60;">✚ 启用</button>`;
   }
   actHtml += `<button class="act-btn" onclick="closeModal()">关闭</button>`;
   document.getElementById('modal-actions').innerHTML = actHtml;
@@ -757,6 +781,65 @@ async function doAction(service, action, btn) {
       setTimeout(loadData, 2000);
     } else {
       showToast('✗ ' + (d.error || '执行失败'), 'err');
+    }
+  } catch(e) {
+    showToast('✗ 请求失败: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = origText;
+  }
+}
+
+async function doDisable(service, btn) {
+  if (!confirm('确定要禁用 ' + service + ' 吗？这将从 ENABLE_SERVICE_LIST 中移除该服务。')) {
+    return;
+  }
+  btn.disabled = true;
+  btn.classList.add('loading');
+  const origText = btn.textContent;
+  btn.textContent = '禁用中...';
+  try {
+    const r = await fetch('/api/disable', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({service})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      showToast('✓ ' + service + ' 已禁用', 'ok');
+      closeModal();
+      setTimeout(loadData, 500);
+    } else {
+      showToast('✗ ' + (d.error || '禁用失败'), 'err');
+    }
+  } catch(e) {
+    showToast('✗ 请求失败: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = origText;
+  }
+}
+
+async function doEnable(service, btn) {
+  btn.disabled = true;
+  btn.classList.add('loading');
+  const origText = btn.textContent;
+  btn.textContent = '启用中...';
+  try {
+    const r = await fetch('/api/enable', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({service})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      showToast('✓ ' + service + ' 已启用', 'ok');
+      closeModal();
+      setTimeout(loadData, 500);
+    } else {
+      showToast('✗ ' + (d.error || '启用失败'), 'err');
     }
   } catch(e) {
     showToast('✗ 请求失败: ' + e.message, 'err');
@@ -866,6 +949,107 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     "stdout": output_text,
                     "error": "" if ok else output_lines[-1] if output_lines else "exit code " + str(proc.returncode),
                 }, ensure_ascii=False).encode("utf-8")
+            except Exception as e:
+                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", len(resp))
+            self.end_headers()
+            self.wfile.write(resp)
+        elif path == "/api/disable":
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            try:
+                req = json.loads(body)
+                service = req.get("service", "").strip()
+                if not service or not re.match(r'^[a-zA-Z0-9_-]+$', service):
+                    raise ValueError("invalid service")
+
+                # Update only root .env file
+                root_env = os.path.join(BASE_PATH, ".env")
+                if os.path.isfile(root_env):
+                    with open(root_env, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+
+                    new_lines = []
+                    for line in lines:
+                        if line.strip().startswith("ENABLE_SERVICE_LIST="):
+                            # Extract the list content
+                            list_str = line.split("=", 1)[1].strip()
+                            if list_str.startswith("(") and list_str.endswith(")"):
+                                list_content = list_str[1:-1]
+                                # Parse quoted strings
+                                items = re.findall(r'"([^"]+)"', list_content)
+                                # Remove the service
+                                new_items = [item for item in items if item != service]
+                                # Rebuild the list
+                                new_list_str = "(" + " ".join(f'"{item}"' for item in new_items) + ")"
+                                new_line = re.sub(r'ENABLE_SERVICE_LIST\s*=\s*\([^)]*\)', f"ENABLE_SERVICE_LIST={new_list_str}", line)
+                                new_lines.append(new_line)
+                            else:
+                                new_lines.append(line)
+                        else:
+                            new_lines.append(line)
+
+                    with open(root_env, "w", encoding="utf-8") as f:
+                        f.writelines(new_lines)
+
+                label = f"[web] disabled service {service}"
+                print(f"\n{'─'*60}")
+                print(f"✓  {label}")
+                print(f"{'─'*60}\n", flush=True)
+                resp = json.dumps({"ok": True}, ensure_ascii=False).encode("utf-8")
+            except Exception as e:
+                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", len(resp))
+            self.end_headers()
+            self.wfile.write(resp)
+        elif path == "/api/enable":
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            try:
+                req = json.loads(body)
+                service = req.get("service", "").strip()
+                if not service or not re.match(r'^[a-zA-Z0-9_-]+$', service):
+                    raise ValueError("invalid service")
+
+                # Update only root .env file
+                root_env = os.path.join(BASE_PATH, ".env")
+                if os.path.isfile(root_env):
+                    with open(root_env, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+
+                    new_lines = []
+                    for line in lines:
+                        if line.strip().startswith("ENABLE_SERVICE_LIST="):
+                            # Extract the list content
+                            list_str = line.split("=", 1)[1].strip()
+                            if list_str.startswith("(") and list_str.endswith(")"):
+                                list_content = list_str[1:-1]
+                                # Parse quoted strings
+                                items = re.findall(r'"([^"]+)"', list_content)
+                                # Add the service if not already present
+                                if service not in items:
+                                    items.append(service)
+                                # Rebuild the list
+                                new_list_str = "(" + " ".join(f'"{item}"' for item in items) + ")"
+                                new_line = re.sub(r'ENABLE_SERVICE_LIST\s*=\s*\([^)]*\)', f"ENABLE_SERVICE_LIST={new_list_str}", line)
+                                new_lines.append(new_line)
+                            else:
+                                new_lines.append(line)
+                        else:
+                            new_lines.append(line)
+
+                    with open(root_env, "w", encoding="utf-8") as f:
+                        f.writelines(new_lines)
+
+                label = f"[web] enabled service {service}"
+                print(f"\n{'─'*60}")
+                print(f"✓  {label}")
+                print(f"{'─'*60}\n", flush=True)
+                resp = json.dumps({"ok": True}, ensure_ascii=False).encode("utf-8")
             except Exception as e:
                 resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
             self.send_response(200)

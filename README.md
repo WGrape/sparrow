@@ -31,76 +31,28 @@ Add a new service, please [click  here](https://github.com/WGrape/sparrow/issues
 
 ## 2. Quick start
 
-> Here is a quick usage example. You can check [Usage Document](.work/extra/doc/2.USAGE_EN.md) for detailed tutorials.
+> For detailed tutorials, check the [Usage Document](.work/extra/doc/2.USAGE_EN.md).
 
 <video src="https://github.com/WGrape/sparrow/assets/35942268/bc180f06-fedc-42d2-b21b-f7c7fa1b65ea" width="" height="" controls="controls"></video>
 
-### (1) Installation
-
-You can use the following commands to install.
-
-> **Stability note**: The `main` branch receives continuous updates including new features. Although all changes go through extensive testing, new features may occasionally introduce instability. If you encounter unexpected issues, it is recommended to download a stable [Release](https://github.com/WGrape/sparrow/releases) package instead.
-
 ```bash
-# get project
+# Install
 git clone https://github.com/WGrape/sparrow.git
 cd sparrow
-
-# install
 bash _install.sh
-```
 
-After successful installation, a ```.env``` file will be automatically generated in the project's root directory, it's the config entry for Sparrow, you can modify service versions, container namespace, and more. Refer to the [.env.template](./.env.template) file. 
-
-> 1、If you encounter some syntax errors while using the ```./sparrow xxx``` command, please try to run with bash ```bash ./sparrow xxx``` command. 
->
-> 2、When install, you will be prompted to enter ```DOCKERHUB_REPO```, which is used to configure the remote repository for your Sparrow images. It's default value is [docker.io/lvsid](https://hub.docker.com/repositories/lvsid), if you need to modify it later, you can directly edit the ```.env``` file.
->
-> 3、If you need help, check the [Q&A Document](.work/extra/doc/5.QA_EN.md) for more help. 
-
-### (2) Start
-
-Use the following command to start all services in the entire environment. Of course, this ```all services``` can be defined and is controlled by the ```ENABLE_SERVICE_LIST``` array variable configured in the ```/.env``` file in the root directory.
-
-```bash
+# Start / Stop / Restart all services
 ./sparrow start
-```
-
-If you only need to start a specific service, you can use the following command. The ```service``` passed in is the name of a service in the ```services``` list in the ```docker-compose.yml``` configuration file, such as ```phpfpm/nginx/mysql/redis```, etc.
-
-```bash
-./sparrow startone {service_name}
-```
-
-### (3) Stop
-
-Stop all services in the entire environment
-
-```bash
 ./sparrow stop
-```
-
-The same, if you only need to stop a specific service, you can use the following command.
-
-```bash
-./sparrow stopone {service_name}
-```
-
-### (4) Restart
-
-Restart all services in the entire environment
-
-```bash
 ./sparrow restart
-```
 
-### (5) Update a Service
-
-When a service needs to be updated, such as when its image content needs to be modified, the service (image) needs to be updated after making the modifications. After modifying it manually, use the following command to update it.
-
-```bash
+# Operate a single service
+./sparrow startone {service_name}
+./sparrow stopone {service_name}
 ./sparrow updateone {service_name}
 ```
+
+For full usage details (configuration, update, monitor, Q&A, etc.), see the [Usage Document](.work/extra/doc/2.USAGE_EN.md).
 
 ## 3. More documents
 

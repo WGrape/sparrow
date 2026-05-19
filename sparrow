@@ -132,10 +132,6 @@ help() {
     printf "(1) stop one service: ./sparrow stopone {service_name}\n"
     printf "(2) start one service: ./sparrow startone {service_name}\n"
     printf "\n"
-    printf "4、Container helper.\n"
-    printf "(1) enter all containers(Automatically open all required resources): ./sparrow enter\n"
-    printf "(2) enter one container: ./sparrow enter {service_name}\n"
-    printf "\n"
 }
 
 # before run sparrow command.

@@ -238,7 +238,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
   <div class="stats" id="stats"></div>
 
   <div class="toolbar">
-    <input class="search" id="search" placeholder="搜索服务名 / 变量名 / 值..." oninput="render()">
+    <input class="search" id="search" placeholder="搜索服务名 / 变量名 / 值..." oninput="render()" autocomplete="off">
     <div class="filter-tabs">
       <button class="ftab active" id="ftab-all"     onclick="setFilter('all')">全部</button>
       <button class="ftab"        id="ftab-running" onclick="setFilter('running')">运行中</button>
@@ -308,7 +308,8 @@ function setFilter(f) {
 
 function render() {
   if (!allData) return;
-  const q = document.getElementById('search').value.trim().toLowerCase();
+  const searchEl = document.getElementById('search');
+  const q = (searchEl.value || '').trim().toLowerCase();
   let list = allData.services;
 
   if (filter === 'running') list = list.filter(s => s.running);
@@ -485,10 +486,13 @@ function closeModal(event) {
   currentModalService = null;
 }
 
-// Close modal on Escape key
+// Close modal on Escape key — capture phase runs before any input element handles ESC
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
-});
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeModal();
+  }
+}, true);
 
 let toastTimer = null;
 function showToast(msg, type) {

@@ -239,7 +239,8 @@ search_env() {
     done
 
     # search these directory
-    subdirectories=("etcd" "etcdkeeper" "go" "jupyter" "kafka" "kafkaui" "mysql" "nginx" "phpfpm" "postgres" "python" "redis" "zookeeper" "langchain" "nodejs" "mongodb" "ssdb" "prometheus" "grafana" "elasticsearch" "kibana" "prompthub" "nacos" "difylocal" "django" "azkaban") # when you create a new service, then append it to the subdirectories variable
+    # Get supported service list from SUPPORT_SERVICE_LIST variable (loaded from .env)
+    subdirectories=("${SUPPORT_SERVICE_LIST[@]}")
     for dir in "${subdirectories[@]}"; do
         # show the service information
         if [ "$start_port" == "" ]; then

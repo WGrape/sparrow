@@ -35,7 +35,7 @@ Add a new service, please [click  here](https://github.com/WGrape/sparrow/issues
 
 <video src="https://github.com/WGrape/sparrow/assets/35942268/bc180f06-fedc-42d2-b21b-f7c7fa1b65ea" width="" height="" controls="controls"></video>
 
-<img width="2554" height="1084" alt="Image" src="https://github.com/user-attachments/assets/542cc16d-3aa6-41c8-8412-27f35cd018bb" />
+<img width="1556" height="1043" alt="Image" src="https://github.com/user-attachments/assets/2074a586-11a9-4209-824b-3bb25a5b8e5a" />
 
 ```bash
 # Install

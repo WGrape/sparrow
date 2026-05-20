@@ -18,54 +18,47 @@ from urllib.parse import urlparse
 BASE_PATH = os.environ.get("SPARROW_BASE_PATH", os.getcwd())
 
 
-def _load_service_list():
-    """Dynamically read ENABLE_SERVICE_LIST from .work/config/.env.* so new services appear automatically."""
-    arch = platform.machine()
-    if arch in ("arm64", "aarch64"):
-        cfg_file = os.path.join(BASE_PATH, ".work/config/.env.arm64")
-    else:
-        cfg_file = os.path.join(BASE_PATH, ".work/config/.env.amd64")
-    if os.path.isfile(cfg_file):
-        with open(cfg_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = re.sub(r'#.*', '', line).strip()
-                if line.startswith("ENABLE_SERVICE_LIST="):
-                    val = line.split("=", 1)[1].strip()
-                    return re.findall(r'"([^"]+)"', val)
-    return [
-        "etcd", "etcdkeeper", "go", "jupyter", "kafka", "kafkaui",
-        "mysql", "nginx", "phpfpm", "postgres", "python", "redis",
-        "zookeeper", "langchain", "nodejs", "mongodb", "ssdb",
-        "prometheus", "grafana", "elasticsearch", "kibana",
-        "prompthub", "nacos", "difylocal", "django", "azkaban", "milvus", "sqlite",
-    ]
-
-SERVICES = _load_service_list()
-
-
-def parse_config_file():
-    """Read CONTAINER_NAMESPACE from root .env (falls back to .work/config/.env.*)"""
-    # Try root .env first (it's the runtime-merged file)
+def _parse_root_env():
+    """Read and parse root .env file into a dict."""
     root_env = os.path.join(BASE_PATH, ".env")
-    candidates = [root_env]
-    arch = platform.machine()
-    if arch in ("arm64", "aarch64"):
-        candidates.append(os.path.join(BASE_PATH, ".work/config/.env.arm64"))
-    else:
-        candidates.append(os.path.join(BASE_PATH, ".work/config/.env.amd64"))
     result = {}
-    for cfg in candidates:
-        if not os.path.isfile(cfg):
-            continue
-        with open(cfg, "r", encoding="utf-8") as f:
+    if os.path.isfile(root_env):
+        with open(root_env, "r", encoding="utf-8") as f:
             for line in f:
-                line = re.sub(r'#.*', '', line).strip()
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
                 if "=" in line:
                     k, _, v = line.partition("=")
                     result[k.strip()] = v.strip()
-        if result.get("CONTAINER_NAMESPACE"):
-            break
     return result
+
+
+def _load_enable_service_list():
+    """Read ENABLE_SERVICE_LIST from root .env file."""
+    env = _parse_root_env()
+    if "ENABLE_SERVICE_LIST" in env:
+        val = env["ENABLE_SERVICE_LIST"].strip()
+        if val.startswith("(") and val.endswith(")"):
+            val = val[1:-1]
+        return re.findall(r'"([^"]+)"', val)
+    return []
+
+
+def _load_support_service_list():
+    """Read SUPPORT_SERVICE_LIST from root .env file."""
+    env = _parse_root_env()
+    if "SUPPORT_SERVICE_LIST" in env:
+        val = env["SUPPORT_SERVICE_LIST"].strip()
+        if val.startswith("(") and val.endswith(")"):
+            val = val[1:-1]
+        return re.findall(r'"([^"]+)"', val)
+    return []
+
+
+def parse_config_file():
+    """Read CONTAINER_NAMESPACE from root .env."""
+    return _parse_root_env()
 
 
 def get_running_containers():
@@ -184,35 +177,16 @@ def read_compose_file(service):
     return "".join(block)
 
 
-def get_enabled_services():
-    """Read ENABLE_SERVICE_LIST from root .env file."""
-    root_env = os.path.join(BASE_PATH, ".env")
-    if not os.path.isfile(root_env):
-        return set()
-
-    enabled = set()
-    with open(root_env, "r", encoding="utf-8") as f:
-        for line in f:
-            stripped = line.strip()
-            if stripped.startswith("ENABLE_SERVICE_LIST="):
-                list_str = stripped.split("=", 1)[1].strip()
-                if list_str.startswith("(") and list_str.endswith(")"):
-                    list_content = list_str[1:-1]
-                    items = re.findall(r'"([^"]+)"', list_content)
-                    enabled.update(items)
-                break
-    return enabled
-
-
 def build_data():
     cfg = parse_config_file()
     namespace = cfg.get("CONTAINER_NAMESPACE", "")
     running = get_running_containers()
     local_images = get_local_images()
-    enabled_services = get_enabled_services()
+    enabled_services = _load_enable_service_list()
+    support_services = _load_support_service_list()
 
     services = []
-    for svc in SERVICES:
+    for svc in support_services:
         container_name = f"sparrow_container_{namespace}_{svc}" if namespace else f"sparrow_container_{svc}"
         is_running = container_name in running
         images, config = parse_env_file(svc)

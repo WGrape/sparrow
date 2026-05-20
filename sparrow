@@ -128,7 +128,7 @@ restart() {
 # start web dashboard.
 web() {
     port=${1:-7979}
-    python3 "${SPARROW_BASE_PATH}/.work/include/web/server.py" "$port"
+    python3 "${SPARROW_BASE_PATH}/.work/web/server.py" "$port"
 }
 
 # enter container.

@@ -51,7 +51,11 @@ bash _install.sh
 ./sparrow stopone {service_name}
 
 # Start web dashboard
-./sparrowtool web
+./sparrow web
+
+# Enter container
+./sparrow enter
+./sparrow enter {service_name}
 ```
 
 For full usage details (configuration, update, monitor, Q&A, etc.), see the [Usage Document](.work/extra/doc/2.USAGE_EN.md).

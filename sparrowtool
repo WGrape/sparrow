@@ -25,16 +25,6 @@ elif [ "${COMMAND}" = "env" ]; then
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
 elif [ "${COMMAND}" = "clear" ]; then
     VAR_IS_CLEAR_COMMAND=true
-elif [ "${COMMAND}" = "tip" ] || [ "${COMMAND}" = "tips" ]; then
-    VAR_IS_TIP_COMMAND=true
-    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
-elif [ "${COMMAND}" = "web" ]; then
-    VAR_IS_WEB_COMMAND=true
-    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
-    shift # remove "web" from $@, leaving optional port arg
-elif [ "${COMMAND}" = "enter" ]; then
-    VAR_IS_ENTER_COMMAND=true
-    VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
 elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ]; then
     VAR_IS_HELP_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
@@ -111,68 +101,6 @@ new() {
     print_warn "In order to avoid confusion in port number allocation, it is recommended to use './sparrowtool env -l _port ' this command to view the current range of port number."
 }
 
-# start web dashboard.
-web() {
-    port=${1:-7979}
-    python3 "${SPARROW_BASE_PATH}/.work/include/web/server.py" "$port"
-}
-
-# enter container.
-enter() {
-    service="$1"
-
-    # 检查docker是否运行
-    if ! docker info > /dev/null 2>&1; then
-        print_error "error: please install or start docker first."
-        exit 1
-    fi
-
-    if [ "$service" == "" ]; then
-        # 没有指定服务，列出所有可用的sparrow容器
-        printf "Available sparrow containers:\n"
-        printf "========================================\n"
-        docker ps --format "table {{.Names}}\t{{.Status}}" | grep "sparrow_container" || {
-            printf "No sparrow containers running.\n"
-            printf "Use './sparrow start' to start services first.\n"
-        }
-        printf "\n"
-        printf "Usage: ./sparrowtool enter {service_name}\n"
-        printf "Example: ./sparrowtool enter mysql\n"
-    else
-        # 指定了服务，进入该容器
-        container_name="sparrow_container_${CONTAINER_NAMESPACE}_${service}"
-
-        # 检查容器是否存在
-        if ! docker ps --format "{{.Names}}" | grep -q "^${container_name}$"; then
-            # 检查容器是否存在但是没有运行
-            if docker ps -a --format "{{.Names}}" | grep -q "^${container_name}$"; then
-                print_error "Container ${container_name} exists but is not running."
-                print_info "Use './sparrow startone ${service}' to start it first."
-            else
-                print_error "Container ${container_name} not found."
-                print_info "Use './sparrowtool enter' to see available containers."
-            fi
-            exit 1
-        fi
-
-        print_info "Entering container ${container_name}..."
-        # 以root用户进入容器，工作目录设为/
-        docker exec -w "/" -u root -it "${container_name}" bash
-    fi
-}
-
-# show some tips.
-tip() {
-    # -u root: fix error(https://stackoverflow.com/questions/37836124/i-have-no-name-as-user-logging-into-jenkins-in-a-docker-container-that-uses-t)
-    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_go bash"
-    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_nginx bash"
-    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_mysql bash"
-    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_redis bash"
-
-    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_mysql bash -c 'mysql -u ${MYSQL_ROOT_USER} -h 127.0.0.1 -p${MYSQL_ROOT_PASSWORD} -P${MYSQL_CONTAINER_PORT} --default-character-set=utf8'"
-    echo "docker exec -w '/' -u root -it sparrow_container_${CONTAINER_NAMESPACE}_redis bash -c 'redis-cli -h 127.0.0.1 -p ${REDIS_CONTAINER_PORT} -a ${REDIS_PASSWORD}'"
-}
-
 # help document.
 help() {
     printf "welcome to sparrowtool\n"
@@ -182,13 +110,7 @@ help() {
     printf "    ① params: -t(type:service) / -s(service) / -p(port) / -v(version)\n"
     printf "    ② example 1: ./sparrowtool new -s prometheus -p 9876 -v 0.0.98\n"
     printf "\n"
-    printf "2、about container.\n"
-    printf "(1) enter container: ./sparrowtool enter {service?}\n"
-    printf "    ① param: if you pass nothing, if will enter all containers.\n"
-    printf "    ② example 1: ./sparrowtool enter\n"
-    printf "    ② example 2: ./sparrowtool enter go\n"
-    printf "\n"
-    printf "3、about image.\n"
+    printf "2、about image.\n"
     printf "(1) upload image: ./sparrowtool upload -t(type:app|basic) -s(service) -v(version) -r(replace)\n"
     printf "    ① param: {app}means the application image, {basic}means the basic image, {service}means the name of service.\n"
     printf "    ② example 1: ./sparrowtool upload -t basic -s etcd -v 3.5.0\n"
@@ -196,29 +118,14 @@ help() {
     printf "    ① param: mupload means multi/batch upload\n"
     printf "    ② example 1: ./sparrowtool mupload etcd kafka mysql\n"
     printf "\n"
-    printf "4、about env.\n"
+    printf "3、about env.\n"
     printf "(1) list all matched environment variables in /env file : ./sparrowtool env -l {match_pattern}\n"
     printf "    ① param: -l(match_pattern)\n"
     printf "    ① example 1: ./sparrowtool env -l port\n"
     printf "\n"
-    printf "5、about clear.\n"
+    printf "4、about clear.\n"
     printf "(1) clear one service or some services : ./sparrowtool clear {service1} {service2} ...\n"
     printf "    ① example 1: ./sparrowtool clear redis nginx mongodb jupyter\n"
-    printf "\n"
-    printf "5、about tip.\n"
-    printf "(1) show all tips : ./sparrowtool tip\n"
-    printf "\n"
-    printf "6、about web.\n"
-    printf "(1) start web dashboard : ./sparrowtool web {port?}\n"
-    printf "    ① param: port(optional, default 7979)\n"
-    printf "    ② example 1: ./sparrowtool web\n"
-    printf "    ② example 2: ./sparrowtool web 8080\n"
-    printf "\n"
-    printf "7、about enter.\n"
-    printf "(1) enter container : ./sparrowtool enter {service_name?}\n"
-    printf "    ① param: service_name (optional) - if not provided, list available containers\n"
-    printf "    ② example 1: ./sparrowtool enter              # list available containers\n"
-    printf "    ② example 2: ./sparrowtool enter mysql        # enter mysql container\n"
     printf "\n"
     printf "========================================================\n"
 }
@@ -354,12 +261,6 @@ elif [ "${VAR_IS_ENV_COMMAND}" = true ]; then
     search_env "$@"
 elif [ "${VAR_IS_CLEAR_COMMAND}" = true ]; then
     clear "$@"
-elif [ "${VAR_IS_TIP_COMMAND}" = true ]; then
-    tip
-elif [ "${VAR_IS_WEB_COMMAND}" = true ]; then
-    web "$@"
-elif [ "${VAR_IS_ENTER_COMMAND}" = true ]; then
-    enter "$2"
 elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then
     help
 fi

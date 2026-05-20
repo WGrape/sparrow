@@ -35,6 +35,8 @@
 
 <video src="https://github.com/WGrape/sparrow/assets/35942268/bc180f06-fedc-42d2-b21b-f7c7fa1b65ea" width="" height="" controls="controls"></video>
 
+<img width="2554" height="1084" alt="Image" src="https://github.com/user-attachments/assets/542cc16d-3aa6-41c8-8412-27f35cd018bb" />
+
 ```bash
 # 安装
 git clone https://github.com/WGrape/sparrow.git

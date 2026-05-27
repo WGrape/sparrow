@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.8.0](https://github.com/WGrape/sparrow/compare/v1.7.0...v1.8.0) (2026-05-27)
+
+
+### Features
+
+* ./sparrowtool enter can't print env message ([5e66cb2](https://github.com/WGrape/sparrow/commit/5e66cb23510ae4d1e63b3478765a7426bc68430a))
+* add search command and web add cloud images ([f9e05ef](https://github.com/WGrape/sparrow/commit/f9e05ef37feecd218e8023e43b80d466de55d7f1))
+* add SUPPORT_SERVICE_LIST variable, and fix docs ([55dae21](https://github.com/WGrape/sparrow/commit/55dae218d8e709bc3225b8210e183cc7fbff589f))
+* change server.py of web path ([761ad4d](https://github.com/WGrape/sparrow/commit/761ad4de6110342fdb32574571dec29dac3ca311))
+* make sparrow help command better ([254f42c](https://github.com/WGrape/sparrow/commit/254f42cc228af2afd52551ad85f7d2c22d6262e9))
+* move html-template from server.py to index.html ([0229ab1](https://github.com/WGrape/sparrow/commit/0229ab1a623d2163ef12e691156fdc8b1075532c))
+* move update/enter command to sparrowtool ([a99c089](https://github.com/WGrape/sparrow/commit/a99c089dc41060f341cd90a3d00dc89e81d264a4))
+* optimize the web mirror search detection feature. ([aa1ac52](https://github.com/WGrape/sparrow/commit/aa1ac526448377f0d43c847377c22e398d393e7d))
+* server.py add _parse_root_env make doc better ([1f30e51](https://github.com/WGrape/sparrow/commit/1f30e51011fccbb4b45bffaaf828a0e398aaa489))
+* support search tag(version info), added relevant logging during the pull process, and enhanced informational messages regarding architecture, images, and versions. ([a5a8d07](https://github.com/WGrape/sparrow/commit/a5a8d07f2b451a8628da90ebfaa795fcabc41cf7))
+* web ui add disable feature ([d04a5c3](https://github.com/WGrape/sparrow/commit/d04a5c3e632a13a053064561ae12c465ae84697e))
+* web ui upgrade ([c5dbb9a](https://github.com/WGrape/sparrow/commit/c5dbb9a651deb6753a10d70a4548f079654b80a7))
+* web ui upgrade and remove update command ([eb66f70](https://github.com/WGrape/sparrow/commit/eb66f70e785c078d3fc394184b8d637fd15c00a2))
+
+
+### Bug Fixes
+
+* fix error ([cdce2a1](https://github.com/WGrape/sparrow/commit/cdce2a1d46e898a94307002b90b5625d966c22c0))
+* fix error ([841879f](https://github.com/WGrape/sparrow/commit/841879fcb57cc89e27c9cd5a467cc2576dfe9588))
+* move enter/web command from sparrowtool to sparrow, and remove tip of sparrowtool ([27ecd7b](https://github.com/WGrape/sparrow/commit/27ecd7b9a8f4df8a2439426fd7624f5a48971374))
+* update sparrow --help ([60fcff1](https://github.com/WGrape/sparrow/commit/60fcff11efb37a567f87b682101959f55fcc81ed))
+
+
+### Docs
+
+* fix ([4c868cd](https://github.com/WGrape/sparrow/commit/4c868cdfe5a7f41cebb4588acd6d984607177fe1))
+* make doc better ([f3675b3](https://github.com/WGrape/sparrow/commit/f3675b3d4f1acc21a89735115b507669bdb4bd58))
+* make doc better ([4ad0eb3](https://github.com/WGrape/sparrow/commit/4ad0eb3f2612d4256c3a81cad2e065a0bf6b8202))
+* make doc better ([234fbbb](https://github.com/WGrape/sparrow/commit/234fbbbf9fc61711a3b323044d8db64ab437ba15))
+* make doc better ([ab39dde](https://github.com/WGrape/sparrow/commit/ab39dde9dc726cda06711cce2723075dcb962e44))
+* make doc better ([7232284](https://github.com/WGrape/sparrow/commit/7232284405058b0bc9240805782db127165c9da5))
+* make doc better ([46d9a28](https://github.com/WGrape/sparrow/commit/46d9a28e8322da73bdadbfc9fd50dd01a6d3cfb9))
+* make doc better ([7b29e43](https://github.com/WGrape/sparrow/commit/7b29e4319637978f249a848b78ca35f786b04e60))
+* make doc better ([8e0db24](https://github.com/WGrape/sparrow/commit/8e0db2432ed6485590c0d11de648b89a1323e530))
+* make doc better ([b9e6fb6](https://github.com/WGrape/sparrow/commit/b9e6fb650cc9adeeb6a83859091babab2e506fcc))
+* make doc better ([a1b0647](https://github.com/WGrape/sparrow/commit/a1b06477e1b1ebfda82342f24c74ad52a5663a33))
+* make doc better ([6042804](https://github.com/WGrape/sparrow/commit/604280491a3405411b8bb6382032cc23fa1589b2))
+
 ## [1.7.0](https://github.com/WGrape/sparrow/compare/v1.6.0...v1.7.0) (2026-05-15)
 
 

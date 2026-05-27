@@ -32,6 +32,13 @@ def _parse_root_env():
                 if "=" in line:
                     k, _, v = line.partition("=")
                     result[k.strip()] = v.strip()
+
+                    # Also create a no-comment version for DOCKERHUB_REPO
+                    if k.strip() == "DOCKERHUB_REPO":
+                        v_no_comment = v.strip()
+                        if " #" in v_no_comment:
+                            v_no_comment = v_no_comment.split(" #", 1)[0].strip()
+                        result["DOCKERHUB_REPO_NO_COMMENT"] = v_no_comment
     return result
 
 
@@ -178,18 +185,27 @@ def read_compose_file(service):
     return "".join(block)
 
 
-def get_cloud_image_status(dockerhub_repo, image_repo):
-    """Check if an image exists in the cloud registry (best effort)."""
-    if not dockerhub_repo:
+def get_cloud_image_status(dockerhub_repo_no_comment, image_repo):
+    """Check if an image exists in the cloud registry using sparrow search."""
+    if not dockerhub_repo_no_comment:
         return False
     try:
-        remote_image = f"{dockerhub_repo}/{image_repo}"
+        # Use full image name with dockerhub repo prefix (no comment)
+        full_image = f"{dockerhub_repo_no_comment}/{image_repo}"
+        print(f"[DEBUG] Checking cloud image with: ./sparrow search {full_image}")
         result = subprocess.run(
-            ["docker", "manifest", "inspect", remote_image],
-            capture_output=True, text=True, timeout=2
+            ["./sparrow", "search", full_image],
+            capture_output=True, text=True, timeout=30
         )
-        return result.returncode == 0
-    except Exception:
+        print(f"[DEBUG] stdout: {result.stdout}")
+        print(f"[DEBUG] stderr: {result.stderr}")
+        print(f"[DEBUG] returncode: {result.returncode}")
+        # Check output for "find it"
+        found = "find it" in result.stdout
+        print(f"[DEBUG] Found: {found}")
+        return found
+    except Exception as e:
+        print(f"[DEBUG] Error checking cloud image: {e}")
         return False
 
 
@@ -197,6 +213,7 @@ def build_data():
     cfg = parse_config_file()
     namespace = cfg.get("CONTAINER_NAMESPACE", "")
     dockerhub_repo = cfg.get("DOCKERHUB_REPO", "")
+    dockerhub_repo_no_comment = cfg.get("DOCKERHUB_REPO_NO_COMMENT", dockerhub_repo)
     running = get_running_containers()
     local_images = get_local_images()
     enabled_services = _load_enable_service_list()
@@ -219,6 +236,11 @@ def build_data():
             img["local"] = False
             img["cloud"] = False
             if key.endswith("_VERSION") and val:
+                # Remove comment from version value if present
+                val_no_comment = val
+                if " #" in val_no_comment:
+                    val_no_comment = val_no_comment.split(" #", 1)[0].strip()
+
                 # e.g. IMAGE_BASIC_MYSQL_VERSION=8.0 → sparrow-basic-mysql:8.0
                 m = re.match(r'^IMAGE_(BASIC|APP|OFFICIAL)_(.+)_VERSION$', key)
                 if m:
@@ -228,16 +250,19 @@ def build_data():
                         # official image name comes from IMAGE_OFFICIAL_{SVC}_NAME
                         name_key = f"IMAGE_OFFICIAL_{m.group(2)}_NAME"
                         name_entry = next((e["value"] for e in images if e["key"] == name_key), svc_name)
-                        repo = f"{name_entry}:{val}"
+                        # Remove comment from name_entry too
+                        if " #" in name_entry:
+                            name_entry = name_entry.split(" #", 1)[0].strip()
+                        repo = f"{name_entry}:{val_no_comment}"
                     else:
-                        repo = f"sparrow-{kind}-{svc_name}:{val}"
-                        # Collect sparrow images for Docker Hub panel
+                        repo = f"sparrow-{kind}-{svc_name}:{val_no_comment}"
+                        # Collect sparrow images for Docker Hub panel (use no-comment version)
                         all_sparrow_images.append({
                             "service": svc,
                             "kind": kind,
-                            "version": val,
+                            "version": val_no_comment,
                             "repo": repo,
-                            "remote": f"{dockerhub_repo}/{repo}" if dockerhub_repo else repo
+                            "remote": f"{dockerhub_repo_no_comment}/{repo}" if dockerhub_repo_no_comment else repo
                         })
                     img["repo"] = repo
                     img["local"] = repo in local_images
@@ -265,6 +290,7 @@ def build_data():
         "totalCount": len(services),
         "stoppedCount": len(installed) - len(running_list),
         "dockerhubRepo": dockerhub_repo,
+        "dockerhubRepoNoComment": dockerhub_repo_no_comment,
         "sparrowImages": all_sparrow_images,
     }
 
@@ -457,8 +483,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 req = json.loads(body)
                 image_repo = req.get("image", "").strip()
                 cfg = parse_config_file()
-                dockerhub_repo = cfg.get("DOCKERHUB_REPO", "")
-                exists = get_cloud_image_status(dockerhub_repo, image_repo)
+                dockerhub_repo_no_comment = cfg.get("DOCKERHUB_REPO_NO_COMMENT", cfg.get("DOCKERHUB_REPO", ""))
+                exists = get_cloud_image_status(dockerhub_repo_no_comment, image_repo)
                 resp = json.dumps({"ok": True, "exists": exists}, ensure_ascii=False).encode("utf-8")
             except Exception as e:
                 resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")

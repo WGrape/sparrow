@@ -368,6 +368,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 
 <script>
 let allData = null, filter = 'all', currentModalService = null;
+let checkedCloudImages = {}; // Track which images have been checked
 
 async function loadData() {
   try {
@@ -545,9 +546,17 @@ function openModal(name) {
       const localTxt = e.local ? '本地已有' : '未拉取';
       let cloudBadge = '';
       if (e.cloud_checkable) {
-        // Show loading badge, will auto-check later
-        cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:wait;">检查中...</span>`;
-        cloudImages.push({repo: e.repo, idx: idx});
+        // Check if we already have a result for this image
+        const existingResult = checkedCloudImages[e.repo];
+        if (existingResult === true) {
+          cloudBadge = `<span class="img-cloud yes" id="cloud-${idx}" style="cursor:pointer;">已推送</span>`;
+        } else if (existingResult === false) {
+          cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:pointer;">未推送</span>`;
+        } else {
+          // Show loading badge, will auto-check later
+          cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:wait;">检查中...</span>`;
+          cloudImages.push({repo: e.repo, idx: idx});
+        }
       }
       return `<div class="image-row">
         <span class="img-kind ${kind}">${kind}</span>
@@ -597,10 +606,13 @@ function openModal(name) {
   }
   document.getElementById('modal-body').innerHTML = bodyHtml;
 
-  // Auto-check cloud images after rendering
-  cloudImages.forEach(img => {
-    checkCloudImage(img.repo, img.idx);
-  });
+  // Auto-check cloud images sequentially after rendering
+  async function checkImagesSequentially() {
+    for (const img of cloudImages) {
+      await checkCloudImage(img.repo, img.idx);
+    }
+  }
+  checkImagesSequentially();
 
   // Modal actions
   let actHtml = '';
@@ -738,6 +750,14 @@ async function doEnable(service, btn) {
 async function checkCloudImage(imageRepo, idx) {
   const badge = document.getElementById(`cloud-${idx}`);
   if (!badge) return;
+
+  // Skip if already checked
+  if (checkedCloudImages[imageRepo] !== undefined) {
+    return;
+  }
+  // Mark as checking to prevent duplicate requests
+  checkedCloudImages[imageRepo] = 'checking';
+
   badge.textContent = '检查中...';
   badge.style.cursor = 'wait';
   try {
@@ -751,15 +771,19 @@ async function checkCloudImage(imageRepo, idx) {
       if (d.exists) {
         badge.textContent = '已推送';
         badge.className = 'img-cloud yes';
+        checkedCloudImages[imageRepo] = true;
       } else {
         badge.textContent = '未推送';
         badge.className = 'img-cloud no';
+        checkedCloudImages[imageRepo] = false;
       }
     } else {
       badge.textContent = '检查失败';
+      checkedCloudImages[imageRepo] = undefined; // Allow retry
     }
   } catch(e) {
     badge.textContent = '检查失败';
+    checkedCloudImages[imageRepo] = undefined; // Allow retry
   } finally {
     badge.style.cursor = 'pointer';
   }

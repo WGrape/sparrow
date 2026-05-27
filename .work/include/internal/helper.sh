@@ -268,6 +268,7 @@ pull_or_build_app_image() {
         exit 1
     fi
     service="$1"
+    print_info "pull_or_build_app_image: service=$service"
 
     version_name=$(echo "IMAGE_APP_${service}_VERSION" | awk '{print toupper($0)}')
     version=$(eval echo "$"$version_name)

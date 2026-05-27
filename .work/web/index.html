@@ -1,243 +1,4 @@
-#!/usr/bin/env python3
-"""
-Sparrow Web Dashboard
-Usage: python3 server.py [port]
-"""
-
-import http.server
-import json
-import os
-import platform
-import re
-import subprocess
-import sys
-import threading
-import webbrowser
-from urllib.parse import urlparse
-
-BASE_PATH = os.environ.get("SPARROW_BASE_PATH", os.getcwd())
-
-
-def _parse_root_env():
-    """Read and parse root .env file into a dict."""
-    root_env = os.path.join(BASE_PATH, ".env")
-    result = {}
-    if os.path.isfile(root_env):
-        with open(root_env, "r", encoding="utf-8") as f:
-            for line in f:
-                stripped = line.strip()
-                if not stripped or stripped.startswith("#"):
-                    continue
-                if "=" in line:
-                    k, _, v = line.partition("=")
-                    result[k.strip()] = v.strip()
-    return result
-
-
-def _load_enable_service_list():
-    """Read ENABLE_SERVICE_LIST from root .env file."""
-    env = _parse_root_env()
-    if "ENABLE_SERVICE_LIST" in env:
-        val = env["ENABLE_SERVICE_LIST"].strip()
-        if val.startswith("(") and val.endswith(")"):
-            val = val[1:-1]
-        return re.findall(r'"([^"]+)"', val)
-    return []
-
-
-def _load_support_service_list():
-    """Read SUPPORT_SERVICE_LIST from root .env file."""
-    env = _parse_root_env()
-    if "SUPPORT_SERVICE_LIST" in env:
-        val = env["SUPPORT_SERVICE_LIST"].strip()
-        if val.startswith("(") and val.endswith(")"):
-            val = val[1:-1]
-        return re.findall(r'"([^"]+)"', val)
-    return []
-
-
-def parse_config_file():
-    """Read CONTAINER_NAMESPACE from root .env."""
-    return _parse_root_env()
-
-
-def get_running_containers():
-    """Return a set of running container names."""
-    try:
-        r = subprocess.run(
-            ["docker", "ps", "--format", "{{.Names}}"],
-            capture_output=True, text=True, timeout=5
-        )
-        return set(r.stdout.strip().splitlines())
-    except Exception:
-        return set()
-
-
-def get_local_images():
-    """Return a set of 'repo:tag' strings of locally available images."""
-    try:
-        r = subprocess.run(
-            ["docker", "images", "--format", "{{.Repository}}:{{.Tag}}"],
-            capture_output=True, text=True, timeout=5
-        )
-        return set(r.stdout.strip().splitlines())
-    except Exception:
-        return set()
-
-
-def parse_env_file(service):
-    """Parse per-service variables from the root .env file."""
-    root_env = os.path.join(BASE_PATH, ".env")
-    service_upper = service.upper()
-    images = []
-    config = []
-    if not os.path.isfile(root_env):
-        return images, config
-
-    # We collect variables that belong to this service:
-    # 1. Variables prefixed with SERVICE_UPPER_
-    # 2. Variables prefixed with IMAGE_*_SERVICE_UPPER_*
-    prefix = service_upper + "_"
-    with open(root_env, "r", encoding="utf-8") as f:
-        for raw in f:
-            line = raw.rstrip("\n")
-            stripped = line.strip()
-            if not stripped or stripped.startswith("###") or stripped.startswith("#"):
-                continue
-            if "=" not in line:
-                continue
-            key_part, _, rest = line.partition("=")
-            key = key_part.strip()
-            if "#" in rest:
-                value, _, comment = rest.partition("#")
-                value = value.strip()
-                comment = comment.strip()
-            else:
-                value = rest.strip()
-                comment = ""
-
-            # Match image keys: IMAGE_(BASIC|APP|OFFICIAL)_{SERVICE}_...
-            is_image = bool(re.match(
-                r'^IMAGE_(BASIC|APP|OFFICIAL)_' + re.escape(service_upper) + r'(_|$)', key
-            ))
-            # Match config keys: {SERVICE}_...
-            is_config = key.startswith(prefix)
-
-            if not is_image and not is_config:
-                continue
-
-            entry = {"key": key, "value": value, "comment": comment}
-            if is_image:
-                images.append(entry)
-            else:
-                config.append(entry)
-    return images, config
-
-
-def read_compose_file(service):
-    """Extract this service's block from the root docker-compose.yml."""
-    root_compose = os.path.join(BASE_PATH, "docker-compose.yml")
-    if not os.path.isfile(root_compose):
-        return ""
-
-    with open(root_compose, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    # Find the line where this service's block starts (2-space indented key under services:)
-    # e.g. "  etcd:" or "  mysql:"
-    service_pattern = re.compile(r'^  ' + re.escape(service) + r'\s*:')
-    # Any other top-level service key (2-space indent + word + colon, but not deeper indent)
-    next_service_pattern = re.compile(r'^  [a-zA-Z]')
-
-    in_services = False
-    start = None
-    end = None
-
-    for i, line in enumerate(lines):
-        if line.strip() == "services:":
-            in_services = True
-            continue
-        if not in_services:
-            continue
-        if start is None:
-            if service_pattern.match(line):
-                start = i
-        else:
-            # Stop at the next sibling service key (same 2-space indent, different name)
-            if next_service_pattern.match(line) and not service_pattern.match(line):
-                end = i
-                break
-
-    if start is None:
-        return ""
-    block = lines[start:end] if end else lines[start:]
-    # Strip trailing blank lines
-    while block and not block[-1].strip():
-        block.pop()
-    return "".join(block)
-
-
-def build_data():
-    cfg = parse_config_file()
-    namespace = cfg.get("CONTAINER_NAMESPACE", "")
-    running = get_running_containers()
-    local_images = get_local_images()
-    enabled_services = _load_enable_service_list()
-    support_services = _load_support_service_list()
-
-    services = []
-    for svc in support_services:
-        container_name = f"sparrow_container_{namespace}_{svc}" if namespace else f"sparrow_container_{svc}"
-        is_running = container_name in running
-        images, config = parse_env_file(svc)
-        compose = read_compose_file(svc)
-        has_env = svc in enabled_services
-
-        # Enrich image entries with local availability
-        for img in images:
-            key = img["key"]
-            val = img["value"]
-            # Try to detect if this is a version key and pair with name key
-            img["local"] = False
-            if key.endswith("_VERSION") and val:
-                # e.g. IMAGE_BASIC_MYSQL_VERSION=8.0 → sparrow-basic-mysql:8.0
-                m = re.match(r'^IMAGE_(BASIC|APP|OFFICIAL)_(.+)_VERSION$', key)
-                if m:
-                    kind = m.group(1).lower()
-                    svc_name = m.group(2).lower()
-                    if kind == "official":
-                        # official image name comes from IMAGE_OFFICIAL_{SVC}_NAME
-                        name_key = f"IMAGE_OFFICIAL_{m.group(2)}_NAME"
-                        name_entry = next((e["value"] for e in images if e["key"] == name_key), svc_name)
-                        repo = f"{name_entry}:{val}"
-                    else:
-                        repo = f"sparrow-{kind}-{svc_name}:{val}"
-                    img["repo"] = repo
-                    img["local"] = repo in local_images
-
-        services.append({
-            "name": svc,
-            "container": container_name,
-            "running": is_running,
-            "hasEnv": has_env,
-            "images": images,
-            "config": config,
-            "compose": compose,
-        })
-
-    installed = [s for s in services if s["hasEnv"]]
-    running_list = [s for s in services if s["running"]]
-    return {
-        "namespace": namespace,
-        "services": services,
-        "runningCount": len(running_list),
-        "installedCount": len(installed),
-        "totalCount": len(services),
-        "stoppedCount": len(installed) - len(running_list),
-    }
-
-
-HTML_TEMPLATE = r"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -461,6 +222,78 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 .cy-bool   { color: #cf222e; }  /* true/false */
 .cy-var    { color: #8250df; font-weight: 600; }  /* ${VAR} */
 .cy-comment{ color: #8b949e; font-style: italic; }
+
+/* Footer */
+.footer {
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 20px; margin-top: 40px;
+}
+.footer-content {
+  max-width: 1440px; margin: 0 auto; text-align: center;
+}
+.footer-link {
+  color: var(--text2); text-decoration: none; font-size: 13px;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color .15s;
+}
+.footer-link:hover { color: var(--blue); }
+.github-icon { flex-shrink: 0; }
+
+/* Docker Hub Panel */
+.dockerhub-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
+}
+.dockerhub-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.dockerhub-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.dockerhub-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); padding: 6px 12px; border-radius: var(--radius);
+  cursor: pointer; font-size: 13px; transition: all .15s;
+}
+.dockerhub-btn:hover { border-color: var(--border2); color: var(--text); }
+.dockerhub-content {
+  display: none; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.dockerhub-content.show { display: block; }
+.dockerhub-config {
+  font-family: var(--mono); font-size: 13px; color: var(--text2);
+  background: var(--surface2); padding: 12px; border-radius: 8px;
+  margin-bottom: 12px;
+}
+.dockerhub-config-line {
+  margin-bottom: 4px;
+}
+.dockerhub-config-line:last-child { margin-bottom: 0; }
+.dockerhub-config-key {
+  color: var(--purple); font-weight: 600;
+}
+.dockerhub-images {
+  margin-top: 12px;
+}
+.dockerhub-images-title {
+  font-size: 12px; font-weight: 700; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+}
+.dockerhub-image-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+.dockerhub-image-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; font-family: var(--mono);
+  font-size: 12px; color: var(--text); word-break: break-all;
+}
+
+/* Cloud status badge */
+.img-cloud { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; font-weight: 600; }
+.img-cloud.yes { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(9,105,218,0.3); }
+.img-cloud.no  { background: #fff; color: var(--text3); border: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -476,8 +309,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 <div class="main">
   <div class="stats" id="stats"></div>
 
+  <!-- Docker Hub Panel -->
+  <div class="dockerhub-panel" id="dockerhub-panel" style="display:none;">
+    <div class="dockerhub-header">
+      <span class="dockerhub-title">🐳 Docker Hub</span>
+      <button class="dockerhub-btn" onclick="toggleDockerHub()">展开详情</button>
+    </div>
+    <div class="dockerhub-content" id="dockerhub-content">
+      <div class="dockerhub-config" id="dockerhub-config"></div>
+      <div class="dockerhub-images">
+        <div class="dockerhub-images-title">推送的镜像</div>
+        <div class="dockerhub-image-list" id="dockerhub-image-list"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="toolbar">
-    <input class="search" id="search" placeholder="搜索服务名 / 变量名 / 值..." oninput="render()">
+    <input class="search" id="search" placeholder="搜索服务名 / 变量名 / 值..." oninput="render()" autocomplete="off">
     <div class="filter-tabs">
       <button class="ftab active" id="ftab-all"     onclick="setFilter('all')">全部</button>
       <button class="ftab"        id="ftab-running" onclick="setFilter('running')">运行中</button>
@@ -488,6 +336,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
   </div>
 
   <div id="grid-container"></div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-content">
+    <a href="https://github.com/WGrape/sparrow" target="_blank" class="footer-link">
+      <svg class="github-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      https://github.com/WGrape/sparrow
+    </a>
+  </div>
 </div>
 
 <!-- Modal overlay -->
@@ -508,6 +368,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 
 <script>
 let allData = null, filter = 'all', currentModalService = null;
+let checkedCloudImages = {}; // Track which images have been checked
 
 async function loadData() {
   try {
@@ -536,6 +397,40 @@ function renderStats() {
     <div class="stat"><div class="stat-label">已启用</div><div class="stat-val blue">${d.installedCount}</div></div>
     <div class="stat"><div class="stat-label">全部服务</div><div class="stat-val muted">${d.totalCount}</div></div>
   `;
+
+  // Render Docker Hub panel
+  renderDockerHub();
+}
+
+function renderDockerHub() {
+  const d = allData;
+  const panel = document.getElementById('dockerhub-panel');
+  const config = document.getElementById('dockerhub-config');
+  const imageList = document.getElementById('dockerhub-image-list');
+
+  if (d.dockerhubRepo) {
+    panel.style.display = 'block';
+    config.innerHTML = `
+      <div class="dockerhub-config-line"><span class="dockerhub-config-key">DOCKERHUB_REPO=</span>${esc(d.dockerhubRepo)}</div>
+    `;
+
+    if (d.sparrowImages && d.sparrowImages.length) {
+      imageList.innerHTML = d.sparrowImages.map(img => `
+        <div class="dockerhub-image-item">${esc(img.remote)}</div>
+      `).join('');
+    } else {
+      imageList.innerHTML = '<div class="empty-row">暂无镜像</div>';
+    }
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function toggleDockerHub() {
+  const content = document.getElementById('dockerhub-content');
+  const btn = content.previousElementSibling.querySelector('.dockerhub-btn');
+  content.classList.toggle('show');
+  btn.textContent = content.classList.contains('show') ? '收起详情' : '展开详情';
 }
 
 function setFilter(f) {
@@ -547,7 +442,8 @@ function setFilter(f) {
 
 function render() {
   if (!allData) return;
-  const q = document.getElementById('search').value.trim().toLowerCase();
+  const searchEl = document.getElementById('search');
+  const q = (searchEl.value || '').trim().toLowerCase();
   let list = allData.services;
 
   if (filter === 'running') list = list.filter(s => s.running);
@@ -641,16 +537,32 @@ function openModal(name) {
   </div>`;
 
   // images section
+  const cloudImages = [];
   if (s.images.length) {
-    const rows = s.images.filter(e => e.key.endsWith('_VERSION') && e.repo).map(e => {
+    const rows = s.images.filter(e => e.key.endsWith('_VERSION') && e.repo).map((e, idx) => {
       const m = e.key.match(/^IMAGE_(BASIC|APP|OFFICIAL)_/);
       const kind = m ? m[1].toLowerCase() : 'other';
       const localCls = e.local ? 'yes' : 'no';
       const localTxt = e.local ? '本地已有' : '未拉取';
+      let cloudBadge = '';
+      if (e.cloud_checkable) {
+        // Check if we already have a result for this image
+        const existingResult = checkedCloudImages[e.repo];
+        if (existingResult === true) {
+          cloudBadge = `<span class="img-cloud yes" id="cloud-${idx}" style="cursor:pointer;">已推送</span>`;
+        } else if (existingResult === false) {
+          cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:pointer;">未推送</span>`;
+        } else {
+          // Show loading badge, will auto-check later
+          cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:wait;">检查中...</span>`;
+          cloudImages.push({repo: e.repo, idx: idx});
+        }
+      }
       return `<div class="image-row">
         <span class="img-kind ${kind}">${kind}</span>
         <span class="img-repo" title="${esc(e.repo)}">${esc(e.repo)}</span>
         <span class="img-local ${localCls}">${localTxt}</span>
+        ${cloudBadge}
       </div>`;
     }).join('');
     if (rows) bodyHtml += `<div class="detail-section images">
@@ -694,6 +606,14 @@ function openModal(name) {
   }
   document.getElementById('modal-body').innerHTML = bodyHtml;
 
+  // Auto-check cloud images sequentially after rendering
+  async function checkImagesSequentially() {
+    for (const img of cloudImages) {
+      await checkCloudImage(img.repo, img.idx);
+    }
+  }
+  checkImagesSequentially();
+
   // Modal actions
   let actHtml = '';
   if (s.hasEnv) {
@@ -724,10 +644,13 @@ function closeModal(event) {
   currentModalService = null;
 }
 
-// Close modal on Escape key
+// Close modal on Escape key — capture phase runs before any input element handles ESC
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
-});
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeModal();
+  }
+}, true);
 
 let toastTimer = null;
 function showToast(msg, type) {
@@ -824,6 +747,48 @@ async function doEnable(service, btn) {
   }
 }
 
+async function checkCloudImage(imageRepo, idx) {
+  const badge = document.getElementById(`cloud-${idx}`);
+  if (!badge) return;
+
+  // Skip if already checked
+  if (checkedCloudImages[imageRepo] !== undefined) {
+    return;
+  }
+  // Mark as checking to prevent duplicate requests
+  checkedCloudImages[imageRepo] = 'checking';
+
+  badge.textContent = '检查中...';
+  badge.style.cursor = 'wait';
+  try {
+    const r = await fetch('/api/check-cloud', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({image: imageRepo})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      if (d.exists) {
+        badge.textContent = '已推送';
+        badge.className = 'img-cloud yes';
+        checkedCloudImages[imageRepo] = true;
+      } else {
+        badge.textContent = '未推送';
+        badge.className = 'img-cloud no';
+        checkedCloudImages[imageRepo] = false;
+      }
+    } else {
+      badge.textContent = '检查失败';
+      checkedCloudImages[imageRepo] = undefined; // Allow retry
+    }
+  } catch(e) {
+    badge.textContent = '检查失败';
+    checkedCloudImages[imageRepo] = undefined; // Allow retry
+  } finally {
+    badge.style.cursor = 'pointer';
+  }
+}
+
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -858,199 +823,3 @@ setInterval(loadData, 15000);
 </script>
 </body>
 </html>
-"""
-
-
-class Handler(http.server.BaseHTTPRequestHandler):
-    def log_message(self, format, *args):
-        pass  # suppress access logs
-
-    def do_GET(self):
-        path = urlparse(self.path).path
-        if path == "/api/data":
-            data = json.dumps(build_data(), ensure_ascii=False).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", len(data))
-            self.end_headers()
-            self.wfile.write(data)
-        elif path == "/":
-            body = HTML_TEMPLATE.encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", len(body))
-            self.end_headers()
-            self.wfile.write(body)
-        else:
-            self.send_response(404)
-            self.end_headers()
-
-    def do_POST(self):
-        path = urlparse(self.path).path
-        if path == "/api/action":
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length)
-            try:
-                req = json.loads(body)
-                service = req.get("service", "").strip()
-                action = req.get("action", "").strip()
-                allowed_actions = {"startone", "stopone", "restart"}
-                if not service or action not in allowed_actions or not re.match(r'^[a-zA-Z0-9_-]+$', service):
-                    raise ValueError("invalid service or action")
-                sparrow = os.path.join(BASE_PATH, "sparrow")
-                label = f"[web] ./sparrow {action} {service}"
-                print(f"\n{'─'*60}")
-                print(f"▶  {label}")
-                print(f"{'─'*60}", flush=True)
-                proc = subprocess.Popen(
-                    [sparrow, action, service],
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    text=True, cwd=BASE_PATH
-                )
-                output_lines = []
-                for line in proc.stdout:
-                    line_stripped = line.rstrip("\n")
-                    print(line_stripped, flush=True)
-                    output_lines.append(line_stripped)
-                proc.wait()
-                ok = proc.returncode == 0
-                print(f"{'─'*60}")
-                print(f"{'✓' if ok else '✗'}  {label}  (exit {proc.returncode})")
-                print(f"{'─'*60}\n", flush=True)
-                output_text = "\n".join(output_lines[-100:])
-                resp = json.dumps({
-                    "ok": ok,
-                    "stdout": output_text,
-                    "error": "" if ok else output_lines[-1] if output_lines else "exit code " + str(proc.returncode),
-                }, ensure_ascii=False).encode("utf-8")
-            except Exception as e:
-                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", len(resp))
-            self.end_headers()
-            self.wfile.write(resp)
-        elif path == "/api/disable":
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length)
-            try:
-                req = json.loads(body)
-                service = req.get("service", "").strip()
-                if not service or not re.match(r'^[a-zA-Z0-9_-]+$', service):
-                    raise ValueError("invalid service")
-
-                # Update only root .env file
-                root_env = os.path.join(BASE_PATH, ".env")
-                if os.path.isfile(root_env):
-                    with open(root_env, "r", encoding="utf-8") as f:
-                        lines = f.readlines()
-
-                    new_lines = []
-                    for line in lines:
-                        if line.strip().startswith("ENABLE_SERVICE_LIST="):
-                            # Extract the list content
-                            list_str = line.split("=", 1)[1].strip()
-                            if list_str.startswith("(") and list_str.endswith(")"):
-                                list_content = list_str[1:-1]
-                                # Parse quoted strings
-                                items = re.findall(r'"([^"]+)"', list_content)
-                                # Remove the service
-                                new_items = [item for item in items if item != service]
-                                # Rebuild the list
-                                new_list_str = "(" + " ".join(f'"{item}"' for item in new_items) + ")"
-                                new_line = re.sub(r'ENABLE_SERVICE_LIST\s*=\s*\([^)]*\)', f"ENABLE_SERVICE_LIST={new_list_str}", line)
-                                new_lines.append(new_line)
-                            else:
-                                new_lines.append(line)
-                        else:
-                            new_lines.append(line)
-
-                    with open(root_env, "w", encoding="utf-8") as f:
-                        f.writelines(new_lines)
-
-                label = f"[web] disabled service {service}"
-                print(f"\n{'─'*60}")
-                print(f"✓  {label}")
-                print(f"{'─'*60}\n", flush=True)
-                resp = json.dumps({"ok": True}, ensure_ascii=False).encode("utf-8")
-            except Exception as e:
-                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", len(resp))
-            self.end_headers()
-            self.wfile.write(resp)
-        elif path == "/api/enable":
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length)
-            try:
-                req = json.loads(body)
-                service = req.get("service", "").strip()
-                if not service or not re.match(r'^[a-zA-Z0-9_-]+$', service):
-                    raise ValueError("invalid service")
-
-                # Update only root .env file
-                root_env = os.path.join(BASE_PATH, ".env")
-                if os.path.isfile(root_env):
-                    with open(root_env, "r", encoding="utf-8") as f:
-                        lines = f.readlines()
-
-                    new_lines = []
-                    for line in lines:
-                        if line.strip().startswith("ENABLE_SERVICE_LIST="):
-                            # Extract the list content
-                            list_str = line.split("=", 1)[1].strip()
-                            if list_str.startswith("(") and list_str.endswith(")"):
-                                list_content = list_str[1:-1]
-                                # Parse quoted strings
-                                items = re.findall(r'"([^"]+)"', list_content)
-                                # Add the service if not already present
-                                if service not in items:
-                                    items.append(service)
-                                # Rebuild the list
-                                new_list_str = "(" + " ".join(f'"{item}"' for item in items) + ")"
-                                new_line = re.sub(r'ENABLE_SERVICE_LIST\s*=\s*\([^)]*\)', f"ENABLE_SERVICE_LIST={new_list_str}", line)
-                                new_lines.append(new_line)
-                            else:
-                                new_lines.append(line)
-                        else:
-                            new_lines.append(line)
-
-                    with open(root_env, "w", encoding="utf-8") as f:
-                        f.writelines(new_lines)
-
-                label = f"[web] enabled service {service}"
-                print(f"\n{'─'*60}")
-                print(f"✓  {label}")
-                print(f"{'─'*60}\n", flush=True)
-                resp = json.dumps({"ok": True}, ensure_ascii=False).encode("utf-8")
-            except Exception as e:
-                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", len(resp))
-            self.end_headers()
-            self.wfile.write(resp)
-        else:
-            self.send_response(404)
-            self.end_headers()
-
-
-def main():
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 7979
-    url = f"http://localhost:{port}"
-
-    server = http.server.HTTPServer(("", port), Handler)
-    print(f"\n🐦  Sparrow Dashboard")
-    print(f"   Local:  {url}")
-    print(f"\n   Press Ctrl+C to stop\n")
-
-    threading.Timer(0.8, lambda: webbrowser.open(url)).start()
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nStopped.")
-
-
-if __name__ == "__main__":
-    main()

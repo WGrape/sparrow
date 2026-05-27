@@ -224,7 +224,8 @@ help() {
     printf "\n"
     printf "5、Search image in Docker Hub.\n"
     printf "(1) search image: ./sparrow search {image_name}\n"
-    printf "    Example: ./sparrow search sparrow-basic-mysql:8.0\n"
+    printf "    Example: ./sparrow search sparrow-basic-mysql\n"
+    printf "             ./sparrow search sparrow-basic-mysql:8.0\n"
     printf "\n"
 }
 

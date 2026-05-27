@@ -24,11 +24,25 @@ search() {
         return 0
     fi
 
+    print_info "start search image in dockerhub for public: $1... "
+
     search_image=$1
     remove_prefix_search_image=$(echo "$search_image" | sed 's/^docker.io\///')
-    echo "search search_image=${search_image}, remove_prefix_search_image=${remove_prefix_search_image}"
-    if docker search "$search_image" | grep -q "^$remove_prefix_search_image"; then
-        print_info "find it"
+    print_info "search search_image=${search_image}, remove_prefix_search_image=${remove_prefix_search_image}"
+
+    # save and print the result of docker search
+    search_result=$(docker search "$search_image")
+    print_info "docker search result:"
+    echo "$search_result" | while IFS= read -r line; do echo "  $line"; done
+
+    # print the grep result
+    print_info "grep pattern: $remove_prefix_search_image"
+
+    # check the match result (match anywhere in the line, not just start)
+    matched_lines=$(echo "$search_result" | grep "$remove_prefix_search_image")
+    if [ -n "$matched_lines" ]; then
+        print_info "find it, matched lines:"
+        echo "$matched_lines" | while IFS= read -r line; do echo "  $line"; done
         return 0  # find
     else
         print_warn "not find it"

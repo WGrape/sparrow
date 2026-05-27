@@ -178,15 +178,32 @@ def read_compose_file(service):
     return "".join(block)
 
 
+def get_cloud_image_status(dockerhub_repo, image_repo):
+    """Check if an image exists in the cloud registry (best effort)."""
+    if not dockerhub_repo:
+        return False
+    try:
+        remote_image = f"{dockerhub_repo}/{image_repo}"
+        result = subprocess.run(
+            ["docker", "manifest", "inspect", remote_image],
+            capture_output=True, text=True, timeout=2
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
+
+
 def build_data():
     cfg = parse_config_file()
     namespace = cfg.get("CONTAINER_NAMESPACE", "")
+    dockerhub_repo = cfg.get("DOCKERHUB_REPO", "")
     running = get_running_containers()
     local_images = get_local_images()
     enabled_services = _load_enable_service_list()
     support_services = _load_support_service_list()
 
     services = []
+    all_sparrow_images = []
     for svc in support_services:
         container_name = f"sparrow_container_{namespace}_{svc}" if namespace else f"sparrow_container_{svc}"
         is_running = container_name in running
@@ -194,12 +211,13 @@ def build_data():
         compose = read_compose_file(svc)
         has_env = svc in enabled_services
 
-        # Enrich image entries with local availability
+        # Enrich image entries with local availability and cloud status
         for img in images:
             key = img["key"]
             val = img["value"]
             # Try to detect if this is a version key and pair with name key
             img["local"] = False
+            img["cloud"] = False
             if key.endswith("_VERSION") and val:
                 # e.g. IMAGE_BASIC_MYSQL_VERSION=8.0 → sparrow-basic-mysql:8.0
                 m = re.match(r'^IMAGE_(BASIC|APP|OFFICIAL)_(.+)_VERSION$', key)
@@ -213,8 +231,19 @@ def build_data():
                         repo = f"{name_entry}:{val}"
                     else:
                         repo = f"sparrow-{kind}-{svc_name}:{val}"
+                        # Collect sparrow images for Docker Hub panel
+                        all_sparrow_images.append({
+                            "service": svc,
+                            "kind": kind,
+                            "version": val,
+                            "repo": repo,
+                            "remote": f"{dockerhub_repo}/{repo}" if dockerhub_repo else repo
+                        })
                     img["repo"] = repo
                     img["local"] = repo in local_images
+                    # Check cloud status for basic/app images (don't check on every load to keep it fast)
+                    if kind in ["basic", "app"]:
+                        img["cloud_checkable"] = True
 
         services.append({
             "name": svc,
@@ -235,6 +264,8 @@ def build_data():
         "installedCount": len(installed),
         "totalCount": len(services),
         "stoppedCount": len(installed) - len(running_list),
+        "dockerhubRepo": dockerhub_repo,
+        "sparrowImages": all_sparrow_images,
     }
 
 
@@ -412,6 +443,23 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 print(f"✓  {label}")
                 print(f"{'─'*60}\n", flush=True)
                 resp = json.dumps({"ok": True}, ensure_ascii=False).encode("utf-8")
+            except Exception as e:
+                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", len(resp))
+            self.end_headers()
+            self.wfile.write(resp)
+        elif path == "/api/check-cloud":
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            try:
+                req = json.loads(body)
+                image_repo = req.get("image", "").strip()
+                cfg = parse_config_file()
+                dockerhub_repo = cfg.get("DOCKERHUB_REPO", "")
+                exists = get_cloud_image_status(dockerhub_repo, image_repo)
+                resp = json.dumps({"ok": True, "exists": exists}, ensure_ascii=False).encode("utf-8")
             except Exception as e:
                 resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
             self.send_response(200)

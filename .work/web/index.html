@@ -222,6 +222,78 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 .cy-bool   { color: #cf222e; }  /* true/false */
 .cy-var    { color: #8250df; font-weight: 600; }  /* ${VAR} */
 .cy-comment{ color: #8b949e; font-style: italic; }
+
+/* Footer */
+.footer {
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 20px; margin-top: 40px;
+}
+.footer-content {
+  max-width: 1440px; margin: 0 auto; text-align: center;
+}
+.footer-link {
+  color: var(--text2); text-decoration: none; font-size: 13px;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color .15s;
+}
+.footer-link:hover { color: var(--blue); }
+.github-icon { flex-shrink: 0; }
+
+/* Docker Hub Panel */
+.dockerhub-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
+}
+.dockerhub-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.dockerhub-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.dockerhub-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); padding: 6px 12px; border-radius: var(--radius);
+  cursor: pointer; font-size: 13px; transition: all .15s;
+}
+.dockerhub-btn:hover { border-color: var(--border2); color: var(--text); }
+.dockerhub-content {
+  display: none; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.dockerhub-content.show { display: block; }
+.dockerhub-config {
+  font-family: var(--mono); font-size: 13px; color: var(--text2);
+  background: var(--surface2); padding: 12px; border-radius: 8px;
+  margin-bottom: 12px;
+}
+.dockerhub-config-line {
+  margin-bottom: 4px;
+}
+.dockerhub-config-line:last-child { margin-bottom: 0; }
+.dockerhub-config-key {
+  color: var(--purple); font-weight: 600;
+}
+.dockerhub-images {
+  margin-top: 12px;
+}
+.dockerhub-images-title {
+  font-size: 12px; font-weight: 700; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+}
+.dockerhub-image-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+.dockerhub-image-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; font-family: var(--mono);
+  font-size: 12px; color: var(--text); word-break: break-all;
+}
+
+/* Cloud status badge */
+.img-cloud { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; font-weight: 600; }
+.img-cloud.yes { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(9,105,218,0.3); }
+.img-cloud.no  { background: #fff; color: var(--text3); border: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -237,6 +309,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 <div class="main">
   <div class="stats" id="stats"></div>
 
+  <!-- Docker Hub Panel -->
+  <div class="dockerhub-panel" id="dockerhub-panel" style="display:none;">
+    <div class="dockerhub-header">
+      <span class="dockerhub-title">🐳 Docker Hub</span>
+      <button class="dockerhub-btn" onclick="toggleDockerHub()">展开详情</button>
+    </div>
+    <div class="dockerhub-content" id="dockerhub-content">
+      <div class="dockerhub-config" id="dockerhub-config"></div>
+      <div class="dockerhub-images">
+        <div class="dockerhub-images-title">推送的镜像</div>
+        <div class="dockerhub-image-list" id="dockerhub-image-list"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="toolbar">
     <input class="search" id="search" placeholder="搜索服务名 / 变量名 / 值..." oninput="render()" autocomplete="off">
     <div class="filter-tabs">
@@ -249,6 +336,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
   </div>
 
   <div id="grid-container"></div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-content">
+    <a href="https://github.com/WGrape/sparrow" target="_blank" class="footer-link">
+      <svg class="github-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      https://github.com/WGrape/sparrow
+    </a>
+  </div>
 </div>
 
 <!-- Modal overlay -->
@@ -297,6 +396,40 @@ function renderStats() {
     <div class="stat"><div class="stat-label">已启用</div><div class="stat-val blue">${d.installedCount}</div></div>
     <div class="stat"><div class="stat-label">全部服务</div><div class="stat-val muted">${d.totalCount}</div></div>
   `;
+
+  // Render Docker Hub panel
+  renderDockerHub();
+}
+
+function renderDockerHub() {
+  const d = allData;
+  const panel = document.getElementById('dockerhub-panel');
+  const config = document.getElementById('dockerhub-config');
+  const imageList = document.getElementById('dockerhub-image-list');
+
+  if (d.dockerhubRepo) {
+    panel.style.display = 'block';
+    config.innerHTML = `
+      <div class="dockerhub-config-line"><span class="dockerhub-config-key">DOCKERHUB_REPO=</span>${esc(d.dockerhubRepo)}</div>
+    `;
+
+    if (d.sparrowImages && d.sparrowImages.length) {
+      imageList.innerHTML = d.sparrowImages.map(img => `
+        <div class="dockerhub-image-item">${esc(img.remote)}</div>
+      `).join('');
+    } else {
+      imageList.innerHTML = '<div class="empty-row">暂无镜像</div>';
+    }
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function toggleDockerHub() {
+  const content = document.getElementById('dockerhub-content');
+  const btn = content.previousElementSibling.querySelector('.dockerhub-btn');
+  content.classList.toggle('show');
+  btn.textContent = content.classList.contains('show') ? '收起详情' : '展开详情';
 }
 
 function setFilter(f) {
@@ -403,16 +536,24 @@ function openModal(name) {
   </div>`;
 
   // images section
+  const cloudImages = [];
   if (s.images.length) {
-    const rows = s.images.filter(e => e.key.endsWith('_VERSION') && e.repo).map(e => {
+    const rows = s.images.filter(e => e.key.endsWith('_VERSION') && e.repo).map((e, idx) => {
       const m = e.key.match(/^IMAGE_(BASIC|APP|OFFICIAL)_/);
       const kind = m ? m[1].toLowerCase() : 'other';
       const localCls = e.local ? 'yes' : 'no';
       const localTxt = e.local ? '本地已有' : '未拉取';
+      let cloudBadge = '';
+      if (e.cloud_checkable) {
+        // Show loading badge, will auto-check later
+        cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:wait;">检查中...</span>`;
+        cloudImages.push({repo: e.repo, idx: idx});
+      }
       return `<div class="image-row">
         <span class="img-kind ${kind}">${kind}</span>
         <span class="img-repo" title="${esc(e.repo)}">${esc(e.repo)}</span>
         <span class="img-local ${localCls}">${localTxt}</span>
+        ${cloudBadge}
       </div>`;
     }).join('');
     if (rows) bodyHtml += `<div class="detail-section images">
@@ -455,6 +596,11 @@ function openModal(name) {
     bodyHtml = '<div class="no-results">暂无详细信息</div>';
   }
   document.getElementById('modal-body').innerHTML = bodyHtml;
+
+  // Auto-check cloud images after rendering
+  cloudImages.forEach(img => {
+    checkCloudImage(img.repo, img.idx);
+  });
 
   // Modal actions
   let actHtml = '';
@@ -586,6 +732,36 @@ async function doEnable(service, btn) {
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = origText;
+  }
+}
+
+async function checkCloudImage(imageRepo, idx) {
+  const badge = document.getElementById(`cloud-${idx}`);
+  if (!badge) return;
+  badge.textContent = '检查中...';
+  badge.style.cursor = 'wait';
+  try {
+    const r = await fetch('/api/check-cloud', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({image: imageRepo})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      if (d.exists) {
+        badge.textContent = '已推送';
+        badge.className = 'img-cloud yes';
+      } else {
+        badge.textContent = '未推送';
+        badge.className = 'img-cloud no';
+      }
+    } else {
+      badge.textContent = '检查失败';
+    }
+  } catch(e) {
+    badge.textContent = '检查失败';
+  } finally {
+    badge.style.cursor = 'pointer';
   }
 }
 

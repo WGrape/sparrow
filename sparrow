@@ -27,6 +27,9 @@ elif [ "${COMMAND}" = "web" ]; then
 elif [ "${COMMAND}" = "enter" ]; then
     VAR_IS_ENTER_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
+elif [ "${COMMAND}" = "search" ]; then
+    VAR_IS_SEARCH_COMMAND=true
+    shift # remove "search" from $@, leaving search param
 elif [ "${COMMAND}" = "help" ] || [ "${COMMAND}" = "--help" ] || [ "${COMMAND}" = "h" ] || [ "${COMMAND}" = "-h" ]; then
     VAR_IS_HELP_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
@@ -183,6 +186,20 @@ enter() {
     fi
 }
 
+# search image in dockerhub (wrapper for sdk search function).
+search_image() {
+    search_param="$1"
+    if [ "$search_param" == "" ]; then
+        print_error "check param error: miss search param"
+        printf "\n"
+        printf "Usage: ./sparrow search {image_name}\n"
+        printf "Example: ./sparrow search sparrow-basic-mysql:8.0\n"
+        exit 1
+    fi
+    print_info "searching image: ${search_param}"
+    search "${search_param}"
+}
+
 # help document.
 help() {
     # sparrow's help command
@@ -204,6 +221,10 @@ help() {
     printf "4、Enter container.\n"
     printf "(1) list available containers: ./sparrow enter\n"
     printf "(2) enter container: ./sparrow enter {service_name}\n"
+    printf "\n"
+    printf "5、Search image in Docker Hub.\n"
+    printf "(1) search image: ./sparrow search {image_name}\n"
+    printf "    Example: ./sparrow search sparrow-basic-mysql:8.0\n"
     printf "\n"
 }
 
@@ -271,6 +292,8 @@ elif [ "${VAR_IS_WEB_COMMAND}" = true ]; then
     web "$1"
 elif [ "${VAR_IS_ENTER_COMMAND}" = true ]; then
     enter "$1"
+elif [ "${VAR_IS_SEARCH_COMMAND}" = true ]; then
+    search_image "$1"
 elif [ "${VAR_IS_HELP_COMMAND}" = true ]; then
     help
 fi

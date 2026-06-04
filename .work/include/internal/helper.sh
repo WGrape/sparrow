@@ -138,7 +138,7 @@ parse_env_file() {
 
 # create /env file and export these variables.
 upenv() {
-    print_stage "upenv"
+    print_info "upenv"
 
     # Todo Feature
     # automatically check if the .env file has changed, and delete it automatically if there are any changes.
@@ -206,7 +206,7 @@ upenv() {
 # if ENABLE_SERVICE_LIST is configured, the /docker-compose.yml configuration file also needs to be updated accordingly.
 # regenerates /docker-compose.yml only when inputs (.env or any service compose) have changed.
 upcompose() {
-    print_stage "upcompose"
+    print_info "upcompose"
 
     # compute a hash of all inputs: .env + template + each service compose file
     _compose_hash_file=".upcompose_hash"

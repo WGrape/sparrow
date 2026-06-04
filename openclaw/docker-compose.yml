@@ -1,0 +1,23 @@
+services:
+  ### openclaw #########################################################
+  openclaw:
+    hostname: openclaw
+    image: sparrow-app-openclaw:${IMAGE_APP_OPENCLAW_VERSION} # pull_or_build_app_image(local image=>remote image=>build image)
+    container_name: sparrow_container_${CONTAINER_NAMESPACE}_openclaw
+    platform: ${FROM_PLATFORM}
+    restart: always
+    environment:
+      TZ: ${TZ}
+      LANG: C.UTF-8
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./openclaw/:/home/sparrow/openclaw/
+      - ./openclaw/data/:/var/data/openclaw/ # data persistence, use a common data persistence directory /var/data/{SERVICE}
+      - ./openclaw/data/openclaw_home/:/home/node/.openclaw/ # persist openclaw config/state/workspace across container rebuilds
+    ports:
+      # You don't need to expose the port in the Dockerfile.
+      - "${OPENCLAW_HOST_PORT}:${OPENCLAW_CONTAINER_PORT}"
+    networks:
+      - backend
+    # only for debug
+    # command: "tail -f /dev/null"

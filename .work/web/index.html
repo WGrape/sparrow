@@ -291,9 +291,71 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC
 }
 
 /* Cloud status badge */
-.img-cloud { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; font-weight: 600; }
+.img-cloud { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; font-weight: 600; cursor: default; }
 .img-cloud.yes { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(9,105,218,0.3); }
 .img-cloud.no  { background: #fff; color: var(--text3); border: 1px solid var(--border); }
+
+/* Cloud push button (shown when image is not pushed yet) */
+.img-cloud-btn {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--blue);
+  color: #fff;
+  border: 1px solid var(--blue);
+  font-family: inherit;
+  line-height: 1.4;
+  transition: background 0.15s, transform 0.05s;
+}
+.img-cloud-btn:hover:not(:disabled) { background: #0860c5; }
+.img-cloud-btn:active:not(:disabled) { transform: translateY(1px); }
+.img-cloud-btn:disabled { background: #95a5a6; border-color: #95a5a6; cursor: wait; }
+
+/* Info hint icon (ⓘ) — hover for tooltip via data-tip */
+.img-hint {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: var(--text3);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  cursor: help;
+  flex-shrink: 0;
+  user-select: none;
+}
+.img-hint:hover { color: var(--blue); border-color: var(--blue); }
+.img-hint::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  max-width: 360px;
+  padding: 8px 10px;
+  background: #24292f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  white-space: normal;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 100;
+}
+.img-hint:hover::after { opacity: 1; }
 </style>
 </head>
 <body>
@@ -546,22 +608,43 @@ function openModal(name) {
       const localTxt = e.local ? '本地已有' : '未拉取';
       let cloudBadge = '';
       if (e.cloud_checkable) {
+        // Parse "sparrow-{kind}-{svc}:{version}" to extract the version part for
+        // the upload command. e.repo is guaranteed by the backend for basic/app.
+        const colonIdx = e.repo.lastIndexOf(':');
+        const version = colonIdx >= 0 ? e.repo.slice(colonIdx + 1) : 'latest';
+        const svcAttr = esc(s.name);
+        const verAttr = esc(version);
+
         // Check if we already have a result for this image
         const existingResult = checkedCloudImages[e.repo];
         if (existingResult === true) {
-          cloudBadge = `<span class="img-cloud yes" id="cloud-${idx}" style="cursor:pointer;">已推送</span>`;
+          // Already pushed — pure status badge, default cursor (not clickable).
+          cloudBadge = `<span class="img-cloud yes" id="cloud-${idx}">已推送</span>`;
         } else if (existingResult === false) {
-          cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:pointer;">未推送</span>`;
+          // Not pushed — actionable push button.
+          cloudBadge = `<button class="img-cloud-btn" id="cloud-${idx}"
+            onclick="uploadImage(event, '${kind}', '${svcAttr}', '${verAttr}', ${idx})"
+            title="点击推送到 ${esc(e.repo)}">↑ 推送</button>`;
         } else {
           // Show loading badge, will auto-check later
           cloudBadge = `<span class="img-cloud no" id="cloud-${idx}" style="cursor:wait;">检查中...</span>`;
           cloudImages.push({repo: e.repo, idx: idx});
         }
       }
+      // OFFICIAL images often show "未拉取" even when actually present, because
+      // docker build pulls them into the BuildKit cache or references them as a
+      // base layer without giving them an explicit tag. The hint explains this
+      // so users don't mistake it for a real problem.
+      let officialHint = '';
+      if (kind === 'official' && !e.local) {
+        const tip = '“未拉取”不表示本地真的没有。当 docker build 时，official 属于构建依赖，要么被 BuildKit 藏在 builder cache 里，要么作为基础层被引用但没有打上显式 tag，所以 docker images 里看不到。';
+        officialHint = `<span class="img-hint" data-tip="${esc(tip)}">i</span>`;
+      }
       return `<div class="image-row">
         <span class="img-kind ${kind}">${kind}</span>
         <span class="img-repo" title="${esc(e.repo)}">${esc(e.repo)}</span>
         <span class="img-local ${localCls}">${localTxt}</span>
+        ${officialHint}
         ${cloudBadge}
       </div>`;
     }).join('');
@@ -769,12 +852,24 @@ async function checkCloudImage(imageRepo, idx) {
     const d = await r.json();
     if (d.ok) {
       if (d.exists) {
-        badge.textContent = '已推送';
-        badge.className = 'img-cloud yes';
+        // Already pushed — pure status badge, default cursor.
+        badge.outerHTML = `<span class="img-cloud yes" id="cloud-${idx}">已推送</span>`;
         checkedCloudImages[imageRepo] = true;
       } else {
-        badge.textContent = '未推送';
-        badge.className = 'img-cloud no';
+        // Not pushed — promote the span to an actionable push button. Parse the
+        // image repo "sparrow-{kind}-{svc}:{version}" to derive upload args.
+        const m = imageRepo.match(/^sparrow-(basic|app)-(.+):(.+)$/);
+        if (m) {
+          const kind = m[1];
+          const svc = m[2];
+          const version = m[3];
+          badge.outerHTML = `<button class="img-cloud-btn" id="cloud-${idx}"
+            onclick="uploadImage(event, '${kind}', '${esc(svc)}', '${esc(version)}', ${idx})"
+            title="点击推送到 ${esc(imageRepo)}">↑ 推送</button>`;
+        } else {
+          // Fallback if parsing fails — keep informational badge.
+          badge.outerHTML = `<span class="img-cloud no" id="cloud-${idx}">未推送</span>`;
+        }
         checkedCloudImages[imageRepo] = false;
       }
     } else {
@@ -786,6 +881,48 @@ async function checkCloudImage(imageRepo, idx) {
     checkedCloudImages[imageRepo] = undefined; // Allow retry
   } finally {
     badge.style.cursor = 'pointer';
+  }
+}
+
+async function uploadImage(event, kind, service, version, idx) {
+  // Push a local sparrow-{kind}-{service}:{version} image to the configured
+  // DockerHub repo via the /api/upload-image backend. The button shows loading
+  // state during the push, then swaps itself for the "已推送" status badge on
+  // success or reverts to a push button on failure.
+  if (event) event.stopPropagation();
+  const btn = document.getElementById(`cloud-${idx}`);
+  if (!btn) return;
+  const imageRepo = `sparrow-${kind}-${service}:${version}`;
+
+  // Confirm before pushing — pushes are slow, network-heavy, and visible to
+  // anyone watching the configured DockerHub repo.
+  if (!confirm(`推送 ${imageRepo} 到 DockerHub？`)) return;
+
+  const origHtml = btn.outerHTML;
+  btn.disabled = true;
+  btn.textContent = '推送中...';
+  btn.style.cursor = 'wait';
+
+  try {
+    const r = await fetch('/api/upload-image', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({kind, service, version})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      showToast('✓ ' + imageRepo + ' 推送成功', 'ok');
+      checkedCloudImages[imageRepo] = true;
+      // Replace the button with the "已推送" status badge.
+      btn.outerHTML = `<span class="img-cloud yes" id="cloud-${idx}">已推送</span>`;
+    } else {
+      showToast('✗ 推送失败: ' + (d.error || '未知错误'), 'err');
+      // Restore the push button so the user can retry.
+      btn.outerHTML = origHtml;
+    }
+  } catch (e) {
+    showToast('✗ 请求失败: ' + e.message, 'err');
+    btn.outerHTML = origHtml;
   }
 }
 

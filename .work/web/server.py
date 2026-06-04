@@ -200,8 +200,8 @@ def get_cloud_image_status(dockerhub_repo_no_comment, image_repo):
         print(f"[DEBUG] stdout: {result.stdout}")
         print(f"[DEBUG] stderr: {result.stderr}")
         print(f"[DEBUG] returncode: {result.returncode}")
-        # Check output for "find it"
-        found = "find it" in result.stdout
+        # Check output for "find it:" but exclude "not find it:" (false positive)
+        found = "find it:" in result.stdout and "not find it:" not in result.stdout
         print(f"[DEBUG] Found: {found}")
         return found
     except Exception as e:
@@ -486,6 +486,62 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 dockerhub_repo_no_comment = cfg.get("DOCKERHUB_REPO_NO_COMMENT", cfg.get("DOCKERHUB_REPO", ""))
                 exists = get_cloud_image_status(dockerhub_repo_no_comment, image_repo)
                 resp = json.dumps({"ok": True, "exists": exists}, ensure_ascii=False).encode("utf-8")
+            except Exception as e:
+                resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", len(resp))
+            self.end_headers()
+            self.wfile.write(resp)
+        elif path == "/api/upload-image":
+            # Push a local sparrow-{kind}-{service}:{version} image to the configured
+            # DockerHub repo. Wraps `./sparrowtool upload -t {kind} -s {service} -v
+            # {version} -r true`. -r true is used so the remote tag matches the local
+            # version (otherwise sparrowtool appends a timestamp suffix), which is
+            # what the dashboard's "已推送/未推送" check inspects.
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            try:
+                req = json.loads(body)
+                kind = req.get("kind", "").strip().lower()
+                service = req.get("service", "").strip()
+                version = req.get("version", "").strip()
+                if kind not in {"basic", "app"}:
+                    raise ValueError("kind must be basic or app")
+                if not service or not re.match(r'^[a-zA-Z0-9_-]+$', service):
+                    raise ValueError("invalid service")
+                # Version allows dots and a few extra chars commonly seen in semver
+                # tags (e.g. 1.0.0-alpha, latest, 8.0).
+                if not version or not re.match(r'^[a-zA-Z0-9._-]+$', version):
+                    raise ValueError("invalid version")
+
+                sparrowtool = os.path.join(BASE_PATH, "sparrowtool")
+                cmd = [sparrowtool, "upload", "-t", kind, "-s", service, "-v", version, "-r", "true"]
+                label = f"[web] ./sparrowtool upload -t {kind} -s {service} -v {version} -r true"
+                print(f"\n{'─'*60}")
+                print(f"▶  {label}")
+                print(f"{'─'*60}", flush=True)
+                proc = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    text=True, cwd=BASE_PATH
+                )
+                output_lines = []
+                for line in proc.stdout:
+                    line_stripped = line.rstrip("\n")
+                    print(line_stripped, flush=True)
+                    output_lines.append(line_stripped)
+                proc.wait()
+                ok = proc.returncode == 0
+                print(f"{'─'*60}")
+                print(f"{'✓' if ok else '✗'}  {label}  (exit {proc.returncode})")
+                print(f"{'─'*60}\n", flush=True)
+                output_text = "\n".join(output_lines[-100:])
+                resp = json.dumps({
+                    "ok": ok,
+                    "stdout": output_text,
+                    "error": "" if ok else (output_lines[-1] if output_lines else f"exit code {proc.returncode}"),
+                }, ensure_ascii=False).encode("utf-8")
             except Exception as e:
                 resp = json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False).encode("utf-8")
             self.send_response(200)

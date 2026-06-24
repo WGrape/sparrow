@@ -44,7 +44,7 @@ search() {
         fi
 
         # check tag via Docker Registry API
-        print_info "checking tag existence via Docker Hub API... (if you seach tag, must use complete image name)"
+        print_info "(If you cannot connect, you will need to use a proxy)checking tag existence via Docker Hub API... (if you seach tag, must use complete image name)"
 
         # get auth token
         token=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$image_name:pull" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')

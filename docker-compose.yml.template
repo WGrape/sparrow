@@ -20,6 +20,10 @@ networks:
   backend:
     driver: ${NETWORKS_DRIVER}
 
+volumes:
+  sparrow-mysql-data:
+    name: sparrow-mysql-data
+
 services:
 
   ### ZOOKEEPER ##################################################
@@ -141,7 +145,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./mysql/:/home/sparrow/mysql/
       - ./mysql/templates/my.cnf:/etc/my.cnf
-      - ./mysql/data/:/var/lib/mysql/ # data persistence
+      - sparrow-mysql-data:/var/lib/mysql/ # data persistence - use Docker volume for performance
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"

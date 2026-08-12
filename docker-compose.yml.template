@@ -20,6 +20,10 @@ networks:
   backend:
     driver: ${NETWORKS_DRIVER}
 
+volumes:
+  sparrow-mysql-data:
+    name: sparrow-mysql-data
+
 services:
 
   ### ZOOKEEPER ##################################################
@@ -29,6 +33,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_zookeeper
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -51,6 +56,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_go
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -78,6 +84,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_phpfpm
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -105,6 +112,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_python
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -129,6 +137,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_mysql
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -136,7 +145,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./mysql/:/home/sparrow/mysql/
       - ./mysql/templates/my.cnf:/etc/my.cnf
-      - ./mysql/data/:/var/lib/mysql/ # data persistence
+      - sparrow-mysql-data:/var/lib/mysql/ # data persistence - use Docker volume for performance
     ports:
       # You don't need to expose the port in the Dockerfile.
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
@@ -152,6 +161,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_redis
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -174,6 +184,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_postgres
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -196,6 +207,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_etcd
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -219,6 +231,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_nginx
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -247,6 +260,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_kafka
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -269,6 +283,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_kafkaui
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -292,6 +307,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_etcdkeeper
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -314,6 +330,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_jupyter
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -336,6 +353,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_nodejs
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -359,6 +377,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_mongodb
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -382,6 +401,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_ssdb
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -404,6 +424,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_prometheus
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -427,6 +448,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_grafana
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -450,6 +472,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_elasticsearch
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -479,6 +502,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_kibana
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -503,6 +527,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_prompthub
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -525,6 +550,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_nacos
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -548,6 +574,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_difylocal
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -573,6 +600,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_django
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -596,6 +624,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_azkaban
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8
@@ -619,6 +648,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_milvus
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8

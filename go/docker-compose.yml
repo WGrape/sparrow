@@ -6,6 +6,7 @@ services:
     container_name: sparrow_container_${CONTAINER_NAMESPACE}_go
     platform: ${FROM_PLATFORM}
     restart: always
+    init: true
     environment:
       TZ: ${TZ}
       LANG: C.UTF-8

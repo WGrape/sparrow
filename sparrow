@@ -27,6 +27,7 @@ elif [ "${COMMAND}" = "web" ]; then
 elif [ "${COMMAND}" = "enter" ]; then
     VAR_IS_ENTER_COMMAND=true
     VAR_RUNTIME_NO_PRINT_MESSAGE="ON" # no print message
+    shift # remove "enter" from $@, leaving optional service arg
 elif [ "${COMMAND}" = "search" ]; then
     VAR_IS_SEARCH_COMMAND=true
     shift # remove "search" from $@, leaving search param

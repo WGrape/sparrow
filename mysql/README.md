@@ -42,3 +42,19 @@ This is the service directory, it includes these directories and files as bellow
 #### /docker-compose.yml
 ```/docker-compose.yml```: this is the ```docker-compose.yml``` file.
 
+## 3. Common Commands
+
+### Import a local SQL dump into MySQL
+
+Run the MySQL client inside the container to import a SQL dump from the local machine:
+
+```bash
+docker exec -i \
+  -e MYSQL_PWD='your-root-password' \
+  sparrow_container_test_mysql \
+  mysql --default-character-set=utf8mb4 -u root database_name \
+  < /Users/xxx/Downloads/sql_dump.sql
+```
+
+Replace `your-root-password`, the database name, and the SQL dump path as needed.
+
